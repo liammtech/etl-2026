@@ -1,6 +1,9 @@
 from pyodbc import Row
-from db.connection import get_cursor
 from typing import Optional
+
+from db.connection import get_cursor
+from tools.validation import check_if_wildcard
+from tools.transform import substitute_wildcard
 
 def _execute_select():
     pass
@@ -50,7 +53,41 @@ def get_multiple_records(
     return_columns: str | list[str] = "*",
     order_by: str = "StockCode"
 ) -> list[Row]:
-    pass
+        
+    return_columns = ", ".join(return_columns)
+
+    sql = [f"SELECT {return_columns} FROM {table}"]
+    params = []
+
+    for col, val in criteria.items():
+        if val == None:
+            continue
+
+    wildcard_flag = check_if_wildcard(val)
+    
+    if wildcard_flag:
+        print(f"Wildcard detected: value for {col}")
+        val = substitute_wildcard(val)
+
+    if len(params) == 0:
+        sql.append(f"WHERE {col} = ?")
+    else:
+        sql.append(f"AND {col} = ?")
+
+    params.append(val)
+    
+    if table == "BomStructure" or table == "[BomStructure+]":
+        order_by = "ParentPart"
+
+    final_sql = " ".join(sql) + f" ORDER BY {order_by}"
+    print(final_sql)
+
+    if len(criteria) == 1:
+        one_line = True
+
+    with get_cursor() as cursor:
+        cursor.execute(final_sql, params)
+        return cursor.fetchone() if one_line else cursor.fetchall()
 
 
 def set_single_record(
