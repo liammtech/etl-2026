@@ -10,6 +10,7 @@ def _execute_select():
 
 # TODO: validate all sql function arguments
 
+
 def get_single_record(
     *, 
     table: str,
@@ -28,7 +29,7 @@ def get_single_record(
         if val == None:
             continue
 
-        if len(params == 0):
+        if len(params) == 0:
             sql.append(f"WHERE {col} = ?")
         else:
             sql.append(f"AND {col} = ?")
@@ -45,6 +46,7 @@ def get_single_record(
         cursor.execute(final_sql, params)
         return cursor.fetchone()
 
+
 def get_multiple_records(
     *, 
     table: str,
@@ -54,6 +56,7 @@ def get_multiple_records(
 ) -> list[Row]:
     pass
 
+
 def set_single_record(
     *,
     table: str,
@@ -61,10 +64,10 @@ def set_single_record(
 ):
     pass
 
+
 def set_multiple_records(
     *,
     table: str,
     post_data: dict[str, object]
 ):
     pass
-
