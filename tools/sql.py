@@ -16,7 +16,6 @@ def get_single_record(
     table: str,
     criteria: dict[str, object],
     return_columns: str | list[str] = "*",
-    order_by: str = "StockCode"
 ) -> Row: 
     # Validation to go here
 
@@ -36,10 +35,7 @@ def get_single_record(
 
         params.append(val)
 
-    if table == "BomStructure" or table == "[BomStructure+]":
-        order_by = "ParentPart"
-
-    final_sql = " ".join(sql) + f" ORDER BY {order_by}"
+    final_sql = " ".join(sql)
     print(final_sql)
 
     with get_cursor() as cursor:
