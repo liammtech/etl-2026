@@ -6,9 +6,6 @@ from db.connection import get_cursor
 from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
-def _execute_select():
-    pass
-
 # All below functions assume a single table
 # Getters with joins may be added at a later date when need becomes apparent
 
@@ -92,7 +89,7 @@ def get_multiple_records(
         return cursor.fetchall()
 
 
-def set_single_record(
+def append_single_record(
     *,
     table: str,
     post_data: dict[str, object],
@@ -114,7 +111,7 @@ def set_single_record(
         cursor.connection.commit()
 
 
-def set_multiple_records(
+def append_multiple_records(
     *,
     table: str,
     rows: Sequence[dict[str, object]],
