@@ -146,26 +146,26 @@ def update_records(
     *,
     table: str,
     criteria: dict[str, object],
-    post_data: dict[str, object]
+    update_data: dict[str, object]
 ) -> None:
     
-    if not post_data:
+    if not update_data:
         return
     
     # validate_table(table)
     
     # 1. Build the dynamic parts using placeholders instead of values
-    set_clause = ", ".join([f"{k} = %s" for k in post_data.keys()])
-    where_clause = " AND ".join([f"{k} = %s" for k in criteria.keys()])
+    set_clause = ", ".join([f"{k} = ?" for k in update_data.keys()])
+    where_clause = " AND ".join([f"{k} = ?" for k in criteria.keys()])
 
     # 2. Combine into a template (table names cannot be parameterized, so validate them)
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
 
     # 3. Combine all values into a single sequence in the same order
     # Values for SET come first, followed by values for WHERE
-    params = list(post_data.values()) + list(criteria.values())
+    params = list(update_data.values()) + list(criteria.values())
 
     # 4. Execute safely
-    with get_cursor() as cursor:
-        cursor.executemany(sql, params)
+    with get_dev_cursor() as cursor:
+        cursor.execute(sql, tuple(params))
         cursor.connection.commit()
