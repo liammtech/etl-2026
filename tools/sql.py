@@ -2,7 +2,7 @@ from pyodbc import Row
 from typing import Optional
 from collections.abc import Sequence
 
-from db.connection import get_cursor
+from db.connection import get_cursor, get_dev_cursor
 from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
@@ -94,6 +94,7 @@ def append_single_record(
     table: str,
     post_data: dict[str, object],
 ) -> None:
+    
     if not post_data:
         return
 
@@ -139,3 +140,21 @@ def append_multiple_records(
     with get_cursor() as cursor:
         cursor.executemany(sql, param_sets)
         cursor.connection.commit()
+
+
+def update_single_record(
+    *,
+    table: str,
+    criteria: dict[str, object],
+    update_data: dict[str, object]
+) -> None:
+    
+    if not update_data:
+        return
+    
+    # validate_table(table)
+
+    # build sql
+    placeholders = ""
+    sql_criteria = ""
+    sql = f"UPDATE {table} SET "

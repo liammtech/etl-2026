@@ -21,3 +21,10 @@ def get_cursor():
         f"TrustServerCertificate={os.getenv('TRUST_SERVER_CERTIFICATE','no')};"
     )
     return conn.cursor()
+
+def get_dev_cursor():
+    conn = pyodbc.connect(
+        f"DRIVER={_need('DRIVER_DEV')};"
+        f"DBQ={_need('DBQ_DEV')};"
+    )
+    return conn.cursor()
