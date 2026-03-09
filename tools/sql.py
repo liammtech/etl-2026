@@ -95,14 +95,50 @@ def get_multiple_records(
 def set_single_record(
     *,
     table: str,
-    post_data: dict[str, object]
-):
-    pass
+    post_data: dict[str, object],
+) -> None:
+    if not post_data:
+        return
+
+    # validate_table(table)
+
+    # Use a fixed column order so values line up
+    columns = list(post_data.keys())
+    placeholders = ", ".join("?" for _ in columns)
+    sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})"
+
+    values = [post_data[column] for column in columns]
+
+    with get_cursor() as cursor:
+        cursor.execute(sql, values)
+        cursor.connection.commit()
 
 
 def set_multiple_records(
     *,
     table: str,
-    post_data: dict[str, object]
-):
-    pass
+    rows: Sequence[dict[str, object]],
+) -> None:
+    if not rows:
+        return
+
+    # validate_table(table)
+
+    # Use the first row to define the schema for this batch
+    columns = list(rows[0].keys())
+    placeholders = ", ".join("?" for _ in columns)
+    sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})"
+
+    # Optional: sanity check that all rows have the same keys
+    for i, row in enumerate(rows):
+        if row.keys() != rows[0].keys():
+            raise ValueError(f"Row {i} has different columns to row 0")
+
+    param_sets = [
+        [row[column] for column in columns]
+        for row in rows
+    ]
+
+    with get_cursor() as cursor:
+        cursor.executemany(sql, param_sets)
+        cursor.connection.commit()
