@@ -115,7 +115,7 @@ def append_single_record(
 def append_multiple_records(
     *,
     table: str,
-    rows: Sequence[dict[str, object]],
+    rows: Sequence[dict[str, object]]
 ) -> None:
     if not rows:
         return
@@ -146,7 +146,8 @@ def update_records(
     *,
     table: str,
     criteria: dict[str, object],
-    update_data: dict[str, object]
+    update_data: dict[str, object],
+    
 ) -> None:
     
     if not update_data:
@@ -154,18 +155,15 @@ def update_records(
     
     # validate_table(table)
     
-    # 1. Build the dynamic parts using placeholders instead of values
+    def get_op(v):
+        return "LIKE" if isinstance(v, str) and ("%" in v or "_" in v) else "="
+
     set_clause = ", ".join([f"{k} = ?" for k in update_data.keys()])
-    where_clause = " AND ".join([f"{k} = ?" for k in criteria.keys()])
+    where_clause = " AND ".join([f"{k} {get_op(v)} ?" for k, v in criteria.items()])
 
-    # 2. Combine into a template (table names cannot be parameterized, so validate them)
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
-
-    # 3. Combine all values into a single sequence in the same order
-    # Values for SET come first, followed by values for WHERE
     params = list(update_data.values()) + list(criteria.values())
 
-    # 4. Execute safely
     with get_dev_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()
