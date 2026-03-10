@@ -3,7 +3,7 @@ from typing import Optional
 from collections.abc import Sequence
 
 from db.connection import get_cursor, get_dev_cursor
-# from tools.validation import check_if_wildcard
+from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
 # All below functions assume a single table
@@ -81,7 +81,6 @@ def get_multiple_records(
         order_by = "ParentPart"
 
     final_sql = " ".join(sql) + f" ORDER BY {order_by}"
-    print(final_sql)
 
     with get_cursor() as cursor:
         cursor.execute(final_sql, params)
