@@ -3,7 +3,7 @@ from typing import Optional
 from collections.abc import Sequence
 
 from db.connection import get_cursor, get_dev_cursor
-from tools.validation import check_if_wildcard
+# from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
 # All below functions assume a single table
@@ -37,7 +37,6 @@ def get_single_record(
         params.append(val)
 
     final_sql = " ".join(sql)
-    print(final_sql)
 
     with get_dev_cursor() as cursor:
         cursor.execute(final_sql, params)
@@ -61,7 +60,7 @@ def get_multiple_records(
         if val == None:
             continue
 
-        wildcard_flag = check_if_wildcard(val)
+        wildcard_flag = check_if_wildcard(col)
         
         if wildcard_flag:
             print(f"Wildcard detected: value for {col}")
