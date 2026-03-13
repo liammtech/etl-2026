@@ -38,6 +38,8 @@ def get_single_record(
         params.append(val)
 
     final_sql = " ".join(sql)
+    print(final_sql)
+    print(criteria)
 
     with get_dev_cursor() as cursor:
         cursor.execute(final_sql, params)
