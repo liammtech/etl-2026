@@ -1,6 +1,6 @@
 import pyodbc
-from db.connection import get_cursor, get_dev_cursor
+from db.connection import get_cursor
 
 def test():
-    assert type(get_dev_cursor()) == pyodbc.Cursor
+    assert type(get_cursor()) == pyodbc.Cursor
 

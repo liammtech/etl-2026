@@ -1,17 +1,19 @@
 from pyodbc import Row
-from typing import Optional
 from collections.abc import Sequence
 
-
-from db.connection import get_cursor, get_dev_cursor
+from db.connection import get_cursor
 from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
 # All below functions assume a single table
 # Getters with joins may be added at a later date when need becomes apparent
 
-# TODO: validate all sql function arguments
-
+# TODO: validate all sql function arguments:
+# Certainly make a list of "allowed tables", and implement this as a filter
+# Whether or not it is worth it to validate all column names within a table before any SQL ops, is TBD
+# May save on transactions, but it means instituting a way to automatically refresh the table schemas
+# Can't reliably maintain by hand; table schema changes may come unannounced
+# SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
 
 def get_single_record(
     *, 
@@ -41,7 +43,7 @@ def get_single_record(
     print(final_sql)
     print(criteria)
 
-    with get_dev_cursor() as cursor:
+    with get_cursor() as cursor:
         cursor.execute(final_sql, params)
         return cursor.fetchone()
 
@@ -110,7 +112,7 @@ def append_single_record(
 
     values = [post_data[column] for column in columns]
 
-    with get_dev_cursor() as cursor:
+    with get_cursor() as cursor:
         cursor.execute(sql, values)
         cursor.connection.commit()
 
@@ -167,6 +169,6 @@ def update_records(
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + list(criteria.values())
 
-    with get_dev_cursor() as cursor:
+    with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()

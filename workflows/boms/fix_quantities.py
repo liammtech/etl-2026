@@ -80,7 +80,6 @@ def memp_std_single(stock_code: str):
     )
 
     pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
-    print(f"Pallet is {pallet_code}")
 
 
     # Get board height and width
@@ -170,7 +169,7 @@ def memp_std_single(stock_code: str):
 
     for component in material_qty_pers:
         update_records(
-            table="Bomstructure",
+            table="BomStructure",
             criteria={
                 "ParentPart": stock_code,
                 "Component": component

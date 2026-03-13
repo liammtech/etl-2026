@@ -11,7 +11,7 @@ def _need(name: str) -> str:
         raise RuntimeError(f"Missing env var: {name}")
     return v
 
-def get_cursor():
+def get_prod_cursor():
     conn = pyodbc.connect(
         f"DRIVER={_need('DRIVER')};"
         f"SERVER={_need('SERVER')};"
@@ -28,3 +28,13 @@ def get_dev_cursor():
         f"DBQ={_need('DBQ_DEV')};"
     )
     return conn.cursor()
+
+
+def get_cursor():
+    sql_mode=_need('SQL_MODE')
+    if sql_mode == "Prod":
+        return get_prod_cursor()
+    elif sql_mode == "Dev":
+        return get_dev_cursor()
+    else:
+        raise ReferenceError("Environment variable for SQL mode unavailable, aborting.")
