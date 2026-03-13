@@ -2,6 +2,7 @@ from pyodbc import Row
 from typing import Optional
 from collections.abc import Sequence
 
+
 from db.connection import get_cursor, get_dev_cursor
 from tools.validation import check_if_wildcard
 from tools.transform import substitute_wildcard
@@ -47,23 +48,25 @@ def get_multiple_records(
     *, 
     table: str,
     criteria: dict[str, object],
-    return_columns: str | list[str] = "*",
+    return_columns: list[str] = "*",
     order_by: str = "StockCode"
 ) -> list[Row]:
         
+    print(f"Criteria is {criteria}")
+    print(f"Criteria type is {type(criteria)}")
     return_columns = ", ".join(return_columns)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
     params = []
 
     for col, val in criteria.items():
+  
         if val == None:
             continue
 
-        wildcard_flag = check_if_wildcard(col)
-        
+        wildcard_flag = check_if_wildcard(val)
+
         if wildcard_flag:
-            print(f"Wildcard detected: value for {col}")
             val = substitute_wildcard(val)
             if len(params) == 0:
                 sql.append(f"WHERE {col} LIKE ?")

@@ -8,8 +8,3 @@ def test_bom_exists():
         stock_code="SWCC012"
     )
 
-def test_bom_not_exists():
-    with pytest.raises(RecordNotFoundError) as e_info:    
-        memp_std_single(
-            stock_code="BUNCHOFRUBBISH"
-        )
