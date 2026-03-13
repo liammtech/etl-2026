@@ -23,7 +23,7 @@ def memp_std_single(stock_code: str):
     if not zInvExtra_exists:
         raise RecordNotFoundError(f"No record found for {stock_code} in table zInvExtra")
     
-    # TODO: validate the BOM records themselves
+    # TODO: various validation steps e.g. is it MEMP product class, is the BOM as expected
 
     ## GET DOOR DIMS
     door_dims = get_single_record(
