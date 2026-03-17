@@ -1,8 +1,25 @@
 from collections.abc import Callable
+from pathlib import Path
+import yaml
 
 class RecordNotFoundError(Exception):
     """Raised when a specific record is not found in the database."""
     pass
+
+# YAML loader and checker
+def check_yaml(file_path, search_key, search_value=None):
+    print(f"Checking YAML - search key : {search_key} - search val: {search_value}")
+    with open(file_path, 'r') as file:
+        data = yaml.safe_load(file)
+
+    print(data)
+    if search_key in data:
+        print(f"Table '{search_key}' found")
+    else:
+        print("Table not found")
+
+
+
 
 # Checks if there is a wildcard in the criteria value
 def check_if_wildcard(criterion: str) -> bool: 
@@ -36,6 +53,13 @@ def check_if_in_table(
         print(f"\nNo records exist for stock code {stock_code} in table {table}: continuing...\n")
         return False
 
+# Check if table is in allowed tables
+def check_if_table_allowed(table_name):
+    config_path = Path(__file__).resolve().parents[1] / "config/validation/valid_tables.yml"
+    print(config_path)
+    check_yaml(config_path, table_name)
+    
+
 '''
 Logic:
 
@@ -50,3 +74,8 @@ Logic:
 
 3. 
 '''
+
+def check_path():
+    print("Initialising")
+    the_path = Path(__file__).resolve().parents[1] / "config/validation/valid_tables.yml"
+    print(f"\nPath is {the_path}")
