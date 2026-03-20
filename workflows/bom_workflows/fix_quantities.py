@@ -81,6 +81,7 @@ def memp_std_single(stock_code: str):
 
     pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
 
+    # GET INFO FOR MATERIALS
 
     # Get board height and width
     mel_code_dims = get_single_record(
@@ -179,3 +180,112 @@ def memp_std_single(stock_code: str):
                 "QtyPerEnt": material_qty_pers[component]
             }
         )
+
+# Cut & Edged MDF - Standard
+def lldr_mdf_std_single(stock_code: str):
+    bom_records_exist = check_if_in_table(
+        stock_code=stock_code,
+        table="BomStructure",
+        sql_getter_func=get_multiple_records
+    )
+
+    if not bom_records_exist:
+        raise RecordNotFoundError(f"No record found for {stock_code} in table BomStructure")
+
+    zInvExtra_exists = check_if_in_table(
+        stock_code=stock_code,
+        table="zInvExtra",
+        sql_getter_func=get_single_record
+    )
+
+    if not zInvExtra_exists:
+        raise RecordNotFoundError(f"No record found for {stock_code} in table zInvExtra")
+    
+    # TODO: validation steps
+
+    ## GET DOOR DIMS
+    door_dims = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": stock_code
+        },
+        return_columns=[
+            "Height",
+            "Width",
+            "Thickness"
+        ]
+    )
+
+    door_height = int(door_dims.Height)
+    door_width = int(door_dims.Width)
+    door_thickness = int(door_dims.Thickness)
+
+    ## GET MATERIAL CODES
+
+    # TODO: Decide how to handle between MFC and ZLAM - same function or separate?
+
+    # Get board ZLAM code
+    zlam_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "ZLAM%"
+        },
+        return_columns=["Component"]
+    )
+
+    zlam_code = [item for sublist in zlam_code_list for item in sublist][0]
+    print(f"ZLAM code for {stock_code} is {zlam_code}")
+
+    # Get edging code
+    edging_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "P%/%"
+        },
+        return_columns=["Component"]
+    )
+
+    edging_code = [item for sublist in edging_code_list for item in sublist][0]
+    print(f"Edging code for {stock_code} is {edging_code}")
+
+    # Get pallet code
+    pallet_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "PKDR%"
+        },
+        return_columns=["Component"]
+    )
+
+    pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
+    print(f"Pallet code for {stock_code} is {pallet_code}")
+
+    # Get board height and width
+    zlam_code_dims = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": zlam_code
+        },
+        return_columns=[
+            "Height",
+            "Width"
+        ]
+    )
+
+    mel_code_height = int(zlam_code_dims.Height)
+    mel_code_width = int(zlam_code_dims.Width)
+
+    # Get max pallet quantity
+    pallet_max_qty_result = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": stock_code
+        },
+        return_columns=[
+            "PalletPackSize"
+        ]
+    )
+    pallet_max_qty = int(pallet_max_qty_result.PalletPackSize)
