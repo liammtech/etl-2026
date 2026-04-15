@@ -1,7 +1,9 @@
 from functools import reduce
+from tools.bom_tools.bom_organisation import specify_edged_sides
 from tools.sql import update_records, get_single_record, get_multiple_records
 from tools.validation import check_if_in_table, RecordNotFoundError
 import tools.calculations.pressed_qty_per_calcs as pressed
+import tools.calculations.edged_qty_per_calcs as edged
 
 # Membrane Pressed - Standard
 def memp_std_single(stock_code: str):
@@ -242,15 +244,20 @@ def lldr_mdf_std_single(stock_code: str):
         table="BomStructure",
         criteria={
             "ParentPart": stock_code,
-            "Component": "P%/%"
+            "Component": "EDGE%"
         },
         return_columns=["Component"]
     )
+    print()
 
-    edging_code = [item for sublist in edging_code_list for item in sublist][0]
-    print(f"Edging code for {stock_code} is {edging_code}")
+    if len(edging_code_list) > 0:
+        edging_code = [item for sublist in edging_code_list for item in sublist][0]
+        print(f"Edging code for {stock_code} is {edging_code}")
+    else:
+        print(f"No edging found for {stock_code}, skipping...")
 
     # Get pallet code
+    pallet_code = False
     pallet_code_list = get_multiple_records(
         table="BomStructure",
         criteria={
@@ -260,8 +267,13 @@ def lldr_mdf_std_single(stock_code: str):
         return_columns=["Component"]
     )
 
-    pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
-    print(f"Pallet code for {stock_code} is {pallet_code}")
+    if len(pallet_code_list) > 0:
+        pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
+        print(f"Pallet code for {stock_code} is {pallet_code}")
+    else:
+        print(f"No pallet found for {stock_code}, skipping...")
+
+    # TODO: Get layflat code (optional, like pallets)
 
     # Get board height and width
     zlam_code_dims = get_single_record(
@@ -275,17 +287,106 @@ def lldr_mdf_std_single(stock_code: str):
         ]
     )
 
-    mel_code_height = int(zlam_code_dims.Height)
-    mel_code_width = int(zlam_code_dims.Width)
+    zlam_code_height = int(zlam_code_dims.Height)
+    zlam_code_width = int(zlam_code_dims.Width)
 
     # Get max pallet quantity
-    pallet_max_qty_result = get_single_record(
-        table="zInvExtra",
-        criteria={
-            "StockCode": stock_code
+    if len(pallet_code_list) > 0:
+        pallet_max_qty_result = get_single_record(
+            table="zInvExtra",
+            criteria={
+                "StockCode": stock_code
+            },
+            return_columns=[
+                "PalletPackSize"
+            ]
+        )
+        pallet_max_qty = int(pallet_max_qty_result.PalletPackSize)
+        print(f"Pallet max quantity is: {pallet_max_qty}")
+
+    # Get the sides to be edged
+    edgebander_op_instances = get_multiple_records(
+        table = "BomOperations",
+        criteria = {
+            "StockCode": stock_code,
+            "WorkCentre": "DEBAN*"
         },
-        return_columns=[
-            "PalletPackSize"
-        ]
+        return_columns = ["WorkCentre"],
+        order_by = "WorkCentre"
     )
-    pallet_max_qty = int(pallet_max_qty_result.PalletPackSize)
+
+    print(f"Edging op: {edgebander_op_instances}")
+
+    # Validation to make sure only one edging op
+    if len(edgebander_op_instances) == 0:
+        print("No DEBAN* work centres found, please check ops list\n" \
+        "and add an appropriate work centre" \
+        "Assuming all 4 sides edged")
+        edged_sides = {"H": 2, "W": 2}
+
+    elif len(edgebander_op_instances) > 1:
+        print("Multiple DEBAN* work centres found, please check ops list\n" \
+        "and reduce to single, appropriate work centre" \
+        "Assuming all 4 sides edged")
+        edged_sides = {"H": 2, "W": 2}
+
+    elif len(edgebander_op_instances) == 1:
+        edgebander_op = [item for sublist in edgebander_op_instances for item in sublist][0]
+        edged_sides = specify_edged_sides(
+            no_edged_sides=edgebander_op,
+            stock_code=stock_code
+        )
+
+    ## CALCULATE QUANTITIES
+
+    zlam_qty_per = edged.calculate_zlam_board_qty(
+        door_height=door_height,
+        door_width=door_width,
+        board_height=zlam_code_height,
+        board_width=zlam_code_width
+    )
+
+    edging_qty_per = edged.calculate_edging_qty(
+        door_height=door_height,
+        door_width=door_width,
+        height_sides_edged=edged_sides["H"],
+        width_sides_edged=edged_sides["W"]
+    )
+
+    gl069_qty_per = edged.calculate_glue_qty(
+        door_height=door_height,
+        door_width=door_width,
+        door_thickness=door_thickness,
+        height_sides_edged=edged_sides["H"],
+        width_sides_edged=edged_sides["W"]
+    )
+
+    material_qty_pers = {
+        zlam_code: zlam_qty_per,
+        edging_code: edging_qty_per,
+        "GL069": gl069_qty_per
+    }
+
+    if pallet_code:
+        pallet_qty_per = edged.calculate_pallet_qty(
+            pallet_max_qty=pallet_max_qty
+        )
+        material_qty_pers[pallet_code] = pallet_qty_per
+
+    for i, j in material_qty_pers.items():
+        print(f"{i}: {j}")
+
+    ## SET QUANTITIES
+
+    for component in material_qty_pers:
+        update_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": stock_code,
+                "Component": component
+            },
+            update_data={
+                "QtyPer": material_qty_pers[component],
+                "QtyPerEnt": material_qty_pers[component]
+            }
+        )

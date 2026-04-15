@@ -6,7 +6,10 @@ def calculate_mel_board_qty(
     board_width: float,
     board_waste: float = 0.08 # Standard waste, almost never changes
 ) -> float:
-    mel_qty_per = (((door_height + 8) * (door_width + 8)) / (1 - board_waste)) / (board_height * board_width)
+    mel_qty_per = (
+        (((door_height + 8) * (door_width + 8)) / (1 - board_waste)) / 
+        (board_height * board_width)
+    )
 
     mel_qty_per = round(mel_qty_per, 6)
     print(f"\nMEL calc result is {mel_qty_per} PCS")

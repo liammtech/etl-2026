@@ -33,18 +33,33 @@ def check_if_in_table(
     *,
     stock_code: str,
     table: str,
+    route: str = None,
     sql_getter_func: Callable
 ) -> bool: 
     
+    print(f"Route is {route}")
+    
     if table == "BomStructure" or table == "BomStructure+":
         criteria = {"ParentPart": stock_code}
+        if route == None:
+            records_exist = sql_getter_func(
+                criteria=criteria,
+                table=table
+            )
+        else:
+            records_exist = sql_getter_func(
+                criteria=criteria,
+                table=table,
+                route=route
+            )
     else:
         criteria = {"StockCode": stock_code}
+        records_exist = sql_getter_func(
+            criteria=criteria,
+            table=table
+        )
     
-    records_exist = sql_getter_func(
-        criteria=criteria,
-        table=table
-    )
+
 
     if records_exist:
         print(f"\nRecords exist for stock code {stock_code} in table {table}: continuing...\n")
