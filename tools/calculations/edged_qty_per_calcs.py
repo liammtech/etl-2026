@@ -1,6 +1,6 @@
 from tools.bom_tools import bom_organisation
 
-def calculate_zlam_board_qty(
+def calculate_lldr_board_qty(
     *,
     door_height: float,
     door_width: float,

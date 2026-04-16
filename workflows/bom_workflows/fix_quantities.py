@@ -184,7 +184,7 @@ def memp_std_single(stock_code: str):
         )
 
 # Cut & Edged MDF - Standard
-def lldr_mdf_std_single(stock_code: str):
+def lldr_std_single(stock_code: str):
     bom_records_exist = check_if_in_table(
         stock_code=stock_code,
         table="BomStructure",
@@ -358,7 +358,7 @@ def lldr_mdf_std_single(stock_code: str):
 
     ## CALCULATE QUANTITIES
 
-    board_qty_per = edged.calculate_zlam_board_qty(
+    board_qty_per = edged.calculate_lldr_board_qty(
         door_height=door_height,
         door_width=door_width,
         board_height=board_code_height,
