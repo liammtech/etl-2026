@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from tools import sql
 from pathlib import Path
 import yaml
 
@@ -94,3 +95,21 @@ def check_path():
     print("Initialising")
     the_path = Path(__file__).resolve().parents[1] / "config/validation/valid_tables.yml"
     print(f"\nPath is {the_path}")
+
+
+def check_product_class(
+    *,
+    stock_code = str, # Must be specific stock code
+    required_product_class = str
+) -> bool:
+    product_class = sql.get_single_record(
+        table="InvMaster",
+        criteria={
+            "StockCode": stock_code
+        },
+        return_columns="ProductClass"
+    )
+    if product_class == required_product_class:
+        return True
+    else:
+        return False
