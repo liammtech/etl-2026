@@ -8,6 +8,7 @@ def calculate_zlam_board_qty(
     board_width: float,
     board_waste: float = 0.13 # Standard waste, almost never changes
 ) -> float:
+    print(f"Full board M2: {board_height * board_width}")
     print(door_height)
     print(door_width)
     print(board_height)
@@ -34,7 +35,7 @@ def calculate_edging_qty(
         (((door_width + 20) / 1000) * width_sides_edged)
     )
     edging_qty_per + round(edging_qty_per, 6)
-    print(f"\nZLAM calc result is {edging_qty_per} PCS")
+    print(f"Edging calc result is {edging_qty_per} LM")
     return edging_qty_per
 
 def calculate_glue_qty(
@@ -56,7 +57,22 @@ def calculate_glue_qty(
 def calculate_pallet_qty(
     *,
     pallet_max_qty: float
-):
+) -> float:
     pallet_qty_per = round((1 / pallet_max_qty), 6)
     print(f"\nPallet qty calc result is {pallet_qty_per} PCS")
     return pallet_qty_per
+
+def calculate_layflat_qty(
+    *,
+    door_height: float,
+    door_width: float,
+    door_thickness: float    
+) -> float:
+    pass
+    # (longest side + door thickness + 40) /1000
+    longest_side = door_height if door_height > door_width else door_width
+    layflat_qty_per = (
+        (longest_side + door_thickness + 40) / 1000
+    )
+    layflat_qty_per = round(layflat_qty_per, 6)
+    return layflat_qty_per

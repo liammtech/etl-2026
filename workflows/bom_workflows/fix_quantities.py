@@ -226,25 +226,29 @@ def lldr_mdf_std_single(stock_code: str):
 
     # TODO: Decide how to handle between MFC and ZLAM - same function or separate?
 
-    # Get board ZLAM code
-    zlam_code_list = get_multiple_records(
+    # Get board code - ZLAM, MFC, ALV
+    board_code_list = get_multiple_records(
         table="BomStructure",
         criteria={
             "ParentPart": stock_code,
-            "Component": "ZLAM%"
+            "Component": ["ZLAM*", "MFC*", "ALV*"]
         },
         return_columns=["Component"]
     )
 
-    zlam_code = [item for sublist in zlam_code_list for item in sublist][0]
-    print(f"ZLAM code for {stock_code} is {zlam_code}")
+    board_code = [item for sublist in board_code_list for item in sublist][0]
+    if len(board_code_list) > 1:
+        print(f"Warning: multiple board codes found in BOM for {stock_code}, consider reviewing \n" \
+               "Defaulting to first board code in list...")
+
+    print(f"Board code for {stock_code} is {board_code}")
 
     # Get edging code
     edging_code_list = get_multiple_records(
         table="BomStructure",
         criteria={
             "ParentPart": stock_code,
-            "Component": "EDGE%"
+            "Component": ["EDGE*", "P*/*"] # Try getting multiple code types?
         },
         return_columns=["Component"]
     )
@@ -274,12 +278,27 @@ def lldr_mdf_std_single(stock_code: str):
         print(f"No pallet found for {stock_code}, skipping...")
 
     # TODO: Get layflat code (optional, like pallets)
+    layflat_code = False
+    layflat_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "PK9##"
+        },
+        return_columns=["Component"]
+    )
+    
+    if len(layflat_code_list) > 0:
+        layflat_code = [item for sublist in layflat_code_list for item in sublist][0]
+        print(f"Shrink wrap code for {stock_code} is {layflat_code}")
+    else:
+        print(f"No shrink wrap found for {stock_code}, skipping...")
 
     # Get board height and width
-    zlam_code_dims = get_single_record(
+    board_code_dims = get_single_record(
         table="zInvExtra",
         criteria={
-            "StockCode": zlam_code
+            "StockCode": board_code
         },
         return_columns=[
             "Height",
@@ -287,8 +306,8 @@ def lldr_mdf_std_single(stock_code: str):
         ]
     )
 
-    zlam_code_height = int(zlam_code_dims.Height)
-    zlam_code_width = int(zlam_code_dims.Width)
+    board_code_height = int(board_code_dims.Height)
+    board_code_width = int(board_code_dims.Width)
 
     # Get max pallet quantity
     if len(pallet_code_list) > 0:
@@ -339,11 +358,11 @@ def lldr_mdf_std_single(stock_code: str):
 
     ## CALCULATE QUANTITIES
 
-    zlam_qty_per = edged.calculate_zlam_board_qty(
+    board_qty_per = edged.calculate_zlam_board_qty(
         door_height=door_height,
         door_width=door_width,
-        board_height=zlam_code_height,
-        board_width=zlam_code_width
+        board_height=board_code_height,
+        board_width=board_code_width
     )
 
     edging_qty_per = edged.calculate_edging_qty(
@@ -362,7 +381,7 @@ def lldr_mdf_std_single(stock_code: str):
     )
 
     material_qty_pers = {
-        zlam_code: zlam_qty_per,
+        board_code: board_qty_per,
         edging_code: edging_qty_per,
         "GL069": gl069_qty_per
     }
@@ -372,6 +391,14 @@ def lldr_mdf_std_single(stock_code: str):
             pallet_max_qty=pallet_max_qty
         )
         material_qty_pers[pallet_code] = pallet_qty_per
+
+    if layflat_code:
+        layflat_qty_per = edged.calculate_layflat_qty(
+            door_height=door_height,
+            door_width=door_width,
+            door_thickness=door_thickness
+        )
+        material_qty_pers[layflat_code] = layflat_qty_per
 
     for i, j in material_qty_pers.items():
         print(f"{i}: {j}")

@@ -68,6 +68,32 @@ def get_multiple_records(
         if val == None:
             continue
 
+        if type(val) == list:
+            first_iter = True
+            for subval in val:
+                wildcard_flag = check_if_wildcard(subval)
+
+                sql_operator = "AND (" if first_iter else "OR"
+
+                if wildcard_flag:
+                    subval = substitute_wildcard(subval)
+
+                    if len(params) == 0:
+                        sql.append(f"WHERE ( {col} LIKE ?")
+                    else:
+                        sql.append(f"{sql_operator} {col} LIKE ?")
+
+                else:
+                    if len(params) == 0:
+                        sql.append(f"WHERE ( {col} = ?")
+                    else:
+                        sql.append(f"{sql_operator} {col} = ?")
+
+                params.append(subval)
+                first_iter = False
+            sql.append(")")
+            continue
+
         wildcard_flag = check_if_wildcard(val)
 
         if wildcard_flag:
@@ -90,6 +116,8 @@ def get_multiple_records(
     final_sql = " ".join(sql) + f" ORDER BY {order_by}"
 
     with get_cursor() as cursor:
+        print(final_sql)
+        print(params)
         cursor.execute(final_sql, params)
         return cursor.fetchall()
 
