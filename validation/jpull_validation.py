@@ -38,8 +38,6 @@ def find_correct_jpull_deban_op(
         return_columns=["Height","Width"]
     )
 
-    jpull_direction = get_jpull_direction(stock_code=stock_code)
-
     print(type(door_dims))
     if jpull_direction == "Vertical":
         bar_dim = int(door_dims.Width)

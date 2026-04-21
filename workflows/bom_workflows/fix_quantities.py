@@ -7,6 +7,7 @@ from validation.general_validation import check_if_in_table, RecordNotFoundError
 from validation.jpull_validation import find_correct_jpull_deban_op, get_jpull_direction
 import tools.calculations.pressed_qty_per_calcs as pressed
 import tools.calculations.edged_qty_per_calcs as edged
+import tools.calculations.jpull_qty_per_calcs as jpull
 
 # Membrane Pressed - Standard
 def memp_std_single(stock_code: str):
@@ -603,3 +604,63 @@ def jayl_std_single(stock_code: str):
         print(f"Edged sides: {edged_sides}")
 
     ## CALCULATE QUANTITIES
+
+    jpull_bar_qty_per = jpull.calculate_jpull_bar_qty(
+        door_height=door_height,
+        door_width=door_width,
+        bar_width=mpj_code_width,
+        jpull_direction=jpull_direction
+    )
+
+    edging_qty_per = edged.calculate_edging_qty(
+        door_height=door_height,
+        door_width=door_width,
+        height_sides_edged=edged_sides["H"],
+        width_sides_edged=edged_sides["W"]
+    )
+
+    gl069_qty_per = edged.calculate_glue_qty(
+        door_height=door_height,
+        door_width=door_width,
+        door_thickness=door_thickness,
+        height_sides_edged=edged_sides["H"],
+        width_sides_edged=edged_sides["W"]
+    )
+
+    material_qty_pers = {
+        mpj_code: jpull_bar_qty_per,
+        edging_code: edging_qty_per,
+        "GL069": gl069_qty_per
+    }
+
+    if pallet_code:
+        pallet_qty_per = edged.calculate_pallet_qty(
+            pallet_max_qty=pallet_max_qty
+        )
+        material_qty_pers[pallet_code] = pallet_qty_per
+
+    if layflat_code:
+        layflat_qty_per = edged.calculate_layflat_qty(
+            door_height=door_height,
+            door_width=door_width,
+            door_thickness=door_thickness
+        )
+        material_qty_pers[layflat_code] = layflat_qty_per
+
+    for i, j in material_qty_pers.items():
+        print(f"{i}: {j}")
+
+    ## POST
+
+    for component in material_qty_pers:
+        update_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": stock_code,
+                "Component": component
+            },
+            update_data={
+                "QtyPer": material_qty_pers[component],
+                "QtyPerEnt": material_qty_pers[component]
+            }
+        )
