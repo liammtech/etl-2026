@@ -27,7 +27,8 @@ def get_jpull_direction(
     
 def find_correct_jpull_deban_op(
     *,
-    stock_code: str # Must be specific stock code
+    stock_code: str, # Must be specific stock code
+    jpull_direction: str = "Horizontal"
 ):
     door_dims = sql.get_single_record(
         table="zInvExtra",

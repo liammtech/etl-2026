@@ -1,6 +1,5 @@
 import tools.sql as sql
 from validation.general_validation import check_if_in_table
-from validation.jpull_validation import get_jpull_direction
 from typing import Literal
 from collections import Counter
 
@@ -70,10 +69,9 @@ def specify_lldr_edged_sides(
 def specify_jayl_edged_sides(
     *,
     no_edged_sides: Literal[2, 3, "DEBAN2", "DEBAN3"] = 2,
-    stock_code: str
+    stock_code: str,
+    jpull_direction: str = "Horizontal"
 ) -> dict:
-    
-    jpull_direction = get_jpull_direction(stock_code=stock_code)
     
     print(f"Case for edging switch statement is {no_edged_sides}")
     sides_edged = {"H": 0, "W": 0}

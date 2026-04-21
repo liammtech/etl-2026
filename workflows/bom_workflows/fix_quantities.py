@@ -4,7 +4,7 @@ from typing import Literal
 from tools.bom_tools.bom_organisation import specify_lldr_edged_sides, specify_jayl_edged_sides
 from tools.sql import update_records, get_single_record, get_multiple_records
 from validation.general_validation import check_if_in_table, RecordNotFoundError
-from validation.jpull_validation import find_correct_jpull_deban_op
+from validation.jpull_validation import find_correct_jpull_deban_op, get_jpull_direction
 import tools.calculations.pressed_qty_per_calcs as pressed
 import tools.calculations.edged_qty_per_calcs as edged
 
@@ -185,6 +185,7 @@ def memp_std_single(stock_code: str):
                 "QtyPerEnt": material_qty_pers[component]
             }
         )
+
 
 # Cut & Edged MDF - Standard
 def lldr_std_single(stock_code: str):
@@ -552,13 +553,7 @@ def jayl_std_single(stock_code: str):
         pallet_max_qty = int(pallet_max_qty_result.PalletPackSize)
         print(f"Pallet max quantity is: {pallet_max_qty}")
 
-    # TODO: Bespoke edging validation for J-Pull
-    # 1. Get edgebanding op (DEBAN2/DEBAN3)
-    # 2. Handle if edging op wrong:
-    #   2x. No edging op
-    #   2x. Multiple edging ops
-    #   2x. DEBAN1 or 4
-    #   2x. Wrong for height
+    # Edgebanding Validation
 
     edgebander_op_instances = get_multiple_records(
         table = "BomOperations",
@@ -571,7 +566,12 @@ def jayl_std_single(stock_code: str):
         order_by = "WorkCentre"
     )
 
-    correct_edging_op = find_correct_jpull_deban_op(stock_code=stock_code)
+    jpull_direction = get_jpull_direction(stock_code=stock_code)
+
+    correct_edging_op = find_correct_jpull_deban_op(
+        stock_code=stock_code,
+        jpull_direction=jpull_direction
+    )
 
     print(f"Edging op: {edgebander_op_instances}")
 
@@ -596,8 +596,10 @@ def jayl_std_single(stock_code: str):
 
         edged_sides = specify_jayl_edged_sides(
             no_edged_sides=edgebander_op,
-            stock_code=stock_code
+            stock_code=stock_code,
+            jpull_direction=jpull_direction
         )
 
         print(f"Edged sides: {edged_sides}")
 
+    ## CALCULATE QUANTITIES
