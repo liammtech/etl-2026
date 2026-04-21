@@ -19,9 +19,6 @@ def check_yaml(file_path, search_key, search_value=None):
     else:
         print("Table not found")
 
-
-
-
 # Checks if there is a wildcard in the criteria value
 def check_if_wildcard(criterion: str) -> bool: 
     if "%" in criterion or "*" in criterion or "#" in criterion or "?" in criterion or "_" in criterion:
@@ -74,22 +71,6 @@ def check_if_table_allowed(table_name):
     config_path = Path(__file__).resolve().parents[1] / "config/validation/valid_tables.yml"
     print(config_path)
     check_yaml(config_path, table_name)
-    
-
-'''
-Logic:
-
-1. Validate that the list of materials contains (and only contains):
-    - A line for a MEL* code
-    - A line for GL100
-    - A line for GL101
-    - A line for a PV* code
-    - A line for a pallet
-
-2. We do not validate what specific materials are, that is beyond the scope of this function
-
-3. 
-'''
 
 def check_path():
     print("Initialising")
@@ -113,3 +94,4 @@ def check_product_class(
         return True
     else:
         return False
+   

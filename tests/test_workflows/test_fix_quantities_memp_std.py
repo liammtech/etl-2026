@@ -1,6 +1,6 @@
 import pytest
 from workflows.bom_workflows.fix_quantities import memp_std_single
-from tools.validation import RecordNotFoundError
+from validation.general_validation import RecordNotFoundError
 
 
 def test_bom_quantity_fix():

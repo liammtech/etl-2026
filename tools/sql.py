@@ -2,7 +2,7 @@ from pyodbc import Row
 from collections.abc import Sequence
 
 from db.connection import get_cursor
-from tools.validation import check_if_wildcard
+from validation.general_validation import check_if_wildcard
 from tools.transform import substitute_wildcard
 
 # All below functions assume a single table
@@ -56,6 +56,7 @@ def get_multiple_records(
     order_by: str = "StockCode"
 ) -> list[Row]:
         
+    print(f"Table is {table}")
     print(f"Criteria is {criteria}")
     print(f"Criteria type is {type(criteria)}")
     return_columns = ", ".join(return_columns)
@@ -89,7 +90,8 @@ def get_multiple_records(
                     else:
                         sql.append(f"{sql_operator} {col} = ?")
 
-                params.append(subval)
+                print(type(subval))
+                params.append(subval[0] if isinstance(subval, Row) else subval)
                 first_iter = False
             sql.append(")")
             continue

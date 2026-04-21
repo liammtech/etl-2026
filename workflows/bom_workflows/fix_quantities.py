@@ -1,7 +1,10 @@
 from functools import reduce
-from tools.bom_tools.bom_organisation import specify_edged_sides
+from typing import Literal
+
+from tools.bom_tools.bom_organisation import specify_lldr_edged_sides, specify_jayl_edged_sides
 from tools.sql import update_records, get_single_record, get_multiple_records
-from tools.validation import check_if_in_table, RecordNotFoundError
+from validation.general_validation import check_if_in_table, RecordNotFoundError
+from validation.jpull_validation import find_correct_jpull_deban_op
 import tools.calculations.pressed_qty_per_calcs as pressed
 import tools.calculations.edged_qty_per_calcs as edged
 
@@ -46,7 +49,7 @@ def memp_std_single(stock_code: str):
 
     ## GET MATERIAL CODES
 
-    # Get board MEL code
+    # Get mpj MEL code
     mel_code_list = get_multiple_records(
         table="BomStructure",
         criteria={
@@ -85,7 +88,7 @@ def memp_std_single(stock_code: str):
 
     # GET INFO FOR MATERIALS
 
-    # Get board height and width
+    # Get mpj height and width
     mel_code_dims = get_single_record(
         table="zInvExtra",
         criteria={
@@ -100,7 +103,7 @@ def memp_std_single(stock_code: str):
     mel_code_height = int(mel_code_dims.Height)
     mel_code_width = int(mel_code_dims.Width)
 
-    print(f"Board height is {mel_code_height}, width is {mel_code_width}")
+    print(f"board height is {mel_code_height}, width is {mel_code_width}")
 
     # Get foil width
     foil_width_mtrs = get_single_record(
@@ -130,8 +133,8 @@ def memp_std_single(stock_code: str):
     mel_qty_per = pressed.calculate_mel_board_qty(
         door_height=door_height,
         door_width=door_width,
-        board_height=mel_code_height,
-        board_width=mel_code_width
+        mpj_height=mel_code_height,
+        mpj_width=mel_code_width
     )
 
     gl100_qty_per = pressed.calculate_glue_qty(
@@ -185,6 +188,7 @@ def memp_std_single(stock_code: str):
 
 # Cut & Edged MDF - Standard
 def lldr_std_single(stock_code: str):
+
     bom_records_exist = check_if_in_table(
         stock_code=stock_code,
         table="BomStructure",
@@ -226,7 +230,7 @@ def lldr_std_single(stock_code: str):
 
     # TODO: Decide how to handle between MFC and ZLAM - same function or separate?
 
-    # Get board code - ZLAM, MFC, ALV
+    # Get mpj code - ZLAM, MFC, ALV
     board_code_list = get_multiple_records(
         table="BomStructure",
         criteria={
@@ -238,8 +242,8 @@ def lldr_std_single(stock_code: str):
 
     board_code = [item for sublist in board_code_list for item in sublist][0]
     if len(board_code_list) > 1:
-        print(f"Warning: multiple board codes found in BOM for {stock_code}, consider reviewing \n" \
-               "Defaulting to first board code in list...")
+        print(f"Warning: multiple mpj codes found in BOM for {stock_code}, consider reviewing \n" \
+               "Defaulting to first mpj code in list...")
 
     print(f"Board code for {stock_code} is {board_code}")
 
@@ -306,8 +310,8 @@ def lldr_std_single(stock_code: str):
         ]
     )
 
-    board_code_height = int(board_code_dims.Height)
-    board_code_width = int(board_code_dims.Width)
+    mpj_code_height = int(board_code_dims.Height)
+    mpj_code_width = int(board_code_dims.Width)
 
     # Get max pallet quantity
     if len(pallet_code_list) > 0:
@@ -351,7 +355,7 @@ def lldr_std_single(stock_code: str):
 
     elif len(edgebander_op_instances) == 1:
         edgebander_op = [item for sublist in edgebander_op_instances for item in sublist][0]
-        edged_sides = specify_edged_sides(
+        edged_sides = specify_lldr_edged_sides(
             no_edged_sides=edgebander_op,
             stock_code=stock_code
         )
@@ -361,8 +365,8 @@ def lldr_std_single(stock_code: str):
     board_qty_per = edged.calculate_lldr_board_qty(
         door_height=door_height,
         door_width=door_width,
-        board_height=board_code_height,
-        board_width=board_code_width
+        mpj_height=mpj_code_height,
+        mpj_width=mpj_code_width
     )
 
     edging_qty_per = edged.calculate_edging_qty(
@@ -417,3 +421,183 @@ def lldr_std_single(stock_code: str):
                 "QtyPerEnt": material_qty_pers[component]
             }
         )
+
+
+# J-Pull - Standard
+def jayl_std_single(stock_code: str):
+    bom_records_exist = check_if_in_table(
+        stock_code=stock_code,
+        table="BomStructure",
+        sql_getter_func=get_multiple_records
+    )
+
+    if not bom_records_exist:
+        raise RecordNotFoundError(f"No record found for {stock_code} in table BomStructure")
+
+    zInvExtra_exists = check_if_in_table(
+        stock_code=stock_code,
+        table="zInvExtra",
+        sql_getter_func=get_single_record
+    )
+
+    ## GET DOOR DIMS
+    door_dims = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": stock_code
+        },
+        return_columns=[
+            "Height",
+            "Width",
+            "Thickness"
+        ]
+    )
+
+    door_height = int(door_dims.Height)
+    door_width = int(door_dims.Width)
+    door_thickness = int(door_dims.Thickness)
+
+    ## GET MATERIAL CODES
+
+    # Get J-Pull bar code
+    mpj_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "MPJ%"
+        },
+        return_columns=["Component"]
+    )
+
+    mpj_code = [item for sublist in mpj_code_list for item in sublist][0]
+    print(f"J-Pull bar code for {stock_code} is {mpj_code}")
+
+    # Get edging code
+    edging_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": ["EDGE*", "P*/*"] # Try getting multiple code types?
+        },
+        return_columns=["Component"]
+    )
+    print()
+
+    if len(edging_code_list) > 0:
+        edging_code = [item for sublist in edging_code_list for item in sublist][0]
+        print(f"Edging code for {stock_code} is {edging_code}")
+    else:
+        print(f"No edging found for {stock_code}, skipping...")
+
+    # Get pallet code
+    pallet_code = False
+    pallet_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "PKDR%"
+        },
+        return_columns=["Component"]
+    )
+
+    if len(pallet_code_list) > 0:
+        pallet_code = [item for sublist in pallet_code_list for item in sublist][0]
+        print(f"Pallet code for {stock_code} is {pallet_code}")
+    else:
+        print(f"No pallet found for {stock_code}, skipping...")
+
+    # Get layflat code (optional, like pallets)
+    layflat_code = False
+    layflat_code_list = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Component": "PK9##"
+        },
+        return_columns=["Component"]
+    )
+    
+    if len(layflat_code_list) > 0:
+        layflat_code = [item for sublist in layflat_code_list for item in sublist][0]
+        print(f"Shrink wrap code for {stock_code} is {layflat_code}")
+    else:
+        print(f"No shrink wrap found for {stock_code}, skipping...")
+
+    # Get J-Pull bar height and width
+    mpj_code_dims = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": mpj_code
+        },
+        return_columns=[
+            "Height",
+            "Width"
+        ]
+    )
+
+    mpj_code_height = int(mpj_code_dims.Height)
+    mpj_code_width = int(mpj_code_dims.Width)
+
+    # Get max pallet quantity
+    if len(pallet_code_list) > 0:
+        pallet_max_qty_result = get_single_record(
+            table="zInvExtra",
+            criteria={
+                "StockCode": stock_code
+            },
+            return_columns=[
+                "PalletPackSize"
+            ]
+        )
+        pallet_max_qty = int(pallet_max_qty_result.PalletPackSize)
+        print(f"Pallet max quantity is: {pallet_max_qty}")
+
+    # TODO: Bespoke edging validation for J-Pull
+    # 1. Get edgebanding op (DEBAN2/DEBAN3)
+    # 2. Handle if edging op wrong:
+    #   2x. No edging op
+    #   2x. Multiple edging ops
+    #   2x. DEBAN1 or 4
+    #   2x. Wrong for height
+
+    edgebander_op_instances = get_multiple_records(
+        table = "BomOperations",
+        criteria = {
+            "StockCode": stock_code,
+            "Route": "0",
+            "WorkCentre": "DEBAN*"
+        },
+        return_columns = ["WorkCentre"],
+        order_by = "WorkCentre"
+    )
+
+    correct_edging_op = find_correct_jpull_deban_op(stock_code=stock_code)
+
+    print(f"Edging op: {edgebander_op_instances}")
+
+    # Validation to make sure only one edging op
+    if len(edgebander_op_instances) == 0:
+        print("No DEBAN* work centres found, please check ops list\n" \
+        "and add an appropriate work centre" \
+        f"Proceeding as per correct edging op for height, {correct_edging_op}...")
+
+    elif len(edgebander_op_instances) > 1:
+        print("Multiple DEBAN* work centres found, please check ops list\n" \
+        "and reduce to single, appropriate work centre" \
+        f"Proceeding as per correct edging op for height, {correct_edging_op}...")
+
+    elif len(edgebander_op_instances) == 1:
+        edgebander_op = [item for sublist in edgebander_op_instances for item in sublist][0]
+
+        if edgebander_op != correct_edging_op:
+            print(f"Warning: edgebanding work centre {edgebander_op} in routing for {stock_code}" \
+            f"Correct work centre likely to be {correct_edging_op}, review is advised" \
+            f"Proceeding to calculate quantities based on {edgebander_op}...")
+
+        edged_sides = specify_jayl_edged_sides(
+            no_edged_sides=edgebander_op,
+            stock_code=stock_code
+        )
+
+        print(f"Edged sides: {edged_sides}")
+

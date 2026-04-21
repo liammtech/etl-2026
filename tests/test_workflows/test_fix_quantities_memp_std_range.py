@@ -1,6 +1,6 @@
 import pytest
 from workflows.bom_workflows.fix_quantities_multiple import memp_std_range
-from tools.validation import RecordNotFoundError
+from validation.general_validation import RecordNotFoundError
 
 def test_bom_exists():
     memp_std_range(

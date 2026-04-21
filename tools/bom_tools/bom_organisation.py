@@ -1,5 +1,6 @@
 import tools.sql as sql
-from tools.validation import check_if_in_table
+from validation.general_validation import check_if_in_table
+from validation.jpull_validation import get_jpull_direction
 from typing import Literal
 from collections import Counter
 
@@ -23,13 +24,13 @@ def copy_full_bomops_route(
 
     print(f"Do ops exist in destination route: {ops_exist_in_destination}")
 
-def specify_edged_sides(
+def specify_lldr_edged_sides(
     *,
     no_edged_sides: Literal[1, 2, 3, 4, "DEBAN1", "DEBAN2", "DEBAN3", "DEBAN4"] = 4,
     stock_code: str = "STOCK-CODE"
 ) -> dict:
     
-    print(f"Case is {no_edged_sides}")
+    print(f"Case for edging switch statement is {no_edged_sides}")
     sides_edged = {"H": 0, "W": 0}
 
     match no_edged_sides:
@@ -66,6 +67,39 @@ def specify_edged_sides(
     print(sides_edged)
     return sides_edged
 
+def specify_jayl_edged_sides(
+    *,
+    no_edged_sides: Literal[2, 3, "DEBAN2", "DEBAN3"] = 2,
+    stock_code: str
+) -> dict:
+    
+    jpull_direction = get_jpull_direction(stock_code=stock_code)
+    
+    print(f"Case for edging switch statement is {no_edged_sides}")
+    sides_edged = {"H": 0, "W": 0}
+
+    if jpull_direction == "Vertical":
+        match no_edged_sides:
+
+            case 2 | "DEBAN2":
+                sides_edged["W"] = 2
+
+            case 3 | "DEBAN3":
+                sides_edged["W"] = 2
+                sides_edged["H"] = 1
+
+    else:
+        match no_edged_sides:
+
+            case 2 | "DEBAN2":
+                sides_edged["H"] = 2
+
+            case 3 | "DEBAN3":
+                sides_edged["H"] = 2
+                sides_edged["W"] = 1
+
+    return sides_edged
+
 def get_range_modal_component(
     *,
     stock_code_prefix: str,
@@ -79,9 +113,10 @@ def get_range_modal_component(
         },
         return_columns=["Component"]
     )
+
     all_components = [item for sublist in all_components for item in sublist]
     components_count = Counter(list(all_components))
     modal_component = components_count.most_common()[0][0]
+
     print(modal_component)
     return modal_component
-    

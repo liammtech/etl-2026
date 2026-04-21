@@ -5,16 +5,13 @@ from tools.sql import get_multiple_records
 
 def test_return_type():
     return_val = get_multiple_records(
-        table = "BomStructure",
+        table = "InvMaster",
         criteria = {
-            "ParentPart": "ORAGW00*",
-            "Component": ["MFC*", "EDGE*", "PK9*"]
+            "StockCode": "ORA*117"
         },
         return_columns = [
-            "ParentPart",
-            "Component"
-        ],
-        order_by = "ParentPart"
+            "StockCode"
+        ]
     )
 
     print(return_val)
