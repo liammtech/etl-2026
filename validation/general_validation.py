@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Literal
 from tools import sql
 from pathlib import Path
 import yaml
@@ -94,4 +95,3 @@ def check_product_class(
         return True
     else:
         return False
-   

@@ -1,5 +1,3 @@
-from tools.bom_tools import bom_organisation
-
 def calculate_lldr_board_qty(
     *,
     door_height: float,

@@ -153,6 +153,7 @@ def append_multiple_records(
     rows: Sequence[dict[str, object]]
 ) -> None:
     if not rows:
+        print("tools.sql.append_multiple_records(): No rows provided, terminating.")
         return
 
     # validate_table(table)
@@ -198,6 +199,32 @@ def update_records(
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + list(criteria.values())
+
+    with get_cursor() as cursor:
+        cursor.execute(sql, tuple(params))
+        cursor.connection.commit()
+
+
+def delete_records(
+    *,
+    table: str,
+    criteria: dict[str, object],
+) -> None:
+
+    if not criteria:
+        print("tools.sql.delete_records(): No criteria provided, terminating.")
+        return
+    
+    def get_op(v):
+        return "LIKE" if isinstance(v, str) and ("%" in v or "_" in v) else "="
+    
+    where_clause = " AND ".join([f"{k} {get_op(v)} ?" for k, v in criteria.items()])
+
+    sql = f"DELETE FROM {table} WHERE {where_clause}"
+    params = list(criteria.values())
+
+    print(sql)
+    print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))

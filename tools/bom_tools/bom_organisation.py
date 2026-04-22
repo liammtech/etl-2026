@@ -4,7 +4,7 @@ from typing import Literal
 from collections import Counter
 
 # This is essentially an analogue of the copy BomOperations route function in Syspro
-def copy_full_bomops_route(
+def copy_ops_to_new_route(
     *,
     source_route: str,
     source_stock_code: str, 
@@ -22,6 +22,56 @@ def copy_full_bomops_route(
     )
 
     print(f"Do ops exist in destination route: {ops_exist_in_destination}")
+
+    # FUNCTION NOT FINISHED
+
+def move_ops_to_new_route(
+    *,
+    source_route: str,
+    source_stock_code: str, 
+    dest_route: str,
+    dest_stock_code: str = None
+):
+    if dest_stock_code == None:
+        dest_stock_code = source_stock_code
+
+    ops_exist_in_destination = check_if_in_table(
+        stock_code=dest_stock_code,
+        table="BomOperations",
+        route=dest_route,
+        sql_getter_func=sql.get_multiple_records
+    )
+
+    if ops_exist_in_destination:
+        print("Records present in destination Route {route} structure & routing" \
+              "Do you want to [O]verwrite, [S]wap, or [T]erminate?")
+        
+        user_choice = None
+
+        while True:
+            user_choice = input().lower()
+
+            if user_choice not in ["o", "s", "t", "overwrite", "swap", "terminate"]:
+                print("Please select a valid option: [O]verwrite, [S]wap, or [T]erminate")
+                continue
+            else:
+                break
+
+        match user_choice:
+            case "o" | "overwrite":
+                pass
+            case "s" | "swap":
+                pass
+            case "t" | "terminate":
+                print("Terminating.")
+                return
+
+def delete_ops_from_route(
+    *,
+    route: str,
+    stock_code: str, 
+) -> None:
+    
 
 def specify_lldr_edged_sides(
     *,

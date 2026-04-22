@@ -7,7 +7,7 @@ def test_return_type():
     return_val = get_multiple_records(
         table = "InvMaster",
         criteria = {
-            "StockCode": "ORA*117"
+            "StockCode": "*"
         },
         return_columns = [
             "StockCode"

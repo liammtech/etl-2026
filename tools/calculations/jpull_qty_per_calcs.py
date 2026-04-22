@@ -11,7 +11,7 @@ def calculate_jpull_bar_qty(
     print(f"Bar width data type: {type(bar_width)}")
     print(f"Door height data type: {type(door_height)}")
     door_height_over = door_height + 5
-    print(floor(bar_width / door_height_over))
+    print("{floor(bar_width / door_height_over)}")
 
     if jpull_direction == "Vertical":
         
