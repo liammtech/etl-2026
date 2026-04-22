@@ -20,10 +20,12 @@ def get_single_record(
     table: str,
     criteria: dict[str, object],
     return_columns: str | list[str] = "*",
+    flatten: bool = False
 ) -> Row: 
     # Validation to go here
 
-    return_columns = ", ".join(return_columns)
+    if type(return_columns) != str:
+        return_columns = ", ".join(return_columns)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
     params = []
@@ -40,13 +42,20 @@ def get_single_record(
         params.append(val)
 
     final_sql = " ".join(sql)
-    print(final_sql)
-    print(criteria)
+    # print(final_sql)
+    # print(criteria)
 
     with get_cursor() as cursor:
         cursor.execute(final_sql, params)
-        return cursor.fetchone()
+        fetch_result = cursor.fetchone()
 
+        if flatten:
+            if len(fetch_result) > 1:
+                print("Cannot flatten SQL fetch result, more than one data item returned")
+            else:
+                return fetch_result[0]
+        else:
+            return fetch_result
 
 def get_multiple_records(
     *, 
@@ -55,7 +64,7 @@ def get_multiple_records(
     return_columns: list[str] = "*",
     order_by: str = "StockCode"
 ) -> list[Row]:
-        
+    
     print(f"Table is {table}")
     print(f"Criteria is {criteria}")
     print(f"Criteria type is {type(criteria)}")
@@ -90,12 +99,13 @@ def get_multiple_records(
                     else:
                         sql.append(f"{sql_operator} {col} = ?")
 
-                print(type(subval))
+                # print(type(subval))
                 params.append(subval[0] if isinstance(subval, Row) else subval)
                 first_iter = False
             sql.append(")")
             continue
 
+        # print(f"Val is {val}")
         wildcard_flag = check_if_wildcard(val)
 
         if wildcard_flag:
@@ -118,8 +128,8 @@ def get_multiple_records(
     final_sql = " ".join(sql) + f" ORDER BY {order_by}"
 
     with get_cursor() as cursor:
-        print(final_sql)
-        print(params)
+        # print(final_sql)
+        # print(params)
         cursor.execute(final_sql, params)
         return cursor.fetchall()
 
@@ -160,8 +170,11 @@ def append_multiple_records(
 
     # Use the first row to define the schema for this batch
     columns = list(rows[0].keys())
+    column_names = ", ".join(f"[{col}]" for col in columns)
     placeholders = ", ".join("?" for _ in columns)
-    sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})"
+
+    sql = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
+
 
     # Optional: sanity check that all rows have the same keys
     for i, row in enumerate(rows):
@@ -172,6 +185,9 @@ def append_multiple_records(
         [row[column] for column in columns]
         for row in rows
     ]
+
+    # print(f"SQL is: \n{sql}")
+    # print(f"param_sets are: \n{param_sets}")
 
     with get_cursor() as cursor:
         cursor.executemany(sql, param_sets)
@@ -204,7 +220,6 @@ def update_records(
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()
 
-
 def delete_records(
     *,
     table: str,
@@ -222,9 +237,6 @@ def delete_records(
 
     sql = f"DELETE FROM {table} WHERE {where_clause}"
     params = list(criteria.values())
-
-    print(sql)
-    print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))

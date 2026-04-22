@@ -1,5 +1,6 @@
-from tools.sql import get_multiple_records, get_single_record
+from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records
 from validation.general_validation import check_if_in_table
+from pprint import pprint
 
 '''
 1. Park current route 0 BOM in alternate route "A"
@@ -25,7 +26,8 @@ def switch_jpull_stocked_to_mto(stock_code: str):
     # Check if stock code exists
     sku_exists = check_if_in_table(
         stock_code=stock_code,
-        table="InvMaster"
+        table="InvMaster",
+        sql_getter_func=get_single_record
     )
 
     if not sku_exists:
@@ -35,17 +37,21 @@ def switch_jpull_stocked_to_mto(stock_code: str):
     route_a_ops_exists = check_if_in_table(
         stock_code=stock_code,
         table="BomOperations",
-        route="A"
+        route="A",
+        sql_getter_func=get_multiple_records
     )
 
     route_a_bom_exists = check_if_in_table(
         stock_code=stock_code,
         table="BomStructure",
-        route="A"
+        route="A",
+        sql_getter_func=get_multiple_records
     )
 
+    route_swap_flag = None
+
     if route_a_ops_exists or route_a_bom_exists:
-        print("Records present in Route A structure & routing" \
+        print("Records present in Route A structure & routing\n" \
               "Do you want to [O]verwrite, [S]wap, or [T]erminate?")
         
         user_choice = None
@@ -61,9 +67,85 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
         match user_choice:
             case "o" | "overwrite":
-                pass
+                print("Overwriting previous route...")
+                delete_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "A"})
+                delete_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "A"})
             case "s" | "swap":
-                pass
+                update_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "A"}, update_data={"Route": "XX"})
+                update_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "A"}, update_data={"Route": "XX"})
+                route_swap_flag = True
             case "t" | "terminate":
                 print("Terminating.")
                 return
+            
+        update_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "0"}, update_data={"Route": "A"})
+        update_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "0"}, update_data={"Route": "A"})
+
+    ### 2. Copy BOM from subcomponent/linked item
+
+    # Get the code for the linked item
+
+    linked_stock_code = get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": stock_code
+        },
+        return_columns="LinkedStockCode",
+        flatten=True
+    )
+
+    # Copy the linked item's operations
+
+    linked_stock_code_ops = get_multiple_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": linked_stock_code,
+            "Route": 0
+        }
+    )
+
+    # Copy the linked item's materials
+
+    linked_stock_code_bom = get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": linked_stock_code,
+            "Route": 0
+        }
+    )
+
+    print(linked_stock_code_bom)
+
+    ops_cols = [col[0] for col in linked_stock_code_ops[0].cursor_description]
+    ops_vals = [list(row) for row in linked_stock_code_ops]
+
+    bom_cols = [col[0] for col in linked_stock_code_bom[0].cursor_description]
+    bom_vals = [list(row) for row in linked_stock_code_bom]
+
+    # Update the stock code
+
+    for row in ops_vals:
+        row[0] = stock_code
+
+    for row in bom_vals:
+        row[0] = stock_code
+
+    ops_as_dicts = [dict(zip(ops_cols, row)) for row in ops_vals]
+    bom_as_dicts = [dict(zip(bom_cols, row)) for row in bom_vals]
+
+    # Post back in 
+
+    # pprint(ops_as_dicts)
+    # pprint(bom_as_dicts)
+
+    append_multiple_records(
+        table="BomOperations",
+        rows=ops_as_dicts
+    )
+
+    append_multiple_records(
+        table="BomStructure",
+        rows=bom_as_dicts 
+    )
+
+

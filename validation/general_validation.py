@@ -22,6 +22,7 @@ def check_yaml(file_path, search_key, search_value=None):
 
 # Checks if there is a wildcard in the criteria value
 def check_if_wildcard(criterion: str) -> bool: 
+    criterion = str(criterion)
     if "%" in criterion or "*" in criterion or "#" in criterion or "?" in criterion or "_" in criterion:
         return True
     else:
@@ -35,32 +36,28 @@ def check_if_in_table(
     route: str = None,
     sql_getter_func: Callable
 ) -> bool: 
-    
+    print("=== CHECK IF IN TABLE ===")
     print(f"Route is {route}")
     
     if table == "BomStructure" or table == "BomStructure+":
         criteria = {"ParentPart": stock_code}
-        if route == None:
-            records_exist = sql_getter_func(
-                criteria=criteria,
-                table=table
-            )
-        else:
-            records_exist = sql_getter_func(
-                criteria=criteria,
-                table=table,
-                route=route
-            )
     else:
         criteria = {"StockCode": stock_code}
+
+    if route == None:
         records_exist = sql_getter_func(
             criteria=criteria,
             table=table
         )
-    
-
-
+    else:
+        criteria["Route"]=route
+        records_exist = sql_getter_func(
+            criteria=criteria,
+            table=table
+        )
+  
     if records_exist:
+        print(records_exist)
         print(f"\nRecords exist for stock code {stock_code} in table {table}: continuing...\n")
         return True
     else:
