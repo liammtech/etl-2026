@@ -1,0 +1,12 @@
+invwarehouse_defaults:
+  Warehouse: "DW"
+  DefaultBin: "DW"
+  InterfaceFlag: "Y"
+  CostMultiplier: 1
+  TrfSuppliedItem: "N"
+  TrfCostMultiply: 1
+  TrfBuyingRule: "A"
+  DateWhAdded: "01/01/1970"
+  OrderPolicy: "C"
+  OrderFixPeriod: 1
+  ManualCostFlag: "N"

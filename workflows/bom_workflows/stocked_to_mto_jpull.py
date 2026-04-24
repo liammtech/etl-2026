@@ -1,14 +1,16 @@
-from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records
+from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
+from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number
 from validation.general_validation import check_if_in_table
+from tools.row_builders import build_single_bomstructure_row as build_bom_row, build_single_bomoperations_row as build_op_row
 from pprint import pprint
 
 '''
 1. Park current route 0 BOM in alternate route "A"
 2. Copy BOM from subcomponent/linked item
 3. Replace first op with DSAWC
-4. Remove DSHRIN op
-5. Remove PK9* layflat material
-6. Re-assign B0167/* packing piece to DJSHAP op (op 4)
+4. Remove PK9* layflat material
+5. Re-assign B0167/* packing piece to DJSHAP op (op 4)
+6. Remove DSHRIN op
 7. Add in PK0170 label to op 1 (non-kit issue)
 8. Add standard PICK/CHK/PACK/DESP op chain to end of current ops
 9. Copy this whole BOM/op structure to route 5 (supplant previous route)
@@ -78,8 +80,8 @@ def switch_jpull_stocked_to_mto(stock_code: str):
                 print("Terminating.")
                 return
             
-        update_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "0"}, update_data={"Route": "A"})
-        update_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "0"}, update_data={"Route": "A"})
+    update_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "0"}, update_data={"Route": "A"})
+    update_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "0"}, update_data={"Route": "A"})
 
     ### 2. Copy BOM from subcomponent/linked item
 
@@ -148,4 +150,134 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         rows=bom_as_dicts 
     )
 
+    ### 3. Replace first op with DSAWC    
+    
+    defrag_routing(
+        stock_code=stock_code,
+        route=0
+    )
 
+    update_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": 0,
+            "Operation": 1
+        },
+        update_data={
+            "WorkCentre": "DSAWC"
+        }
+    )
+
+    # 4. Remove PK9* layflat material
+
+    delete_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Route": 0,
+            "Component": "PK9%"
+        }
+    )
+
+    # 5. Re-assign B0167/* packing piece to DJSHAP op (op 4)
+
+    djshap_op = get_single_record(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": 0,
+            "WorkCentre": "DJSHAP"
+        },
+        return_columns={
+            "Operation"
+        },
+        flatten=True
+    )
+
+    if not djshap_op:
+        djshap_op = 4
+
+    update_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Route": 0,
+            "Component": "B0167/%"
+        },
+        update_data={
+            "OperationOffset": djshap_op
+        }
+    )
+
+    # 6. Remove DSHRIN op
+    
+    delete_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": 0,
+            "WorkCentre": "DSHRIN"
+        }
+    )
+
+    # 7. Add in PK0170 label to op 1 (non-kit issue)
+
+    PK0170_row = build_bom_row(
+        parent_part=stock_code,
+        component="PK0170",
+        overlays={
+            "QtyPer": 1,
+            "QtyPerEnt": 1,
+            "InclKitIssues": "N"
+        }
+    )
+
+    append_single_record(
+        table="BomStructure",
+        row=PK0170_row
+    )
+
+    # 8. Add standard PICK/CHK/PACK/DESP op chain to end of current ops
+
+    next_op = get_next_op_number(
+        stock_code=stock_code,
+        route=0
+    )
+
+    DPPICK_row = build_op_row(
+        stock_code=stock_code,
+        route=0,
+        operation=next_op,
+        work_centre="DPPICK"
+    )
+
+    DPCHK_row = build_op_row(
+        stock_code=stock_code,
+        route=0,
+        operation=next_op + 1,
+        work_centre="DPCHK",
+        overlays={
+            "Milestone": "N"
+        }
+    )
+
+    DPPACK_row = build_op_row(
+        stock_code=stock_code,
+        route=0,
+        operation=next_op + 2,
+        work_centre="DPPACK"
+    )
+
+    DPDESP_row = build_op_row(
+        stock_code=stock_code,
+        route=0,
+        operation=next_op + 3,
+        work_centre="DPDESP"
+    )
+
+    for row in [DPPICK_row, DPCHK_row, DPPACK_row, DPDESP_row]:
+        append_single_record(
+            table="BomOperations",
+            row=row
+        )

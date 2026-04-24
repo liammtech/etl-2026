@@ -1,0 +1,8 @@
+porxrefprices_defaults:
+  Supplier: "B0020"
+  StockCode: "NEWCODE"
+  Contract: 1
+  PriceUom: "PCS"
+  PriceStartDate: "01/01/1970"
+  PriceExpiryDate: "01/01/1970"
+  MinimumQtyUom: "PCS"

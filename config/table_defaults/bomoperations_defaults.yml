@@ -1,0 +1,65 @@
+bomoperations_defaults:
+  Route: 0 
+  Operation: 1
+  WorkCentre: "DGMAN"
+  WcRateInd: 1
+  WhatIfWcInd: 1
+  SubcontractFlag: "N"
+  IMaxWorkOpertrs: 1
+  IMaxProdUnits: 1
+  Milestone: "Y"
+  ElapsedTime: 1
+  MovementTime: -1
+  NumOfPieces: 1
+  InspectionFlag: "N"
+  TimeCalcFlag: "Y"
+  TransferQtyOrPct: "Q"
+  CoProductCostVal: "N"
+  Version: "     "
+  Release: "     "
+  ISetUpTime: 0
+  IRunTime: 0
+  IStartupTime: 0
+  ITeardownTime: 0
+  IWaitTime: 0
+  IStartupQty: 0
+  IMachine: " "
+  IUnitCapacity: 0
+  ITimeTaken: 0
+  IQuantity: 0
+  IRunTimeEnt: 0
+  ITimeTakenEnt: 0
+  IStartupQtyEnt: 0
+  IQuantityEnt: 0
+  SubSupplier: " "
+  SubPoStockCode: " "
+  SubQtyPer: 0
+  SubOrderUom: " "
+  SubOpUnitValue: 0
+  SubWhatIfValue: 0
+  SubPlanner: " "
+  SubBuyer: " "
+  SubLeadTime: 0
+  SubDockToStock: 0
+  SubOffsiteDays: 0
+  NarrationCode: " "
+  AutoNarrCode: 0
+  OperYieldPct: 0
+  OperYieldQty: 0
+  MinorSetup: 0
+  MinorSetupCode: "    "
+  Toolset: " "
+  ToolsetQty: 0
+  ToolConsumption: 0
+  TransferQtyPct: 0
+  ResourceMask: " "
+  MaxOpDelay: 0
+  OperYieldQtyEnt: 0
+  TransferQtyPctEnt: 0
+  MaxOpSpan: 0
+  OpSlack: 0
+  AllowOpSplit: " "
+  ProductCode: " "
+  LibraryCode: "     "
+  FirstSeq: 0
+  SecondSeq: 0

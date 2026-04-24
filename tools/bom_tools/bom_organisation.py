@@ -71,7 +71,7 @@ def delete_ops_from_route(
     route: str,
     stock_code: str, 
 ) -> None:
-    
+    pass
 
 def specify_lldr_edged_sides(
     *,
@@ -168,3 +168,87 @@ def get_range_modal_component(
 
     print(modal_component)
     return modal_component
+
+def build_op_num_mapping(op_nums: list[int]) -> dict[int, int]:
+    unique_sorted = sorted(set(op_nums))
+    return {old: new for new, old in enumerate(unique_sorted, start=1)}
+
+def defrag_routing(
+    stock_code: str,
+    route: str
+):
+    # One stock code, in one route, at a time
+    
+    # 1. Get list of op numbers
+
+    op_nums = sql.get_multiple_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": route
+        },
+        return_columns={
+            "Operation"
+        }
+    )
+
+    op_nums = [int(i) for list in op_nums for i in list]
+    op_nums.sort()
+
+    mapping = build_op_num_mapping(op_nums=op_nums)
+
+    for old_op, new_op in mapping.items():
+        if old_op == new_op:
+            continue
+
+        sql.update_records(
+            table="BomOperations",
+            criteria={
+                "StockCode": stock_code,
+                "Route": 0,
+                "Operation": old_op
+            },
+            update_data={"Operation": new_op}
+        )
+
+        sql.update_records(
+            table="[BomOperations+]",
+            criteria={
+                "StockCode": stock_code,
+                "Route": 0,
+                "Operation": old_op
+            },
+            update_data={"Operation": new_op}
+        )
+
+        sql.update_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": stock_code,
+                "Route": 0,
+                "OperationOffset": old_op
+            },
+            update_data={"OperationOffset": new_op}
+        )
+
+def get_next_op_number(
+    stock_code: str,
+    route: str = 0
+) -> int:
+    op_nums = sql.get_multiple_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": route
+        },
+        return_columns={
+            "Operation"
+        }
+    )
+
+    op_nums = [int(i) for list in op_nums for i in list]
+    op_nums.sort()
+
+    next_op = op_nums[-1] + 1
+
+    return next_op

@@ -1,0 +1,3 @@
+invprice_defaults:
+  PriceCode: "A"
+  PriceBasis: "S"

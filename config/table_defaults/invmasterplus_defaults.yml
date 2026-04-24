@@ -1,0 +1,18 @@
+invmasterplus_defaults:
+  RotateGrain: " "
+  MinSafeStock: " "
+  AllowHingeHoles: " "   
+  Jpull: " "
+  StockMessage: " "
+  WorkSheet: " "
+  StockOut: " "
+  SkuStatus: "L"
+  Planner2: "NEW"
+  QuoteReference: " "
+  BaRangeName: " "
+  CustomerRangeName: " "
+  RangeMoq: 1
+  MinimumOrderQty: 1
+  PLPriceListSection: " "
+  RouteToMarket: " "
+  Planner3: "NEW"

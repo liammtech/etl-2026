@@ -1,0 +1,5 @@
+sorcontractprice_defaults:
+  ContractType: "C"
+  Contract: 1
+  PriceMethod: "F"
+  FixedUom: "PCS"

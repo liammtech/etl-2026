@@ -157,6 +157,33 @@ def append_single_record(
         cursor.connection.commit()
 
 
+def append_single_record(
+    *,
+    table: str,
+    row: dict[str, object]
+) -> None:
+    if not row:
+        print("tools.sql.append_single_record(): No row provided, terminating.")
+        return
+
+    # validate_table(table)
+
+    print(f"append_single_record():")
+    print(f"Table appending to: {table}")
+    print(f"Row being appended: {row}")
+
+    columns = list(row.keys())
+    column_names = ", ".join(f"[{col}]" for col in columns)
+    placeholders = ", ".join("?" for _ in columns)
+
+    sql = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
+    params = [row[column] for column in columns]
+
+    with get_cursor() as cursor:
+        cursor.execute(sql, params)
+        cursor.connection.commit()
+
+
 def append_multiple_records(
     *,
     table: str,
@@ -175,7 +202,6 @@ def append_multiple_records(
 
     sql = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
 
-
     # Optional: sanity check that all rows have the same keys
     for i, row in enumerate(rows):
         if row.keys() != rows[0].keys():
@@ -185,9 +211,6 @@ def append_multiple_records(
         [row[column] for column in columns]
         for row in rows
     ]
-
-    # print(f"SQL is: \n{sql}")
-    # print(f"param_sets are: \n{param_sets}")
 
     with get_cursor() as cursor:
         cursor.executemany(sql, param_sets)
@@ -201,7 +224,8 @@ def update_records(
     update_data: dict[str, object],
     
 ) -> None:
-    
+    print(f"ATTEMPTING TO UPDATE TABLE {table}")
+    print(f"UPDATE DATA IS: {update_data}")
     if not update_data:
         return
     
@@ -215,10 +239,13 @@ def update_records(
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + list(criteria.values())
+    print(sql)
+    print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()
+
 
 def delete_records(
     *,
@@ -241,3 +268,60 @@ def delete_records(
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()
+
+# To implement later:
+
+# def update_records_case(
+#     table: str,
+#     target_column: str,
+#     value_map: dict[object, object],
+#     where: list[tuple[str, str, object]] | None = None,
+# ) -> tuple[str, list[object]]:
+#     if not value_map:
+#         raise ValueError("value_map cannot be empty")
+
+#     case_parts = []
+#     params: list[object] = []
+
+#     for old_value, new_value in value_map.items():
+#         case_parts.append("WHEN ? THEN ?")
+#         params.extend([old_value, new_value])
+
+#     sql = (
+#         f"UPDATE {table} "
+#         f"SET {target_column} = CASE {target_column} "
+#         + " ".join(case_parts)
+#         + " END"
+#     )
+
+#     extra_where = list(where or [])
+#     extra_where.append((target_column, "in", list(value_map.keys())))
+
+#     where_sql_parts = []
+
+#     for column, operator, value in extra_where:
+#         op = operator.lower()
+
+#         if op == "=":
+#             where_sql_parts.append(f"{column} = ?")
+#             params.append(value)
+
+#         elif op == "in":
+#             value = list(value)
+#             if not value:
+#                 raise ValueError(f"IN value for {column} cannot be empty")
+#             placeholders = ", ".join("?" for _ in value)
+#             where_sql_parts.append(f"{column} IN ({placeholders})")
+#             params.extend(value)
+
+#         else:
+#             raise ValueError(f"Unsupported operator in this helper: {operator}")
+
+#     sql += " WHERE " + " AND ".join(where_sql_parts)
+#     print(sql)
+#     print(params)
+
+
+#     with get_cursor() as cursor:
+#         cursor.execute(sql, tuple(params))
+#         cursor.connection.commit()

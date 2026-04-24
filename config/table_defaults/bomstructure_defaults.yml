@@ -1,0 +1,30 @@
+bomstructure_defaults:
+  Route: 0 
+  SequenceNum: "000010"
+  Component: "NEWCODE"
+  OpOffsetFlag: "O"
+  OperationOffset: 1
+  QtyPer: 0
+  SoOptionFlag: "N"
+  SoPrintFlag: "Y"
+  InclScrapFlag: "Y"
+  InclKitIssues: "Y"
+  CreateSubJob: "N"
+  IncludeBatch: "N"
+  FixedQtyPerFlag: "N"
+  RollUpCost: "Y"
+  IgnoreFloorFlag: "N"
+  CoProductCostVal: "N"
+  UomFlag: "S"
+  QtyPerEnt: 0
+  Version: "     "
+  Release: "     "
+  ScrapPercentage: 0
+  ScrapQuantity: 0
+  AutoNarrCode: 0
+  WetWeightPercent: 0
+  FixedQtyPer: 0
+  ScrapQuantityEnt: 0
+  FixedQtyPerEnt: 0
+  FirstSeq: 0
+  SecondSeq: 0

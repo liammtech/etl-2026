@@ -134,8 +134,8 @@ def memp_std_single(stock_code: str):
     mel_qty_per = pressed.calculate_mel_board_qty(
         door_height=door_height,
         door_width=door_width,
-        mpj_height=mel_code_height,
-        mpj_width=mel_code_width
+        board_height=mel_code_height,
+        board_width=mel_code_width
     )
 
     gl100_qty_per = pressed.calculate_glue_qty(

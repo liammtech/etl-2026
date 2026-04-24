@@ -1,0 +1,21 @@
+zinvextra_defaults:
+  Customer: "0000000"
+  InternalProductDescription: " "
+  GrainDirection: "N"
+  FoilType: "N/A"
+  Obsolete: "N"
+  NumPieces: 1
+  PalletLabelQty: 1
+  AddPalletLabelQty: 1
+  SFDCJobSelection: "M"
+  SFDCMilestone: 1
+  SFDCMaterialIssues: 1
+  SFDCJobReceipt: "M"
+  LandedCostSupplier: "0000000"
+  DateAdded: "01/01/1970"
+  AddedUser: "python-etl"
+  DateLastChanged: "01/01/1970"
+  ChangeUser: "python-etl"
+  UseInternalPackagingMachine: 0
+  AutoBoxSize: 1
+  OnlineLabelQty: 1

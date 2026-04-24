@@ -1,0 +1,9 @@
+bomoperationsplus_defaults:
+  Version: "     "
+  Release: "     "
+  Route: 0
+  Operation: 1
+  OpInstruction1: " "
+  OpInstruction2: " "
+  OpInstruction3: " "
+  OpInstruction4: " "

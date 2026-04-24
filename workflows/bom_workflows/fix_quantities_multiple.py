@@ -13,8 +13,8 @@ def memp_std_range(stock_code: str):
         ]
     )
     
-    door_range = [item for sublist in door_range_result for item in sublist]
-    # door_range = ["MEMP-PTYPE48","MEMP-PTYPE49","MEMP-PTYPE50","MEMP-PTYPE51","MEMP-PTYPE52","MEMP-PTYPE53","MEMP-PTYPE54","MEMP-PTYPE55","MEMP-PTYPE56","MEMP-PTYPE57","MEMP-PTYPE58","MEMP-PTYPE59","MEMP-PTYPE60","MEMP-PTYPE61","MEMP-PTYPE62","MEMP-PTYPE63","MEMP-PTYPE64","MEMP-PTYPE65","MEMP-PTYPE66","MEMP-PTYPE67","MEMP-PTYPE68","MEMP-PTYPE69","MEMP-PTYPE70","MEMP-PTYPE71","MEMP-PTYPE72","MEMP-PTYPE73","MEMP-PTYPE74","MEMP-PTYPE75","MEMP-PTYPE76"]
+    #door_range = [item for sublist in door_range_result for item in sublist]
+    door_range = ["MEMP-PTYPE80","MEMP-PTYPE81","MEMP-PTYPE82","MEMP-PTYPE83","MEMP-PTYPE84","MEMP-PTYPE85","MEMP-PTYPE86","MEMP-PTYPE87","MEMP-PTYPE88","MEMP-PTYPE89","MEMP-PTYPE90","MEMP-PTYPE91"]
 
     for sku in door_range:
         memp_std_single(sku)

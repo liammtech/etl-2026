@@ -1,0 +1,3 @@
+invwarehouseplus_defaults:
+  Warehouse: DW
+  WHouseExtra: " "

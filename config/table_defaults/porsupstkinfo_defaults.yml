@@ -1,0 +1,5 @@
+porsupstkinfo_defaults:
+  Supplier: "B0020"
+  SupCatalogueNum: "Placeholder"
+  OrderQtyUom: "PCS"
+  LastPrcUom: "PCS"

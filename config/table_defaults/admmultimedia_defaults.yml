@@ -1,0 +1,4 @@
+admultimedia_defaults:
+  MultimediaFlag: "STK"
+  ObjectType: "OLE"
+  ObjectText: 'Placeholder'
