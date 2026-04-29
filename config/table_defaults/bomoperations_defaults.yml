@@ -48,8 +48,8 @@ bomoperations_defaults:
   OperYieldQty: 0
   MinorSetup: 0
   MinorSetupCode: "    "
-  Toolset: " "
-  ToolsetQty: 0
+  ToolSet: " "
+  ToolSetQty: 0
   ToolConsumption: 0
   TransferQtyPct: 0
   ResourceMask: " "

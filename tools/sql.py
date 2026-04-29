@@ -120,7 +120,7 @@ def get_multiple_records(
             else:
                 sql.append(f"AND {col} = ?")
 
-        params.append(val)
+        params.append(str(val)) # HERE IS THE PROBLEM
 
     if table == "BomStructure" or table == "[BomStructure+]":
         order_by = "ParentPart"
@@ -128,11 +128,12 @@ def get_multiple_records(
     final_sql = " ".join(sql) + f" ORDER BY {order_by}"
 
     with get_cursor() as cursor:
-        # print(final_sql)
-        # print(params)
+        print(final_sql)
+        print(params)
         cursor.execute(final_sql, params)
-        return cursor.fetchall()
-
+        result = cursor.fetchall()
+        print(result)
+        return result
 
 def append_single_record(
     *,
@@ -192,11 +193,21 @@ def append_multiple_records(
     if not rows:
         print("tools.sql.append_multiple_records(): No rows provided, terminating.")
         return
+    
+    if isinstance(rows[0], Row):
+        rows = [dict(zip([column[0] for column in r.cursor_description], r)) for r in rows]
 
     # validate_table(table)
+    first_row = rows[0]
+    excluded_keys = {
+        k for k, v in first_row.items() 
+        if isinstance(v, (bytes, bytearray)) and len(v) == 8 # Standard SQL timestamp size
+        or k.lower() in ('TimeStamp')
+    }
+
 
     # Use the first row to define the schema for this batch
-    columns = list(rows[0].keys())
+    columns = [k for k in first_row.keys() if k not in excluded_keys]
     column_names = ", ".join(f"[{col}]" for col in columns)
     placeholders = ", ".join("?" for _ in columns)
 

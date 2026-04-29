@@ -1,5 +1,5 @@
 from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
-from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number
+from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number, copy_bomops_to_new_route
 from validation.general_validation import check_if_in_table
 from tools.row_builders import build_single_bomstructure_row as build_bom_row, build_single_bomoperations_row as build_op_row
 from pprint import pprint
@@ -54,15 +54,15 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     if route_a_ops_exists or route_a_bom_exists:
         print("Records present in Route A structure & routing\n" \
-              "Do you want to [O]verwrite, [S]wap, or [T]erminate?")
+              "Do you want to [O]verwrite or [T]erminate? (Swap not available as route 0 required)")
         
         user_choice = None
 
         while True:
             user_choice = input().lower()
 
-            if user_choice not in ["o", "s", "t", "overwrite", "swap", "terminate"]:
-                print("Please select a valid option: [O]verwrite, [S]wap, or [T]erminate")
+            if user_choice not in ["o", "t", "overwrite", "terminate"]:
+                print("Please select a valid option: [O]verwrite or [T]erminate")
                 continue
             else:
                 break
@@ -72,10 +72,6 @@ def switch_jpull_stocked_to_mto(stock_code: str):
                 print("Overwriting previous route...")
                 delete_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "A"})
                 delete_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "A"})
-            case "s" | "swap":
-                update_records(table="BomOperations", criteria={"StockCode": stock_code, "Route": "A"}, update_data={"Route": "XX"})
-                update_records(table="BomStructure", criteria={"ParentPart": stock_code, "Route": "A"}, update_data={"Route": "XX"})
-                route_swap_flag = True
             case "t" | "terminate":
                 print("Terminating.")
                 return
@@ -135,6 +131,12 @@ def switch_jpull_stocked_to_mto(stock_code: str):
     ops_as_dicts = [dict(zip(ops_cols, row)) for row in ops_vals]
     bom_as_dicts = [dict(zip(bom_cols, row)) for row in bom_vals]
 
+    for row in ops_as_dicts:
+        row.pop('TimeStamp', None)
+
+    for row in bom_as_dicts:
+        row.pop('TimeStamp', None)
+
     # Post back in 
 
     # pprint(ops_as_dicts)
@@ -161,7 +163,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         table="BomOperations",
         criteria={
             "StockCode": stock_code,
-            "Route": 0,
+            "Route": "0",
             "Operation": 1
         },
         update_data={
@@ -175,7 +177,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         table="BomStructure",
         criteria={
             "ParentPart": stock_code,
-            "Route": 0,
+            "Route": "0",
             "Component": "PK9%"
         }
     )
@@ -202,7 +204,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         table="BomStructure",
         criteria={
             "ParentPart": stock_code,
-            "Route": 0,
+            "Route": "0",
             "Component": "B0167/%"
         },
         update_data={
@@ -216,7 +218,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         table="BomOperations",
         criteria={
             "StockCode": stock_code,
-            "Route": 0,
+            "Route": "0",
             "WorkCentre": "DSHRIN"
         }
     )
@@ -227,8 +229,8 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         parent_part=stock_code,
         component="PK0170",
         overlays={
-            "QtyPer": 1,
-            "QtyPerEnt": 1,
+            "QtyPer": "1",
+            "QtyPerEnt": "1",
             "InclKitIssues": "N"
         }
     )
@@ -281,3 +283,117 @@ def switch_jpull_stocked_to_mto(stock_code: str):
             table="BomOperations",
             row=row
         )
+
+    # 9. Copy this whole BOM/op structure to route 5 (supplant previous route)
+
+    delete_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": "5"
+        }
+    )
+
+    delete_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Route": "5"
+        }
+    )
+
+    copy_bomops_to_new_route(
+        source_stock_code=stock_code,
+        source_route=0,
+        dest_stock_code=stock_code,
+        dest_route=5
+    )
+
+    # 10. Copy this whole BOM/op structure to route 6 (supplant previous route)
+
+    delete_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": "6"
+        }
+    )
+
+    delete_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Route": "6"
+        }
+    )
+
+    copy_bomops_to_new_route(
+        source_stock_code=stock_code,
+        source_route="0",
+        dest_stock_code=stock_code,
+        dest_route="6"
+    )
+
+    # 11. In route 6, add "DPDRL" between DPCHK and DPPACK (op 7)
+
+    op_after_wms = get_next_op_number(stock_code=stock_code,route=6)
+
+    update_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": "6",
+            "WorkCentre": "DPDESP"
+        },
+        update_data={
+            "Operation": op_after_wms
+        }
+    )
+
+    update_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": "6",
+            "WorkCentre": "DPPACK"
+        },
+        update_data={
+            "Operation": op_after_wms - 1
+        }
+    )
+
+    DPDRL_row = build_op_row(
+        stock_code=stock_code,
+        route="6",
+        operation=op_after_wms - 2,
+        work_centre="DPDRL"
+    )
+
+    append_single_record(
+        table="BomOperations",
+        row=DPDRL_row
+    )
+
+    # 12. Change zInvExtra LinkedStockCode to point at the parent SKU itself
+
+    update_records(
+        table="zInvExtra",
+        criteria={
+            "StockCode": stock_code
+        },
+        update_data={
+            "LinkedStockCode": stock_code
+        }
+    )
+
+    # 13. Change Parent SKU Long Description to "MTO"
+
+    update_records(
+        table="InvMaster",
+        criteria={
+            "StockCode": stock_code
+        },
+        update_data={
+            "LongDesc": "MTO"
+        }
+    )

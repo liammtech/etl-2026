@@ -4,7 +4,7 @@ from typing import Literal
 from collections import Counter
 
 # This is essentially an analogue of the copy BomOperations route function in Syspro
-def copy_ops_to_new_route(
+def copy_bomops_to_new_route(
     *,
     source_route: str,
     source_stock_code: str, 
@@ -21,7 +21,73 @@ def copy_ops_to_new_route(
         sql_getter_func=sql.get_multiple_records
     )
 
-    print(f"Do ops exist in destination route: {ops_exist_in_destination}")
+    swap_flag = False
+
+    if ops_exist_in_destination:
+        print(f"Records present in destination Route {dest_route} structure & routing" \
+              "Do you want to [O]verwrite, [S]wap, or [T]erminate?")
+        
+        user_choice = None
+
+        while True:
+            user_choice = input().lower()
+
+            if user_choice not in ["o", "s", "t", "overwrite", "swap", "terminate"]:
+                print("Please select a valid option: [O]verwrite, [S]wap, or [T]erminate")
+                continue
+            else:
+                break
+
+        match user_choice:
+            case "o" | "overwrite":
+                print("Overwriting previous route...")
+                sql.delete_records(table="BomOperations", criteria={"StockCode": dest_stock_code, "Route": dest_route})
+                sql.delete_records(table="BomStructure", criteria={"ParentPart": dest_stock_code, "Route": dest_route})
+            case "s" | "swap":
+                sql.update_records(table="BomOperations", criteria={"StockCode": dest_stock_code, "Route": dest_route}, update_data={"Route": "XX"})
+                sql.update_records(table="BomStructure", criteria={"ParentPart": dest_stock_code, "Route": dest_route}, update_data={"Route": "XX"})
+                swap_flag = True
+            case "t" | "terminate":
+                print("Terminating.")
+                return
+            
+    print("Did it get here")
+    ops_rows = sql.get_multiple_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": source_stock_code,
+            "Route": source_route
+        }
+    )
+
+    bom_rows = sql.get_multiple_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": source_stock_code,
+            "Route": source_route
+        }
+    )
+
+    for row in ops_rows:
+        row.Route = dest_route
+
+    for row in bom_rows:
+        pass
+        row.Route = dest_route
+
+    sql.append_multiple_records(
+        table="BomOperations",
+        rows=ops_rows
+    )
+
+    sql.append_multiple_records(
+        table="BomStructure",
+        rows=bom_rows
+    )
+
+    if swap_flag:
+        sql.update_records(table="BomOperations", criteria={"StockCode": dest_stock_code, "Route": "XX"}, update_data={"Route": source_route})
+        sql.update_records(table="BomStructure", criteria={"ParentPart": dest_stock_code, "Route": "XX"}, update_data={"Route": source_route})
 
     # FUNCTION NOT FINISHED
 
@@ -181,6 +247,8 @@ def defrag_routing(
     
     # 1. Get list of op numbers
 
+    print(F"DEFRAGGING FOR ROUTE: {route}")
+
     op_nums = sql.get_multiple_records(
         table="BomOperations",
         criteria={
@@ -192,6 +260,7 @@ def defrag_routing(
         }
     )
 
+    print("Hit heeeeeeeeeeeeeeeere?")
     op_nums = [int(i) for list in op_nums for i in list]
     op_nums.sort()
 
