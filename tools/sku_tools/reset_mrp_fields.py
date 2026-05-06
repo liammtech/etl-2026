@@ -19,7 +19,7 @@ def reset_mrp(stock_code: str) -> None:
     )
 
     sql.update_records(
-        table="InvMaster+",
+        table="[InvMaster+]",
         criteria={
             "StockCode": stock_code
         },
