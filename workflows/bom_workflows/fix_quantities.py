@@ -312,8 +312,8 @@ def lldr_std_single(stock_code: str):
         ]
     )
 
-    mpj_code_height = int(board_code_dims.Height)
-    mpj_code_width = int(board_code_dims.Width)
+    board_height = int(board_code_dims.Height)
+    board_width = int(board_code_dims.Width)
 
     # Get max pallet quantity
     if len(pallet_code_list) > 0:
@@ -367,8 +367,8 @@ def lldr_std_single(stock_code: str):
     board_qty_per = edged.calculate_lldr_board_qty(
         door_height=door_height,
         door_width=door_width,
-        mpj_height=mpj_code_height,
-        mpj_width=mpj_code_width
+        board_height=board_height,
+        board_width=board_width
     )
 
     edging_qty_per = edged.calculate_edging_qty(

@@ -1,4 +1,4 @@
-from tools.row_builders import build_single_bomstructure_row
+from tools.row_builders_stock_codes import build_single_bomstructure_row
 from pprint import pprint
 
 def test_build_bm_row():

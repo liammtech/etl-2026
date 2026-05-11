@@ -17,7 +17,7 @@ def calculate_lldr_board_qty(
         (board_height * board_width)
     )
 
-    zlam_qty_per + round(zlam_qty_per, 6)
+    zlam_qty_per = round(zlam_qty_per, 6)
     print(f"\nZLAM calc result is {zlam_qty_per} PCS")
     return zlam_qty_per
 

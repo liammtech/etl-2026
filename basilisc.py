@@ -1,12 +1,21 @@
 import sys
 
-from tools.sku_tools.reset_mrp_fields import reset_mrp
-from tools.sku_tools.fix_volumetrics import fix_door_volumetrics
+from workflows.bom_workflows.reset_mrp_fields import reset_mrp
+from workflows.bom_workflows.fix_volumetrics import fix_door_volumetrics
+from workflows.wip_workflows.waterford_m2m import populate_waterford_m2ms
+from workflows.bom_workflows.fix_quantities import memp_std_single, lldr_std_single
+from workflows.bom_workflows.fix_quantities_multiple import memp_std_range
+from workflows.bom_workflows.stocked_to_mto_jpull import switch_jpull_stocked_to_mto
 
 
 JOBS = {
     "reset-mrp": reset_mrp,
-    "fix-door-volumetrics": fix_door_volumetrics
+    "fix-door-volumetrics": fix_door_volumetrics,
+    "populate-waterford-m2ms": populate_waterford_m2ms,
+    "pressed-slab-qty-single": memp_std_single,
+    "pressed-slab-qty-range": memp_std_range,
+    "edged-slab-qty-single": lldr_std_single,
+    "jpull-stock-to-mto": switch_jpull_stocked_to_mto
 }
 
 
@@ -14,7 +23,7 @@ def main():
     args = sys.argv[1:]
 
     if not args:
-        print("Usage: basilisc2 [job] [args...]")
+        print("Usage: basilisc [job] [args...]")
         return
 
     job_name = args[0]
