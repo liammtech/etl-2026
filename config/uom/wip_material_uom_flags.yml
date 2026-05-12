@@ -1,0 +1,20 @@
+wip_material_uom_flags:
+  S:
+    source_qty_field: QtyPer
+    unit_uom: S
+
+  A:
+    source_qty_field: QtyPerEnt
+    unit_uom: A
+
+  M:
+    source_qty_field: QtyPerEnt
+    unit_uom: M
+
+  O:
+    source_qty_field: QtyPerEnt
+    unit_uom: O
+
+  P:
+    source_qty_field: QtyPerEnt
+    unit_uom: P

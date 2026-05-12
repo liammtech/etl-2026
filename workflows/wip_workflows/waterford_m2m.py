@@ -1,6 +1,14 @@
 import tools.sql as sql
+import tools.sku_tools.sku_organisation as sku
+import tools.warehouse_tools.warehouse_organisation as warehouse
 from tools.config_tools.config_loader import get_colour_from_prefix, get_material_via_range_colour, get_material_via_dimension, get_config_constant_value
+from tools.row_builders import build_wipjoballlab_row, build_wipjoballmat_row
+from tools.work_centre_tools.work_centre_organisation import get_work_centre_description
 import tools.calculations.waterford_qty_per_calcs as waterford
+from tools.wip_tools.wip_organisation import get_uom_conversion_fields
+from datetime import date, timedelta
+from pprint import pprint
+
 
 # Global constants
 
@@ -24,19 +32,22 @@ def populate_waterford_m2ms() -> None:
             "Job",
             "JobDescription",
             "StockCode",
+            "JobDeliveryDate",
             "Complete",
             "QtyToMake",
+            "Route",
             "SalesOrderLine"
         ]
     )
 
-
     for wip_line in current_m2ms:
-        job, sales_order, stock_code, qty_to_make, sales_order_line = [
+        job, sales_order, stock_code, job_delivery_date, qty_to_make, route, sales_order_line = [
             wip_line.Job, 
             wip_line.JobDescription, 
-            wip_line.StockCode, 
+            wip_line.StockCode,
+            wip_line.JobDeliveryDate,
             wip_line.QtyToMake,
+            wip_line.Route,
             wip_line.SalesOrderLine
         ]
 
@@ -58,9 +69,8 @@ def populate_waterford_m2ms() -> None:
             print(f"Sales order {sales_order} complete: skipping job {job}...")
             continue
 
-        # Validate that Operations have already been populated
-        # TODO: will create a more rigorous validation process at some point
-        # Will proceed with basic check now, as Ops are populated on ADHOC codes
+        # Validate that Operations have not already been populated
+        # TODO: Discovered that we need to put the ops in at every turn
 
         job_ops = sql.get_multiple_records(
             table="WipJobAllLab",
@@ -70,10 +80,13 @@ def populate_waterford_m2ms() -> None:
             order_by="Job"
         )
 
-        if not job_ops:
+        pprint(f"HERE ARE THE JOBS {job_ops}")
+
+        if job_ops:
             # TODO: add in operation loader if no operations found
-            print(f"Warning: No operations for job {job}\n" \
-                  "Please review. Proceeding to populate materials...")
+            print(f"Warning: Operations for job {job}\n" \
+                  "Review is advised. Skipping...")
+            continue
             
         # Validate that Materials have not already been populated
 
@@ -165,6 +178,8 @@ def populate_waterford_m2ms() -> None:
             }
         )
 
+        print(f"Centre panel ZLAM is {centre_panel_zlam}")
+
         zlam_height, zlam_width = [zlam_dims.Height, zlam_dims.Width]
 
         # Height stile
@@ -176,6 +191,13 @@ def populate_waterford_m2ms() -> None:
         )
 
         height_stile = sku_prefix + height_stile_suffix
+
+        height_stile_data = sql.get_single_record(
+            table="InvMaster",
+            criteria={
+                "StockCode": height_stile
+            }
+        )
 
         # Width rail
 
@@ -236,7 +258,7 @@ def populate_waterford_m2ms() -> None:
         # TODO: Migrate all to Waterford calcs
         # TODO: Provide a formal interface for "settings" on qty pers
 
-        height_rail_qty = 2     # PCS
+        height_stile_qty = 2     # PCS
         width_rail_qty = None
 
         if not standard_width_flag:
@@ -268,4 +290,546 @@ def populate_waterford_m2ms() -> None:
         # DELINEATE BETWEEN A STANDARD WIDTH AND BESPOKE WIDTH AT SALES ORDER ENTRY
         # AS IT TURNS OUT, THE ROUTINGS FOR EITHER OR ARE NOT THE SAME
 
-        # Op lines
+        # -------------------- OPERATIONS ------------------------------
+
+        job_year = job_delivery_date.strftime("%y")
+        job_week = job_delivery_date.isocalendar().week
+
+        production_yr_wk = f"{job_year}/{job_week}"
+
+        print(f"Job year is {job_year}")
+        print(f"Job week is {job_week}")
+        print(f"Put em together: {job_year}/{job_week}")
+        
+        print(f"Job: {job} - Delivery date: {job_delivery_date} - Delivery date type: {type(job_delivery_date)}")
+
+        wip_ops = []
+
+        if standard_width_flag and route != "6":
+            dsjig2_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 1,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSJIG2",
+                    "WorkCentreDesc": get_work_centre_description("DSJIG2"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            du2rec_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 2,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DU2REC",
+                    "WorkCentreDesc": get_work_centre_description("DU2REC"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                }
+            )
+
+            dppick_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 3,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPICK",
+                    "WorkCentreDesc": get_work_centre_description("DPPICK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpchk_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 4,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPCHK",
+                    "WorkCentreDesc": get_work_centre_description("DPCHK"),
+                    "Milestone": "N",
+                    "QueueTime": 0
+                }
+            )
+
+            dppack_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 5,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPACK",
+                    "WorkCentreDesc": get_work_centre_description("DPPACK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpdesp_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 6,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDESP",
+                    "WorkCentreDesc": get_work_centre_description("DPDESP"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            wip_ops = [dsjig2_op, du2rec_op, dppick_op, dpchk_op, dppack_op, dpdesp_op]
+
+        elif standard_width_flag and route == "6":
+            dsjig2_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 1,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSJIG2",
+                    "WorkCentreDesc": get_work_centre_description("DSJIG2"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            du2rec_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 2,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DU2REC",
+                    "WorkCentreDesc": get_work_centre_description("DU2REC"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                }
+            )
+
+            dppick_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 3,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPICK",
+                    "WorkCentreDesc": get_work_centre_description("DPPICK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpchk_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 4,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPCHK",
+                    "WorkCentreDesc": get_work_centre_description("DPCHK"),
+                    "Milestone": "N",
+                    "QueueTime": 0
+                }
+            )
+
+            dpdrl_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 5,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDRL",
+                    "WorkCentreDesc": get_work_centre_description("DPDRL"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dppack_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 6,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPACK",
+                    "WorkCentreDesc": get_work_centre_description("DPPACK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpdesp_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 7,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDESP",
+                    "WorkCentreDesc": get_work_centre_description("DPDESP"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            wip_ops = [dsjig2_op, du2rec_op, dppick_op, dpchk_op, dpdrl_op, dppack_op, dpdesp_op]
+
+        elif not standard_width_flag and route != "6":
+            # <--- Start M2M width ops --->
+            dgreco_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 1,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DGRECO",
+                    "WorkCentreDesc": get_work_centre_description("DGRECO"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            dhfdet_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 2,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DHFDET",
+                    "WorkCentreDesc": get_work_centre_description("DHFDET"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            dsprin_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 3,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSPRIN",
+                    "WorkCentreDesc": get_work_centre_description("DSPRIN"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            # <--- Stop M2M width ops --->
+
+            dsjig2_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 4,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSJIG2",
+                    "WorkCentreDesc": get_work_centre_description("DSJIG2"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": f"{job_year}/{job_week}"
+                }
+            )
+
+            du2rec_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 5,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DU2REC",
+                    "WorkCentreDesc": get_work_centre_description("DU2REC"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                }
+            )
+
+            dppick_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 6,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPICK",
+                    "WorkCentreDesc": get_work_centre_description("DPPICK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpchk_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 7,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPCHK",
+                    "WorkCentreDesc": get_work_centre_description("DPCHK"),
+                    "Milestone": "N",
+                    "QueueTime": 0
+                }
+            )
+
+            dppack_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 8,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPACK",
+                    "WorkCentreDesc": get_work_centre_description("DPPACK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpdesp_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 9,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDESP",
+                    "WorkCentreDesc": get_work_centre_description("DPDESP"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            wip_ops = [dgreco_op, dhfdet_op, dsprin_op, dsjig2_op, du2rec_op, dppick_op, dpchk_op, dppack_op, dpdesp_op]
+
+        elif not standard_width_flag and route == "6":
+            # <--- Start M2M width ops --->
+            dgreco_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 1,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DGRECO",
+                    "WorkCentreDesc": get_work_centre_description("DGRECO"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            dhfdet_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 2,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DHFDET",
+                    "WorkCentreDesc": get_work_centre_description("DHFDET"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            dsprin_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 3,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSPRIN",
+                    "WorkCentreDesc": get_work_centre_description("DSPRIN"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": production_yr_wk
+                }
+            )
+
+            # <--- Stop M2M width ops --->
+
+            dsjig2_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 4,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DSJIG2",
+                    "WorkCentreDesc": get_work_centre_description("DSJIG2"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                },
+                overlays={
+                    "Priority": 9999,
+                    "ProductionYrWk": f"{job_year}/{job_week}"
+                }
+            )
+
+            du2rec_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 5,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DU2REC",
+                    "WorkCentreDesc": get_work_centre_description("DU2REC"),
+                    "Milestone": "Y",
+                    "QueueTime": 1
+                }
+            )
+
+            dppick_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 6,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPICK",
+                    "WorkCentreDesc": get_work_centre_description("DPPICK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpchk_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 7,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPCHK",
+                    "WorkCentreDesc": get_work_centre_description("DPCHK"),
+                    "Milestone": "N",
+                    "QueueTime": 0
+                }
+            )
+
+            dpchk_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 8,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDRL",
+                    "WorkCentreDesc": get_work_centre_description("DPDRL"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dppack_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 9,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPPACK",
+                    "WorkCentreDesc": get_work_centre_description("DPPACK"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            dpdesp_op = build_wipjoballlab_row(
+                values={
+                    "Job": job,
+                    "Operation": 10,
+                    "PlannedQueueDate": job_delivery_date,
+                    "PlannedStartDate": job_delivery_date,
+                    "PlannedEndDate": job_delivery_date,
+                    "WorkCentre": "DPDESP",
+                    "WorkCentreDesc": get_work_centre_description("DPDESP"),
+                    "Milestone": "Y",
+                    "QueueTime": 0
+                }
+            )
+
+            wip_ops = [dgreco_op, dhfdet_op, dsprin_op, dsjig2_op, du2rec_op, dppick_op, dpchk_op, dpdrl_op, dppack_op, dpdesp_op]
+
+        # -------------------- MATERIALS ------------------------------
+
+        height_stile_line = build_wipjoballmat_row(
+            values={
+                "Job": job,
+                "StockCode": height_stile,
+                "Warehouse": "DW",
+                "StockDescription": height_stile_data.Description,
+                "QtyPer": height_stile_qty,
+                "UnitCost": height_stile_data.MaterialCost,
+                "OperationOffset": dsjig2_op.get("Operation"),
+                "Uom": height_stile_data.ManufactureUom,
+                "Bin": warehouse.get_default_bin(stock_code=height_stile),
+                "SequenceNum": "000010",
+                "ScrapPercentage": 0,
+                "KitIssueItem": "Y",
+                **get_uom_conversion_fields(
+                    invmaster_row=height_stile_data,
+                    uom_flag="M",
+                ),
+            }
+        )

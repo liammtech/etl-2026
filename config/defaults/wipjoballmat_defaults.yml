@@ -1,1 +1,9 @@
 wipjoballmat_defaults:
+  Line: "00"
+  OpOffsetFlag: "O"
+  Decimals: 3
+  AllocCompleted: "N"
+  ApplyCostUom: "N"
+  BulkIssueItem: "N"
+  InclScrapOnDoc: "Y"
+  FixedQtyPerFlag: "N"

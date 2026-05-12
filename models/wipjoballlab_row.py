@@ -15,5 +15,3 @@ class WipJobAllLabRow:
     WorkCentreDesc: str
     Milestone: str
     QueueTime: int
-    Priority: Optional[int]
-    ProductionYrWeek: str

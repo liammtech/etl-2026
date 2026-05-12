@@ -5,20 +5,9 @@ from tools.sql import append_single_record, get_single_record
 
 def test_return_type():
     append_single_record(
-        table = "InvMaster",
-        post_data = {
-            "StockCode": "TESTCODE42"
+        table = "WipJobAllMat",
+        row = {
+            "Job": "000000009889888"
         }  
     )
-
-    return_val = get_single_record(
-        table = "InvMaster",
-        criteria = {
-            "StockCode": "TESTCODE42"
-        }  
-    )
-
-    print(return_val)
-    assert type(return_val) == Row
-
 

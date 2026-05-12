@@ -1,13 +1,15 @@
+from decimal import Decimal
+
 def calculate_centre_panel_board_qty(
     *,
-    door_height: float,
-    door_width: float,
-    board_height: float,
-    board_width: float,
+    door_height: Decimal,
+    door_width: Decimal,
+    board_height: Decimal,
+    board_width: Decimal,
     # door_shoulder_width: float = 65, # TODO: refine relevant variables for readability
-    groove_offset: float = 111,
-    board_waste: float = 0.13 # Standard waste, almost never changes
-) -> float:
+    groove_offset: Decimal = 111,
+    board_waste: Decimal = Decimal(0.13) # Standard waste, almost never changes
+) -> Decimal:
     
     zlam_qty_per = (
         ((door_height - groove_offset) * (door_width - groove_offset) * (1 + board_waste)) /

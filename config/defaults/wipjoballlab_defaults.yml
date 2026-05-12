@@ -1,1 +1,11 @@
 wipjoballlab_defaults:
+  SubcontractOp: "N"
+  IWcRateInd: 1
+  IMaxWorkOpertrs: 1
+  IMaxProdUnits: 1
+  OperCompleted: "N"
+  ElapsedTime: 1
+  MovementTime: -1
+  UnitNumOfPieces: 1
+  CalcElapsed: "Y"
+  TransferQtyOrPct: "Q"

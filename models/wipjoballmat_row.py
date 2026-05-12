@@ -17,8 +17,10 @@ class WipJobAllMatRow:
     Uom: str
     Bin: str
     SequenceNum: str
-    BulkIssueItem: str
     ScrapPercentage: Decimal
     KitIssueItem: str
     NetUnitQtyReqd: Decimal
-    Line: str = "00"
+    ConvFactUom: Decimal
+    ConvMulDiv: str
+    UnitQtyReqdEnt: Decimal
+    NetUnitQtyReqdEnt: Decimal

@@ -1,7 +1,15 @@
 from dataclasses import fields, is_dataclass
 from tools.config_tools.config_loader import load_row_defaults
+from tools.wip_tools.wip_organisation import apply_wip_material_uom
 from models import MODEL_REGISTRY
 from typing import Any, Type
+import yaml
+
+def load_wip_material_uom_flags() -> dict[str, dict[str, str]]:
+    with open("config/uom/wip_material_uom_flags.yaml", "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    return data["wip_material_uom_flags"]
 
 
 def build_row(
@@ -69,17 +77,6 @@ def build_bomoperations_row(
     )
 
 
-def build_wipjoballmat_row(
-    values: dict[str, Any],
-    overlays: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    return build_row(
-        table_name="WipJobAllMat",
-        values=values,
-        overlays=overlays,
-    )
-
-
 def build_wipjoballlab_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
@@ -88,4 +85,22 @@ def build_wipjoballlab_row(
         table_name="WipJobAllLab",
         values=values,
         overlays=overlays,
+    )
+
+
+def build_wipjoballmat_row(
+    values: dict[str, Any],
+    overlays: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+
+    values = apply_wip_material_uom(values)
+
+    values.pop("QtyPer", None)
+
+    print(values)
+
+    return build_row(
+        table_name="WipJobAllMat",
+        values=values,
+        overlays=overlays
     )
