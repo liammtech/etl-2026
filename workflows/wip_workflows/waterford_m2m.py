@@ -88,7 +88,7 @@ def populate_waterford_m2ms() -> None:
             # TODO: add in more robust checker to see if the materials are actually correct
             print(f"Materials found for job {job}\n" \
                   "Review is advised. Skipping...")
-            return
+            continue
         
         '''
         - Get pre-requisite information:
