@@ -51,22 +51,14 @@ def get_config_constant_value(    *,
     return data[lookup_key]
 
 
-def load_row_defaults_stock_codes(table_name: str) -> dict:
+def load_row_defaults(table_name: str) -> dict:
     table_name = table_name.lower()
 
     return _load_yaml_section(
-        config_filepath=f"config/table_defaults_stock_codes/{table_name}_defaults.yml",
+        config_filepath=f"config/defaults/{table_name}_defaults.yml",
         section_name=f"{table_name}_defaults"
     )
 
-
-def load_row_defaults_wip(table_name: str) -> dict:
-    table_name = table_name.lower()
-
-    return _load_yaml_section(
-        config_filepath=f"config/table_defaults_wip/{table_name}_defaults.yml",
-        section_name=f"{table_name}_defaults"
-    )
 
 
 def get_colour_from_prefix(

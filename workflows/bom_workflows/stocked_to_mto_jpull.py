@@ -1,7 +1,10 @@
 from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
 from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number, copy_bomops_to_new_route
 from validation.general_validation import check_if_in_table
+# option 1
 from tools.row_builders_stock_codes import build_single_bomstructure_row as build_bom_row, build_single_bomoperations_row as build_op_row
+# option 2
+from tools.row_builders import build_bomoperations_row, build_bomstructure_row
 from pprint import pprint
 
 '''
@@ -247,35 +250,43 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         route=0
     )
 
-    DPPICK_row = build_op_row(
-        stock_code=stock_code,
-        route=0,
-        operation=next_op,
-        work_centre="DPPICK"
+    DPPICK_row = build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": 0,
+            "Operation": next_op,
+            "WorkCentre": "DPPICK"
+        }
     )
 
-    DPCHK_row = build_op_row(
-        stock_code=stock_code,
-        route=0,
-        operation=next_op + 1,
-        work_centre="DPCHK",
+    DPCHK_row = build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": 0,
+            "Operation": next_op + 1,
+            "WorkCentre": "DPCHK"
+        },
         overlays={
             "Milestone": "N"
         }
     )
 
-    DPPACK_row = build_op_row(
-        stock_code=stock_code,
-        route=0,
-        operation=next_op + 2,
-        work_centre="DPPACK"
+    DPPACK_row = build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": 0,
+            "Operation": next_op + 2,
+            "WorkCentre": "DPPACK"
+        },     
     )
 
-    DPDESP_row = build_op_row(
-        stock_code=stock_code,
-        route=0,
-        operation=next_op + 3,
-        work_centre="DPDESP"
+    DPDESP_row = build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": 0,
+            "Operation": next_op + 3,
+            "WorkCentre": "DPDESP"
+        }   
     )
 
     for row in [DPPICK_row, DPCHK_row, DPPACK_row, DPDESP_row]:
@@ -362,11 +373,13 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         }
     )
 
-    DPDRL_row = build_op_row(
-        stock_code=stock_code,
-        route="6",
-        operation=op_after_wms - 2,
-        work_centre="DPDRL"
+    DPDRL_row = build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": 6,
+            "Operation": op_after_wms - 2,
+            "WorkCentre": "DPDRL"
+        } 
     )
 
     append_single_record(
