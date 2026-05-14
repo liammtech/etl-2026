@@ -4,6 +4,6 @@ from validation.general_validation import RecordNotFoundError
 
 def test_bom_exists():
     memp_std_range(
-        stock_code="FFPSGW%"
+        stock_code="FFPSGC%"
     )
 
