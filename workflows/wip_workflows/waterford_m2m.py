@@ -337,9 +337,7 @@ def populate_waterford_m2ms() -> None:
             board_width=zlam_width
         )
 
-        # TODO: DISCOVERY: IT WILL HAVE TO PUT THE OPS IN, SINCE THERE IS NO WAY TO
-        # DELINEATE BETWEEN A STANDARD WIDTH AND BESPOKE WIDTH AT SALES ORDER ENTRY
-        # AS IT TURNS OUT, THE ROUTINGS FOR EITHER OR ARE NOT THE SAME
+
 
         # -------------------- OPERATIONS ------------------------------
 

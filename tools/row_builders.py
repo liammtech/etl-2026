@@ -54,6 +54,7 @@ def build_row(
 
     return row
 
+# -- STOCK CODES --
 
 def build_bomstructure_row(
     values: dict[str, Any],
@@ -76,6 +77,30 @@ def build_bomoperations_row(
         overlays=overlays,
     )
 
+
+def build_invwarehouse_row(
+    values: dict[str, Any],
+    overlays: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return build_row(
+        table_name="InvWarehouse",
+        values=values,
+        overlays=overlays,
+    )
+
+
+def build_invmasterplus_row(
+    values: dict[str, Any],
+    overlays: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return build_row(
+        table_name="[InvMaster+]",
+        values=values,
+        overlays=overlays,
+    )
+
+
+# -- WIP --
 
 def build_wipjoballlab_row(
     values: dict[str, Any],
