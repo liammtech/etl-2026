@@ -1,5 +1,61 @@
 wipjoballlab_defaults:
   SubcontractOp: "N"
+  IExpUnitRunTim: 0
+  IExpSetUpTime: 0
+  IExpStartupTime: 0
+  IExpShutdownTim: 0
+  IWaitTime: 0
+  IStartupQty: 0
+  ICapacityReqd: 0
+  ITimeTaken: 0
+  IQuantity: 0
+  MaxOpSpan: 0
+  MaxOpSpan: 0
+  OpSlack: 0
+  IStartupQtyEnt: 0
+  IQuantityEnt: 0
+  IExpUnitRunTimEnt: 0
+  ITimeTakenEnt: 0
+  SubQtyPer: 0
+  SubUnitValue: 0
+  SubWhatIfValue: 0
+  SubLeadTime: 0
+  SubDockToStock: 0
+  SubOffsiteDays: 0
+  SchStartTime: 0
+  SchEndTime: 0
+  MaxOpDelay: 0
+  UnitValueReqd: 0
+  RunTimeIssued: 0
+  SetUpIssued: 0
+  StartUpIssued: 0
+  ShutdownIssued: 0
+  ValueIssued: 0
+  PiecesCompleted: 0
+  ValueBilled: 0
+  QtyCompleted: 0
+  QtyScrapped: 0
+  AutoNarrCode: 0
+  InspectionFlag: "N"
+  MinorSetUp: 0
+  ToolSetQty: 0
+  ToolConsumption: 0
+  CapacityIssued: 0
+  Line: 0
+  TransferQtyPct: 0
+  OperYieldPct: 0
+  OperYieldQty: 0
+  ParIssQty: 0
+  HoursBilled: 0
+  QtyScrappedEnt: 0
+  TransferQtyPctEnt: 0
+  OperYieldQtyEnt: 0
+  ParIssQtyEnt: 0
+  QtyCompletedEnt: 0
+  SchStartRunTime: 0
+  FirstSeq: 0
+  SecondSeq: 0
+
   IWcRateInd: 1
   IMaxWorkOpertrs: 1
   IMaxProdUnits: 1
@@ -7,5 +63,5 @@ wipjoballlab_defaults:
   ElapsedTime: 1
   MovementTime: -1
   UnitNumOfPieces: 1
-  CalcElapsed: "Y"
+  CalcElapsedTime: "Y"
   TransferQtyOrPct: "Q"

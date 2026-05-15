@@ -1,7 +1,7 @@
 from tools.sql import get_single_record
 
 def get_default_bin(stock_code: str) -> str:
-    return get_single_record(
+    default_bin = get_single_record(
         table="InvWarehouse",
         criteria={
             "StockCode": stock_code
@@ -10,3 +10,5 @@ def get_default_bin(stock_code: str) -> str:
             "DefaultBin"
         }
     )
+
+    return default_bin[0]

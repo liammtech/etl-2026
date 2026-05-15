@@ -43,11 +43,8 @@ def apply_wip_material_uom(values: dict[str, Any]) -> dict[str, Any]:
 
     values["UnitQtyReqdEnt"] = entered_qty
     values["NetUnitQtyReqdEnt"] = entered_qty
-
     values["UnitQtyReqd"] = stocking_qty
     values["NetUnitQtyReqd"] = stocking_qty
-
-    values["Uom"] = uom_flag
 
     return values
 
@@ -75,7 +72,7 @@ def convert_to_stocking_qty(
         f"for stock code {values['StockCode']!r}"
     )
 
-def get_uom_conversion_fields(
+def get_uom_fields(
     *,
     invmaster_row: Any,
     uom_flag: str,
@@ -83,24 +80,28 @@ def get_uom_conversion_fields(
     match uom_flag:
         case "S":
             return {
+                "Uom": invmaster_row.StockUom,
                 "ConvFactUom": 1,
                 "ConvMulDiv": "M",
             }
 
         case "A":
             return {
+                "Uom": invmaster_row.AlternateUom,
                 "ConvFactUom": invmaster_row.ConvFactAltUom,
                 "ConvMulDiv": invmaster_row.ConvMulDiv,
             }
 
         case "O":
             return {
+                "Uom": invmaster_row.OtherUom,
                 "ConvFactUom": invmaster_row.ConvFactOthUom,
                 "ConvMulDiv": invmaster_row.MulDiv,
             }
 
         case "M":
             return {
+                "Uom": invmaster_row.ManufactureUom,
                 "ConvFactUom": invmaster_row.ConvFactMuM,
                 "ConvMulDiv": "M",
             }

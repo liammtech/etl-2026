@@ -7,3 +7,29 @@ wipjoballmat_defaults:
   BulkIssueItem: "N"
   InclScrapOnDoc: "Y"
   FixedQtyPerFlag: "N"
+  QtyIssued: 0
+  ValueIssued: 0
+  QtyBilled: 0
+  ValueBilled: 0
+  Decimals: 3
+  AutoNarrCode: 0
+  ScrapQuantity: 0
+  FixedQtyPer: 0
+  ReservedLotQty: 0
+  ReservedSerQty: 0
+  QtyIssuedEnt: 0
+  QtyBilledEnt: 0
+  ScrapQuantityEnt: 0
+  FixedQtyPerEnt: 0
+  QtyTotRequired: 0
+  QtyTotRequiredEnt: 0
+  QtyOutstanding: 0
+  QtyOutstandingEnt: 0
+  QtyToIssue: 0
+  QtyToIssueEnt: 0
+  QtyReserved: 0
+  QtyReservedEnt: 0
+  SalesOrderInitLine: 0
+  FirstSeq: 0
+  SecondSeq: 0
+  DockToStock: 0

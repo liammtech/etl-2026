@@ -11,6 +11,8 @@ class WipJobAllLabRow:
     PlannedQueueDate: date
     PlannedStartDate: date
     PlannedEndDate: date
+    ParentQtyPlanned: int
+    ParentQtyPlanEnt: int
     WorkCentre: str
     WorkCentreDesc: str
     Milestone: str

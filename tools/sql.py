@@ -181,8 +181,16 @@ def append_single_record(
     params = [row[column] for column in columns]
 
     with get_cursor() as cursor:
-        cursor.execute(sql, params)
-        cursor.connection.commit()
+        try:
+            cursor.execute(sql, params)
+        except Exception:
+            print("\nFAILED INSERT")
+            print(sql)
+
+            for col, val in zip(columns, params):
+                print(f"{col}: {val!r} ({type(val)})")
+
+            raise
 
 
 def append_multiple_records(
@@ -190,6 +198,22 @@ def append_multiple_records(
     table: str,
     rows: Sequence[dict[str, object]]
 ) -> None:
+    for i, row in enumerate(rows):
+        if row.keys() != rows[0].keys():
+            print("Row 0 keys:")
+            print(set(rows[0].keys()))
+
+            print(f"Row {i} keys:")
+            print(set(row.keys()))
+
+            print("Missing from this row:")
+            print(set(rows[0].keys()) - set(row.keys()))
+
+            print("Extra in this row:")
+            print(set(row.keys()) - set(rows[0].keys()))
+
+            raise ValueError(f"Row {i} has different columns to row 0")
+
     if not rows:
         print("tools.sql.append_multiple_records(): No rows provided, terminating.")
         return
