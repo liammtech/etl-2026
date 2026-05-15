@@ -25,6 +25,9 @@ def calculate_cut_rail_qty(
     precut_rail_width: float = 1218
 ) -> float:
     
-    rail_qty = round(finished_rail_width / precut_rail_width, 3)
+    rail_qty = round(
+        1 / (precut_rail_width // finished_rail_width),
+        3
+    )
 
     return rail_qty
