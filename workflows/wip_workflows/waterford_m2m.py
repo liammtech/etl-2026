@@ -318,7 +318,7 @@ def populate_waterford_m2ms() -> None:
                 finished_rail_width=m2m_rail_width
             )
 
-        dowel_qty = 8                           # PCS
+        dowel_qty = Decimal("0.0152")                           # PCS
         hotfoil_qty = Decimal("0.005015")       # ROL - this may warrant a review
         silicon_qty = Decimal("0.00108")        # KG (GL105)
         label_qty = 1                           # PCS
@@ -1024,7 +1024,7 @@ def populate_waterford_m2ms() -> None:
                 "UnitCost": height_stile_data.MaterialCost,
                 "OperationOffset": dsjig2_op_line.get("Operation"),
                 "Uom": height_stile_data.ManufactureUom,
-                "Bin": warehouse.get_default_bin(stock_code=height_stile),
+                "Bin": warehouse.get_default_bin(stock_code=height_stile, warehouse="DR"),
                 "SequenceNum": "000010",
                 "ScrapPercentage": 0,
                 "KitIssueItem": "Y",
@@ -1060,7 +1060,7 @@ def populate_waterford_m2ms() -> None:
                     "UnitCost": width_rail_data.MaterialCost,
                     "OperationOffset": width_rail_op,
                     "Uom": width_rail_data.ManufactureUom,
-                    "Bin": warehouse.get_default_bin(stock_code=width_rail),
+                    "Bin": warehouse.get_default_bin(stock_code=width_rail, warehouse="DR"),
                     "SequenceNum": "000020",
                     "ScrapPercentage": 0,
                     "KitIssueItem": "Y",
@@ -1089,7 +1089,7 @@ def populate_waterford_m2ms() -> None:
                     "UnitCost": width_rail_data.MaterialCost,
                     "OperationOffset": width_rail_op,
                     "Uom": width_rail_data.ManufactureUom,
-                    "Bin": warehouse.get_default_bin(stock_code=width_rail),
+                    "Bin": warehouse.get_default_bin(stock_code=width_rail, warehouse="DR"),
                     "SequenceNum": "000020",
                     "ScrapPercentage": 0,
                     "KitIssueItem": "Y",
@@ -1113,7 +1113,7 @@ def populate_waterford_m2ms() -> None:
                     "UnitCost": width_rail_data.MaterialCost,
                     "OperationOffset": width_rail_op,
                     "Uom": width_rail_data.ManufactureUom,
-                    "Bin": warehouse.get_default_bin(stock_code=width_rail),
+                    "Bin": warehouse.get_default_bin(stock_code=width_rail, warehouse="DR"),
                     "SequenceNum": "000030",
                     "ScrapPercentage": 0,
                     "KitIssueItem": "Y",
@@ -1140,7 +1140,7 @@ def populate_waterford_m2ms() -> None:
                 "UnitCost": centre_panel_zlam_data.MaterialCost,
                 "OperationOffset": dsjig2_op_line.get("Operation"),
                 "Uom": centre_panel_zlam_data.ManufactureUom,
-                "Bin": warehouse.get_default_bin(stock_code=centre_panel_zlam),
+                "Bin": warehouse.get_default_bin(stock_code=centre_panel_zlam, warehouse="DW"),
                 "SequenceNum": "000030",
                 "ScrapPercentage": 13,
                 "KitIssueItem": "Y",
@@ -1172,7 +1172,7 @@ def populate_waterford_m2ms() -> None:
                 "UnitCost": dowel_glue_data.MaterialCost,
                 "OperationOffset": dowel_glue_op,
                 "Uom": dowel_glue_data.ManufactureUom,
-                "Bin": warehouse.get_default_bin(stock_code=dowel_glue),
+                "Bin": warehouse.get_default_bin(stock_code=dowel_glue, warehouse="DR"),
                 "SequenceNum": "000040",
                 "ScrapPercentage": 0,
                 "KitIssueItem": "Y",
@@ -1196,7 +1196,7 @@ def populate_waterford_m2ms() -> None:
                 "UnitCost": silicon_data.MaterialCost,
                 "OperationOffset": dsjig2_op_line.get("Operation"),
                 "Uom": silicon_data.ManufactureUom,
-                "Bin": warehouse.get_default_bin(stock_code=silicon),
+                "Bin": warehouse.get_default_bin(stock_code=silicon, warehouse="DR"),
                 "SequenceNum": "000050",
                 "ScrapPercentage": 10,
                 "KitIssueItem": "Y",
@@ -1220,7 +1220,7 @@ def populate_waterford_m2ms() -> None:
                 "UnitCost": label_data.MaterialCost,
                 "OperationOffset": dsjig2_op_line.get("Operation"),
                 "Uom": label_data.ManufactureUom,
-                "Bin": warehouse.get_default_bin(stock_code=label),
+                "Bin": warehouse.get_default_bin(stock_code=label, warehouse="DR"),
                 "SequenceNum": "000060",
                 "ScrapPercentage": 0,
                 "KitIssueItem": "N",
@@ -1259,7 +1259,7 @@ def populate_waterford_m2ms() -> None:
                     "UnitCost": hotfoil_data.MaterialCost,
                     "OperationOffset": dsjig2_op_line.get("Operation"),
                     "Uom": hotfoil_data.ManufactureUom,
-                    "Bin": warehouse.get_default_bin(stock_code=hotfoil),
+                    "Bin": warehouse.get_default_bin(stock_code=hotfoil, warehouse="DR"),
                     "SequenceNum": "000070",
                     "ScrapPercentage": 0,
                     "KitIssueItem": "N",
@@ -1283,13 +1283,13 @@ def populate_waterford_m2ms() -> None:
                     "UnitCost": dowel_data.MaterialCost,
                     "OperationOffset": dsjig2_op_line.get("Operation"),
                     "Uom": dowel_data.ManufactureUom,
-                    "Bin": warehouse.get_default_bin(stock_code=dowel),
+                    "Bin": warehouse.get_default_bin(stock_code=dowel, warehouse="DR"),
                     "SequenceNum": "000080",
                     "ScrapPercentage": 0,
                     "KitIssueItem": "N",
                     **get_uom_fields(
                         invmaster_row=dowel_data,
-                        uom_flag="A"
+                        uom_flag="S"
                     )
                 },
                 overlays={

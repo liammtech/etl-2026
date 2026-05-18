@@ -38,3 +38,9 @@ def create_invmasterplus_record(
         table="[InvMaster+]",
         row=invmasterplus_row
     )
+
+
+def create_arcuststkref_record(
+    
+) -> None:
+    pass
