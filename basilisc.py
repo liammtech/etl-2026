@@ -1,7 +1,7 @@
 import sys
 
-from workflows.bom_workflows.reset_mrp_fields import reset_mrp, reset_mrp_range
-from workflows.bom_workflows.fix_volumetrics import fix_door_volumetrics, fix_door_volumetrics_range
+from workflows.sku_workflows.reset_mrp_fields import reset_mrp, reset_mrp_range
+from workflows.sku_workflows.fix_volumetrics import fix_door_volumetrics, fix_door_volumetrics_range
 from workflows.wip_workflows.waterford_m2m import populate_waterford_m2ms
 from workflows.bom_workflows.fix_quantities import memp_std_single, lldr_std_single
 from workflows.bom_workflows.fix_quantities_multiple import memp_std_range

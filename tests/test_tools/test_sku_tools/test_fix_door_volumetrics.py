@@ -1,4 +1,4 @@
-from workflows.bom_workflows.fix_volumetrics import fix_door_volumetrics
+from workflows.sku_workflows.fix_volumetrics import fix_door_volumetrics
 from pprint import pprint
 
 def test_build_bm_row():
