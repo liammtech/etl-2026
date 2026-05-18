@@ -43,7 +43,8 @@ def _get_value_from_grouped_yaml(
     raise KeyError(f"No value found for key: {lookup_key}")
 
 
-def get_config_constant_value(    *,
+def get_config_constant_value(    
+    *,
     config_filepath: str,
     lookup_key: str,
 ) -> str:
@@ -52,7 +53,7 @@ def get_config_constant_value(    *,
 
 
 def load_row_defaults(table_name: str) -> dict:
-    table_name = table_name.lower()
+    table_name = table_name.lower().replace("+", "plus").replace("[","").replace("]", "")
 
     return _load_yaml_section(
         config_filepath=f"config/defaults/{table_name}_defaults.yml",

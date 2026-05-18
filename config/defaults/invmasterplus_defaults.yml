@@ -16,3 +16,5 @@ invmasterplus_defaults:
   PLPriceListSection: " "
   RouteToMarket: " "
   Planner3: "NEW"
+  SupplyLeadTime: 0
+  ReplaceLeadTime: 0

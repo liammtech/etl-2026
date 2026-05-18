@@ -19,6 +19,8 @@ def build_row(
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
 
+    table_name = table_name.replace("[", "").replace("]", "")
+
     model = MODEL_REGISTRY[table_name]
 
     if not is_dataclass(model):
