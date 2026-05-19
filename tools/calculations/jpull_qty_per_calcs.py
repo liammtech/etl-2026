@@ -8,9 +8,10 @@ def calculate_jpull_bar_qty(
     jpull_direction: str = "Horizontal"
 ) -> float:
     
-    print(f"Bar width data type: {type(bar_width)}")
-    print(f"Door height data type: {type(door_height)}")
+    print(f"Bar width: {bar_width}")
+    print(f"Door width: {door_height}")
     door_height_over = door_height + 5
+    door_width_over = door_width + 5
     print("{floor(bar_width / door_height_over)}")
 
     if jpull_direction == "Vertical":
@@ -20,7 +21,7 @@ def calculate_jpull_bar_qty(
         )
     else:
         mpj_qty_per = (
-            1 / floor(bar_width / door_height_over)           
+            1 / floor(bar_width / door_width_over)           
         )
 
     return mpj_qty_per
