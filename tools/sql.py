@@ -65,9 +65,9 @@ def get_multiple_records(
     order_by: str = "StockCode"
 ) -> list[Row]:
     
-    print(f"Table is {table}")
-    print(f"Criteria is {criteria}")
-    print(f"Criteria type is {type(criteria)}")
+    # print(f"Table is {table}")
+    # print(f"Criteria is {criteria}")
+    # print(f"Criteria type is {type(criteria)}")
     return_columns = ", ".join(return_columns)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
@@ -128,11 +128,11 @@ def get_multiple_records(
     final_sql = " ".join(sql) + f" ORDER BY {order_by}"
 
     with get_cursor() as cursor:
-        print(final_sql)
-        print(params)
+        # print(final_sql)
+        # print(params)
         cursor.execute(final_sql, params)
         result = cursor.fetchall()
-        print(result)
+        # print(result)
         return result
 
 def append_single_record(
@@ -169,9 +169,9 @@ def append_single_record(
 
     # validate_table(table)
 
-    print(f"append_single_record():")
-    print(f"Table appending to: {table}")
-    print(f"Row being appended: {row}")
+    # print(f"append_single_record():")
+    # print(f"Table appending to: {table}")
+    # print(f"Row being appended: {row}")
 
     columns = list(row.keys())
     column_names = ", ".join(f"[{col}]" for col in columns)
@@ -200,17 +200,17 @@ def append_multiple_records(
 ) -> None:
     for i, row in enumerate(rows):
         if row.keys() != rows[0].keys():
-            print("Row 0 keys:")
-            print(set(rows[0].keys()))
+            # print("Row 0 keys:")
+            # print(set(rows[0].keys()))
 
-            print(f"Row {i} keys:")
-            print(set(row.keys()))
+            # print(f"Row {i} keys:")
+            # print(set(row.keys()))
 
-            print("Missing from this row:")
-            print(set(rows[0].keys()) - set(row.keys()))
+            # print("Missing from this row:")
+            # print(set(rows[0].keys()) - set(row.keys()))
 
-            print("Extra in this row:")
-            print(set(row.keys()) - set(rows[0].keys()))
+            # print("Extra in this row:")
+            # print(set(row.keys()) - set(rows[0].keys()))
 
             raise ValueError(f"Row {i} has different columns to row 0")
 
@@ -259,8 +259,8 @@ def update_records(
     update_data: dict[str, object],
     
 ) -> None:
-    print(f"ATTEMPTING TO UPDATE TABLE {table}")
-    print(f"UPDATE DATA IS: {update_data}")
+    # print(f"ATTEMPTING TO UPDATE TABLE {table}")
+    # print(f"UPDATE DATA IS: {update_data}")
     if not update_data:
         return
     
@@ -274,8 +274,8 @@ def update_records(
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + list(criteria.values())
-    print(sql)
-    print(params)
+    # print(sql)
+    # print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
