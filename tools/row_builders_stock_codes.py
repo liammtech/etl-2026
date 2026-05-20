@@ -2,6 +2,8 @@ from typing import Any, Dict
 from tools.config_tools.config_loader import load_row_defaults
 from datetime import datetime as Date
 
+# TODO: migrate this logic into ./row_builders.py and refactor dependent sections
+
 def build_single_bomoperations_row(
     *,
     stock_code: str,

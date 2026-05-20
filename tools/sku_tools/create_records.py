@@ -1,6 +1,6 @@
 import tools.sql as sql
 from datetime import datetime
-from tools.row_builders import build_invwarehouse_row, build_invmasterplus_row
+import tools.row_builders as row_builder
 
 # These builders act as an interface to the row builders, that actually set up and post the table records in the format that they generally want to exist in on the system
 
@@ -9,7 +9,7 @@ def create_invwarehouse_record(
     warehouse: str = "DW"
 ) -> None:
 
-    invwarehouse_row = build_invwarehouse_row(
+    invwarehouse_row = row_builder.build_invwarehouse_row(
         values={
             "StockCode": stock_code,
             "Warehouse": warehouse,
@@ -28,7 +28,7 @@ def create_invmasterplus_record(
     stock_code: str
 ) -> None:
     
-    invmasterplus_row = build_invmasterplus_row(
+    invmasterplus_row = row_builder.build_invmasterplus_row(
         values={
             "StockCode": stock_code
         }

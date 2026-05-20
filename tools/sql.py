@@ -2,7 +2,7 @@ from pyodbc import Row
 from collections.abc import Sequence
 
 from db.connection import get_cursor
-from validation.general_validation import check_if_wildcard
+from tools.utils.string_checks import check_if_wildcard
 from tools.transform import substitute_wildcard
 
 # All below functions assume a single table

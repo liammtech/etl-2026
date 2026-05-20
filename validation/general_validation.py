@@ -19,30 +19,19 @@ def check_yaml(file_path, search_key, search_value=None):
         print(f"Table '{search_key}' found")
     else:
         print("Table not found")
-
-# Checks if there is a wildcard in the criteria value
-def check_if_wildcard(criterion: str) -> bool: 
-    criterion = str(criterion)
-    if "%" in criterion or "*" in criterion or "#" in criterion or "?" in criterion or "_" in criterion:
-        return True
-    else:
-        return False
     
 # Checks if record exists in a table via primary key
 def check_if_in_table(
     *,
-    stock_code: str,
+    key_field: str,
+    key_value: str,
     table: str,
     route: str = None,
-    sql_getter_func: Callable
+    sql_getter_func: Callable = sql.get_single_record
 ) -> bool: 
-    print("=== CHECK IF IN TABLE ===")
-    print(f"Route is {route}")
+    print("=== CHECK IF IN TABLE ===\n\n")
     
-    if table == "BomStructure" or table == "BomStructure+":
-        criteria = {"ParentPart": stock_code}
-    else:
-        criteria = {"StockCode": stock_code}
+    criteria = {key_field: key_value}
 
     if route == None:
         records_exist = sql_getter_func(
@@ -58,17 +47,19 @@ def check_if_in_table(
   
     if records_exist:
         print(records_exist)
-        print(f"\nRecords exist for stock code {stock_code} in table {table}: continuing...\n")
+        print(f"\nRecords exist in {key_field} column for key {key_value} in table {table}: continuing...\n")
         return True
     else:
-        print(f"\nNo records exist for stock code {stock_code} in table {table}: continuing...\n")
+        print(f"\nNo records exist in {key_field} column for key {key_value} in table {table}: continuing...\n")
         return False
+
 
 # Check if table is in allowed tables
 def check_if_table_allowed(table_name):
     config_path = Path(__file__).resolve().parents[1] / "config/validation/valid_tables.yml"
     print(config_path)
     check_yaml(config_path, table_name)
+
 
 def check_path():
     print("Initialising")
@@ -92,3 +83,13 @@ def check_product_class(
         return True
     else:
         return False
+
+
+def check_if_customer(
+    customer_code: str
+) -> bool:
+    return check_if_in_table(
+        key_field="Customer",
+        key_value=customer_code,
+        table="ArCustomer"
+    )
