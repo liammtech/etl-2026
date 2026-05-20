@@ -1,5 +1,6 @@
 from pyodbc import Row
 from collections.abc import Sequence
+from typing import Literal, NamedTuple
 
 from db.connection import get_cursor
 from tools.utils.string_checks import check_if_wildcard
@@ -15,125 +16,136 @@ from tools.transform import substitute_wildcard
 # Can't reliably maintain by hand; table schema changes may come unannounced
 # SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
 
+class Join(NamedTuple):
+    table: str
+    on: str
+    join_type: Literal["INNER", "LEFT", "RIGHT"] = "INNER"
+
+
 def get_single_record(
-    *, 
+    *,
     table: str,
     criteria: dict[str, object],
     return_columns: str | list[str] = "*",
+    joins: list[Join] | None = None,
     flatten: bool = False
-) -> Row: 
-    # Validation to go here
+) -> Row | object | None:
 
-    if type(return_columns) != str:
+    if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
     params = []
 
+    if joins:
+        for join in joins:
+            sql.append(
+                f"{join.join_type} JOIN {join.table} ON {join.on}"
+            )
+
+    where_clauses = []
+
     for col, val in criteria.items():
-        if val == None:
+        if val is None:
             continue
 
-        if len(params) == 0:
-            sql.append(f"WHERE {col} = ?")
-        else:
-            sql.append(f"AND {col} = ?")
-
+        where_clauses.append(f"{col} = ?")
         params.append(val)
 
+    if where_clauses:
+        sql.append("WHERE " + " AND ".join(where_clauses))
+
     final_sql = " ".join(sql)
-    # print(final_sql)
-    # print(criteria)
 
     with get_cursor() as cursor:
         cursor.execute(final_sql, params)
         fetch_result = cursor.fetchone()
 
+        if fetch_result is None:
+            return None
+
         if flatten:
             if len(fetch_result) > 1:
-                print("Cannot flatten SQL fetch result, more than one data item returned")
-            else:
-                return fetch_result[0]
-        else:
-            return fetch_result
+                raise ValueError(
+                    "Cannot flatten SQL fetch result: more than one column returned"
+                )
+            return fetch_result[0]
+
+        return fetch_result
 
 def get_multiple_records(
-    *, 
+    *,
     table: str,
     criteria: dict[str, object],
-    return_columns: list[str] = "*",
-    order_by: str = "StockCode"
+    return_columns: str | list[str] = "*",
+    joins: list[Join] | None = None,
+    order_by: str | None = "StockCode"
 ) -> list[Row]:
-    
-    # print(f"Table is {table}")
-    # print(f"Criteria is {criteria}")
-    # print(f"Criteria type is {type(criteria)}")
-    return_columns = ", ".join(return_columns)
+
+    if not isinstance(return_columns, str):
+        return_columns = ", ".join(return_columns)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
     params = []
+    where_clauses = []
+
+    if joins:
+        for join in joins:
+            sql.append(
+                f"{join.join_type} JOIN {join.table} ON {join.on}"
+            )
 
     for col, val in criteria.items():
-  
-        if val == None:
+        if val is None:
             continue
 
-        if type(val) == list:
-            first_iter = True
+        if isinstance(val, list):
+            sub_clauses = []
+
             for subval in val:
-                wildcard_flag = check_if_wildcard(subval)
+                if isinstance(subval, Row):
+                    subval = subval[0]
 
-                sql_operator = "AND (" if first_iter else "OR"
-
-                if wildcard_flag:
+                if check_if_wildcard(subval):
                     subval = substitute_wildcard(subval)
-
-                    if len(params) == 0:
-                        sql.append(f"WHERE ( {col} LIKE ?")
-                    else:
-                        sql.append(f"{sql_operator} {col} LIKE ?")
-
+                    sub_clauses.append(f"{col} LIKE ?")
                 else:
-                    if len(params) == 0:
-                        sql.append(f"WHERE ( {col} = ?")
-                    else:
-                        sql.append(f"{sql_operator} {col} = ?")
+                    sub_clauses.append(f"{col} = ?")
 
-                # print(type(subval))
-                params.append(subval[0] if isinstance(subval, Row) else subval)
-                first_iter = False
-            sql.append(")")
+                params.append(subval)
+
+            if sub_clauses:
+                where_clauses.append(
+                    "(" + " OR ".join(sub_clauses) + ")"
+                )
+
             continue
 
-        # print(f"Val is {val}")
-        wildcard_flag = check_if_wildcard(val)
+        if isinstance(val, Row):
+            val = val[0]
 
-        if wildcard_flag:
+        if check_if_wildcard(val):
             val = substitute_wildcard(val)
-            if len(params) == 0:
-                sql.append(f"WHERE {col} LIKE ?")
-            else:
-                sql.append(f"AND {col} LIKE ?")
+            where_clauses.append(f"{col} LIKE ?")
         else:
-            if len(params) == 0:
-                sql.append(f"WHERE {col} = ?")
-            else:
-                sql.append(f"AND {col} = ?")
+            where_clauses.append(f"{col} = ?")
 
-        params.append(str(val)) # HERE IS THE PROBLEM
+        params.append(val)
 
-    if table == "BomStructure" or table == "[BomStructure+]":
-        order_by = "ParentPart"
+    if where_clauses:
+        sql.append("WHERE " + " AND ".join(where_clauses))
 
-    final_sql = " ".join(sql) + f" ORDER BY {order_by}"
+    if order_by:
+        if table in ("BomStructure", "[BomStructure+]"):
+            order_by = "ParentPart"
+
+        sql.append(f"ORDER BY {order_by}")
+
+    final_sql = " ".join(sql)
 
     with get_cursor() as cursor:
-        # print(final_sql)
-        # print(params)
         cursor.execute(final_sql, params)
-        result = cursor.fetchall()
-        # print(result)
-        return result
+        return cursor.fetchall()
 
 def append_single_record(
     *,
