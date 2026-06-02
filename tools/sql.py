@@ -4,7 +4,7 @@ from typing import Literal, NamedTuple
 
 from db.connection import get_cursor
 from tools.utils.string_checks import check_if_wildcard
-from tools.transform import substitute_wildcard
+from tools.transform import substitute_wildcard, normalise_sql_value
 
 # All below functions assume a single table
 # Getters with joins may be added at a later date when need becomes apparent
@@ -49,6 +49,11 @@ def get_single_record(
         if val is None:
             continue
 
+        if isinstance(val, Row):
+            val = val[0]
+
+        val = normalise_sql_value(col, val)
+
         where_clauses.append(f"{col} = ?")
         params.append(val)
 
@@ -72,6 +77,7 @@ def get_single_record(
             return fetch_result[0]
 
         return fetch_result
+    
 
 def get_multiple_records(
     *,
@@ -106,6 +112,8 @@ def get_multiple_records(
                 if isinstance(subval, Row):
                     subval = subval[0]
 
+                subval = normalise_sql_value(col, subval)
+
                 if check_if_wildcard(subval):
                     subval = substitute_wildcard(subval)
                     sub_clauses.append(f"{col} LIKE ?")
@@ -123,6 +131,8 @@ def get_multiple_records(
 
         if isinstance(val, Row):
             val = val[0]
+
+        val = normalise_sql_value(col, val)
 
         if check_if_wildcard(val):
             val = substitute_wildcard(val)
@@ -146,6 +156,7 @@ def get_multiple_records(
     with get_cursor() as cursor:
         cursor.execute(final_sql, params)
         return cursor.fetchall()
+    
 
 def append_single_record(
     *,
@@ -240,7 +251,6 @@ def append_multiple_records(
         if isinstance(v, (bytes, bytearray)) and len(v) == 8 # Standard SQL timestamp size
         or k.lower() in ('TimeStamp')
     }
-
 
     # Use the first row to define the schema for this batch
     columns = [k for k in first_row.keys() if k not in excluded_keys]

@@ -6,7 +6,7 @@ from workflows.wip_workflows.waterford_m2m import populate_waterford_m2ms
 from workflows.bom_workflows.fix_quantities import memp_std_single, lldr_std_single, jayl_std_single
 from workflows.bom_workflows.fix_quantities_multiple import memp_std_range, lldr_std_range, jayl_std_range
 from workflows.bom_workflows.stocked_to_mto_jpull import switch_jpull_stocked_to_mto
-from tools.sku_tools.create_records import create_invwarehouse_record, create_invmasterplus_record
+from tools.sku_tools.create_records import create_invwarehouse_record, create_invmasterplus_record, create_invwarehouse_record_range
 
 
 JOBS = {
@@ -30,7 +30,9 @@ JOBS = {
 
     # Record creators:
     "create-invwarehouse-record": create_invwarehouse_record,
-    "create-invmasterplus-record": create_invmasterplus_record
+    "create-invmasterplus-record": create_invmasterplus_record,
+
+    "create-invwarehouse-record-range": create_invwarehouse_record_range
 }
 
 

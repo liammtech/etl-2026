@@ -14,7 +14,7 @@ def memp_std_range(stock_code: str):
     )
     
     # door_range = [item for sublist in door_range_result for item in sublist]
-    door_range = ["FFPDLO006","FFPDLO007","FFPDLO008","FFPDLO009","FFPDLO010","FFPDLO011","FFPDMW006","FFPDMW007","FFPDMW008","FFPDMW009","FFPDMW010","FFPDMW011","FFPDUO006","FFPDUO007","FFPDUO008","FFPDUO009","FFPDUO010","FFPDUO011","FFPRMC006","FFPRMC007","FFPRMC008","FFPRMC009","FFPRMC010","FFPRMC011","FFPRLO006","FFPRLO007","FFPRLO008","FFPRLO009","FFPRLO010","FFPRLO011","FFPRUO006","FFPRUO007","FFPRUO008","FFPRUO009","FFPRUO010","FFPRUO011"]
+    door_range = ["PFMW127","PFMCB127","PFMCM127","PFMDG127","PFMG127","PFMSG127","ORAGC127","ORAGG127","ORAGW127","ORAMA127","ORAMZ127","ORAMQ127","ORAMC127","ORAMG127","ORAMW127"]
 
     for sku in door_range:
         memp_std_single(sku)
@@ -32,8 +32,8 @@ def lldr_std_range(stock_code: str):
     )
     
     print(f"Door range result is {door_range}")
-    door_range = [item for sublist in door_range for item in sublist]
-    # door_range = ["MEMP-PTYPE48","MEMP-PTYPE49","MEMP-PTYPE50","MEMP-PTYPE51","MEMP-PTYPE52","MEMP-PTYPE53","MEMP-PTYPE54","MEMP-PTYPE55","MEMP-PTYPE56","MEMP-PTYPE57","MEMP-PTYPE58","MEMP-PTYPE59","MEMP-PTYPE60","MEMP-PTYPE61","MEMP-PTYPE62","MEMP-PTYPE63","MEMP-PTYPE64","MEMP-PTYPE65","MEMP-PTYPE66","MEMP-PTYPE67","MEMP-PTYPE68","MEMP-PTYPE69","MEMP-PTYPE70","MEMP-PTYPE71","MEMP-PTYPE72","MEMP-PTYPE73","MEMP-PTYPE74","MEMP-PTYPE75","MEMP-PTYPE76"]
+    # door_range = [item for sublist in door_range for item in sublist]
+    door_range = ["PFMW128","PFMCB128","PFMCM128","PFMDG128","PFMG128","PFMSG128","ORAGC128","ORAGG128","ORAGW128","ORAMA128","ORAMZ128","ORAMQ128","ORAMC128","ORAMG128","ORAMW128"]
 
     for sku in door_range:
         lldr_std_single(sku)

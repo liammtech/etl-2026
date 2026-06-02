@@ -30,7 +30,8 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     # Check if stock code exists
     sku_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="StockCode",
+        key_value=stock_code,
         table="InvMaster",
         sql_getter_func=get_single_record
     )
@@ -40,14 +41,16 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     # Check if route A is free for the stock code, if not, prompt user to check, and ask if you want to overwrite, swap, or terminate
     route_a_ops_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="StockCode",
+        key_value=stock_code,
         table="BomOperations",
         route="A",
         sql_getter_func=get_multiple_records
     )
 
     route_a_bom_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="ParentPart",
+        key_value=stock_code,
         table="BomStructure",
         route="A",
         sql_getter_func=get_multiple_records
@@ -101,7 +104,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         table="BomOperations",
         criteria={
             "StockCode": linked_stock_code,
-            "Route": 0
+            "Route": "0"
         }
     )
 
@@ -159,7 +162,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
     
     defrag_routing(
         stock_code=stock_code,
-        route=0
+        route="0"
     )
 
     update_records(
@@ -247,7 +250,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     next_op = get_next_op_number(
         stock_code=stock_code,
-        route=0
+        route="0"
     )
 
     DPPICK_row = build_bomoperations_row(

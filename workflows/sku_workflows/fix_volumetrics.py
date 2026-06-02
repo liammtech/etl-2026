@@ -73,7 +73,7 @@ def fix_door_volumetrics_range(stock_code: str):
     )
     
     # door_range = [item for sublist in door_range_result for item in sublist]
-    door_range = ["FUJGCM001","FUJGCM002","FUJGCM006","FUJGDG001","FUJGDG002","FUJGDG006","FUJGLG001","FUJGLG002","FUJGLG006","FUJGW001","FUJGW002","FUJGW006"]
+    door_range = ["PFMW127","PFMCB127","PFMCM127","PFMDG127","PFMG127","PFMSG127","ORAGC127","ORAGG127","ORAGW127","ORAMA127","ORAMZ127","ORAMQ127","ORAMC127","ORAMG127","ORAMW127"]
 
     for sku in door_range:
         fix_door_volumetrics(sku)

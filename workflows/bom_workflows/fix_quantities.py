@@ -12,7 +12,8 @@ import tools.calculations.jpull_qty_per_calcs as jpull
 # Membrane Pressed - Standard
 def memp_std_single(stock_code: str):
     bom_records_exist = check_if_in_table(
-        stock_code=stock_code,
+        key_field="ParentPart",
+        key_value=stock_code,
         table="BomStructure",
         sql_getter_func=get_multiple_records
     )
@@ -21,7 +22,8 @@ def memp_std_single(stock_code: str):
         raise RecordNotFoundError(f"No record found for {stock_code} in table BomStructure")
 
     zInvExtra_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="StockCode",
+        key_value=stock_code,
         table="zInvExtra",
         sql_getter_func=get_single_record
     )
@@ -192,7 +194,8 @@ def memp_std_single(stock_code: str):
 def lldr_std_single(stock_code: str):
 
     bom_records_exist = check_if_in_table(
-        stock_code=stock_code,
+        key_field="ParentPart",
+        key_value=stock_code,
         table="BomStructure",
         sql_getter_func=get_multiple_records
     )
@@ -201,7 +204,8 @@ def lldr_std_single(stock_code: str):
         raise RecordNotFoundError(f"No record found for {stock_code} in table BomStructure")
 
     zInvExtra_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="StockCode",
+        key_value=stock_code,
         table="zInvExtra",
         sql_getter_func=get_single_record
     )
