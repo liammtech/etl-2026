@@ -16,6 +16,7 @@ from tools.transform import substitute_wildcard, normalise_sql_value
 # Can't reliably maintain by hand; table schema changes may come unannounced
 # SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
 
+
 class Join(NamedTuple):
     table: str
     on: str
@@ -36,14 +37,13 @@ def get_single_record(
 
     sql = [f"SELECT {return_columns} FROM {table}"]
     params = []
+    where_clauses = []
 
     if joins:
         for join in joins:
             sql.append(
                 f"{join.join_type} JOIN {join.table} ON {join.on}"
             )
-
-    where_clauses = []
 
     for col, val in criteria.items():
         if val is None:
@@ -54,7 +54,12 @@ def get_single_record(
 
         val = normalise_sql_value(col, val)
 
-        where_clauses.append(f"{col} = ?")
+        if check_if_wildcard(val):
+            val = substitute_wildcard(val)
+            where_clauses.append(f"{col} LIKE ?")
+        else:
+            where_clauses.append(f"{col} = ?")
+
         params.append(val)
 
     if where_clauses:
@@ -85,7 +90,8 @@ def get_multiple_records(
     criteria: dict[str, object],
     return_columns: str | list[str] = "*",
     joins: list[Join] | None = None,
-    order_by: str | None = "StockCode"
+    order_by: str | None = "StockCode",
+    flatten: bool = False
 ) -> list[Row]:
 
     if not isinstance(return_columns, str):
@@ -313,14 +319,33 @@ def delete_records(
     if not criteria:
         print("tools.sql.delete_records(): No criteria provided, terminating.")
         return
-    
-    def get_op(v):
-        return "LIKE" if isinstance(v, str) and ("%" in v or "_" in v) else "="
-    
-    where_clause = " AND ".join([f"{k} {get_op(v)} ?" for k, v in criteria.items()])
+
+    where_parts = []
+    params = []
+
+    for col, val in criteria.items():
+
+        if isinstance(val, str):
+            wildcarded_val = substitute_wildcard(val)
+
+            # If substitution changed it, or it already contains SQL wildcards
+            if wildcarded_val != val or "%" in wildcarded_val or "_" in wildcarded_val:
+                where_parts.append(f"{col} LIKE ?")
+            else:
+                where_parts.append(f"{col} = ?")
+
+            params.append(wildcarded_val)
+
+        else:
+            where_parts.append(f"{col} = ?")
+            params.append(val)
+
+    where_clause = " AND ".join(where_parts)
 
     sql = f"DELETE FROM {table} WHERE {where_clause}"
-    params = list(criteria.values())
+
+    print(sql)
+    print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))

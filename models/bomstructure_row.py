@@ -8,7 +8,7 @@ from typing import Optional
 class BomStructureRow:
     ParentPart: str
     Route: str
-    SequenceNo: str
+    SequenceNum: str
     Component: str
     OperationOffset: int
     QtyPer: Optional[Decimal]

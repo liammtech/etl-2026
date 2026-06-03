@@ -100,25 +100,50 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     # Copy the linked item's operations
 
-    linked_stock_code_ops = get_multiple_records(
-        table="BomOperations",
-        criteria={
-            "StockCode": linked_stock_code,
-            "Route": "0"
-        }
-    )
+    if linked_stock_code == stock_code:
+        print("Grabbing stuff from route 5")
+        linked_stock_code_ops = get_multiple_records(
+            table="BomOperations",
+            criteria={
+                "StockCode": linked_stock_code,
+                "Route": "5"
+            }
+        )
+    else:
+        print("Grabbing stuff from route 0")
+        linked_stock_code_ops = get_multiple_records(
+            table="BomOperations",
+            criteria={
+                "StockCode": linked_stock_code,
+                "Route": "0"
+            }
+        )
+
+    print(f"LINKED STOCK CODE: {linked_stock_code}")
+    print(f"LINKED STOCK CODE OPS: {linked_stock_code_ops}")
 
     # Copy the linked item's materials
 
-    linked_stock_code_bom = get_multiple_records(
-        table="BomStructure",
-        criteria={
-            "ParentPart": linked_stock_code,
-            "Route": 0
-        }
-    )
+    if linked_stock_code == stock_code:
+        print("Grabbing stuff from route 5")
+        linked_stock_code_bom = get_multiple_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": linked_stock_code,
+                "Route": "5"
+            }
+        )
+    else:
+        print("Grabbing stuff from route 0")
+        linked_stock_code_bom = get_multiple_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": linked_stock_code,
+                "Route": "0"
+            }
+        )
 
-    print(linked_stock_code_bom)
+    print(f"Linked stock code ops: {linked_stock_code_ops}")
 
     ops_cols = [col[0] for col in linked_stock_code_ops[0].cursor_description]
     ops_vals = [list(row) for row in linked_stock_code_ops]
@@ -158,6 +183,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         rows=bom_as_dicts 
     )
 
+
     ### 3. Replace first op with DSAWC    
     
     defrag_routing(
@@ -177,6 +203,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         }
     )
 
+
     # 4. Remove PK9* layflat material
 
     delete_records(
@@ -187,6 +214,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
             "Component": "PK9%"
         }
     )
+
 
     # 5. Re-assign B0167/* packing piece to DJSHAP op (op 4)
 
@@ -218,6 +246,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         }
     )
 
+
     # 6. Remove DSHRIN op
     
     delete_records(
@@ -228,6 +257,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
             "WorkCentre": "DSHRIN"
         }
     )
+
 
     # 7. Add in PK0170 label to op 1 (non-kit issue)
 
@@ -246,11 +276,12 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         row=PK0170_row
     )
 
+
     # 8. Add standard PICK/CHK/PACK/DESP op chain to end of current ops
 
     next_op = get_next_op_number(
         stock_code=stock_code,
-        route="0"
+        route=0
     )
 
     DPPICK_row = build_bomoperations_row(
@@ -298,6 +329,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
             row=row
         )
 
+
     # 9. Copy this whole BOM/op structure to route 5 (supplant previous route)
 
     delete_records(
@@ -323,6 +355,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         dest_route=5
     )
 
+
     # 10. Copy this whole BOM/op structure to route 6 (supplant previous route)
 
     delete_records(
@@ -347,6 +380,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
         dest_stock_code=stock_code,
         dest_route="6"
     )
+
 
     # 11. In route 6, add "DPDRL" between DPCHK and DPPACK (op 7)
 
@@ -413,3 +447,11 @@ def switch_jpull_stocked_to_mto(stock_code: str):
             "LongDesc": "MTO"
         }
     )
+
+
+def jpull_range_to_mto():
+
+    door_range = ["PJMRG1245X296","PJMRG1245X396","PJMRG1245X496","PJMRG1245X596","PJMRG140X296","PJMRG140X396","PJMRG140X446","PJMRG140X496","PJMRG140X596","PJMRG140X796","PJMRG140X896","PJMRG140X996","PJMRG175X396","PJMRG175X496","PJMRG175X596","PJMRG283X496","PJMRG283X596","PJMRG283X796","PJMRG283X896","PJMRG283X996","PJMRG355X496","PJMRG355X596","PJMRG355X796","PJMRG355X896","PJMRG355X996","PJMRG450X396","PJMRG450X596","PJMRG490X596","PJMRG570X296","PJMRG570X396","PJMRG570X446","PJMRG570X496","PJMRG570X596","PJMRG645X596","PJMRG715X146","PJMRG715X236","PJMRG715X296","PJMRG715X346","PJMRG715X396","PJMRG715X446","PJMRG715X496","PJMRG715X596","PJMRG895X236","PJMRG895X296","PJMRG895X396","PJMRG895X496","PJMRG895X596","PJMRG980X596","PJMRGSQ110X596"]
+
+    for sku in door_range:
+        switch_jpull_stocked_to_mto(sku)

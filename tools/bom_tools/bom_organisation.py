@@ -92,6 +92,26 @@ def copy_bomops_to_new_route(
         rows=ops_rows
     )
 
+    bom_rows = sql.get_multiple_records(
+    table="BomStructure",
+    criteria={
+        "ParentPart": source_stock_code,
+        "Route": source_route,
+    },
+    order_by="SequenceNum"
+)
+
+    bom_rows = [row_to_dict(row) for row in bom_rows]
+
+    for row in bom_rows:
+        row["ParentPart"] = dest_stock_code
+        row["Route"] = dest_route
+
+    sql.append_multiple_records(
+        table="BomStructure",
+        rows=bom_rows
+    )
+
     if swap_flag:
         sql.update_records(
             table="BomOperations",
@@ -101,6 +121,17 @@ def copy_bomops_to_new_route(
         sql.update_records(
             table="BomOperations",
             criteria={"StockCode": dest_stock_code, "Route": "XX"},
+            update_data={"Route": source_route}
+        )
+
+        sql.update_records(
+            table="BomStructure",
+            criteria={"ParentPart": source_stock_code, "Route": source_route},
+            update_data={"Route": dest_route}
+        )
+        sql.update_records(
+            table="BomStructure",
+            criteria={"ParentPart": dest_stock_code, "Route": "XX"},
             update_data={"Route": source_route}
         )
 
@@ -147,12 +178,43 @@ def move_ops_to_new_route(
                 print("Terminating.")
                 return
 
+
 def delete_ops_from_route(
     *,
-    route: str,
+    route: str = "*",
     stock_code: str, 
 ) -> None:
-    pass
+    sql.delete_records(
+        table="BomOperations",
+        criteria={
+            "StockCode": stock_code,
+            "Route": route
+        }
+    )
+
+
+def delete_bom_from_route(
+    *,
+    route: str = "*",
+    stock_code: str, 
+) -> None:
+    sql.delete_records(
+        table="BomStructure",
+        criteria={
+            "ParentPart": stock_code,
+            "Route": route
+        }
+    )
+
+
+def delete_bom_ops_from_route(
+    *,
+    route: str = "*",
+    stock_code: str, 
+) -> None:
+    delete_ops_from_route(route=route, stock_code=stock_code)
+    delete_bom_from_route(route=route, stock_code=stock_code)
+
 
 def specify_lldr_edged_sides(
     *,

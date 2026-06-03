@@ -64,3 +64,157 @@ def create_arcuststkref_record(
     
 ) -> None:
     pass
+
+
+def create_std_sales_code_ops(
+    stock_code: str,
+    route: str    
+) -> None:
+    
+    dppick_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 1,
+            "WorkCentre": "DPPICK",
+            "Milestone": "Y"
+        }
+    )
+    
+    dpchk_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 2,
+            "WorkCentre": "DPCHK",
+            "Milestone": "N"
+        }
+    )
+    
+    dppack_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 3,
+            "WorkCentre": "DPPACK",
+            "Milestone": "Y"
+        }
+    )
+    
+    dpdesp_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 4,
+            "WorkCentre": "DPDESP",
+            "Milestone": "Y"
+        }
+    )
+
+    ops_list = [dppick_row, dpchk_row, dppack_row, dpdesp_row]
+
+    sql.append_multiple_records(
+        table="BomOperations",
+        rows=ops_list
+    )
+
+
+def create_std_drilled_sales_ops(
+    stock_code: str,
+    route: str = "6"   
+) -> None:
+    
+    dppick_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 1,
+            "WorkCentre": "DPPICK",
+            "Milestone": "Y"
+        }
+    )
+    
+    dpchk_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 2,
+            "WorkCentre": "DPCHK",
+            "Milestone": "N"
+        }
+    )
+    
+    dpdrl_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 3,
+            "WorkCentre": "DPDRL",
+            "Milestone": "Y"
+        }
+    )
+    
+    dppack_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 4,
+            "WorkCentre": "DPPACK",
+            "Milestone": "Y"
+        }
+    )
+    
+    dpdesp_row = row_builder.build_bomoperations_row(
+        values={
+            "StockCode": stock_code,
+            "Route": route,
+            "Operation": 5,
+            "WorkCentre": "DPDESP",
+            "Milestone": "Y"
+        }
+    )
+
+    ops_list = [dppick_row, dpchk_row, dpdrl_row, dppack_row, dpdesp_row]
+
+    sql.append_multiple_records(
+        table="BomOperations",
+        rows=ops_list
+    )
+
+
+def create_std_sales_code_bom(
+    parent_part: str,
+    component: str,
+    route: str = "6",
+    skip_label: bool = False 
+) -> None:
+    
+    material_row = row_builder.build_bomstructure_row(
+        values={
+            "ParentPart": parent_part,
+            "Component": component,
+            "Route": route,
+            "OperationOffset": 1,
+            "SequenceNum": "000010",
+            "InclKitIssues": "Y"
+        }
+    )
+
+    if not skip_label:
+        label_row = row_builder.build_bomstructure_row(
+            values={
+                "ParentPart": parent_part,
+                "Component": "PK0179",
+                "Route": route,
+                "OperationOffset": 1,
+                "SequenceNum": "000020",
+                "InclKitIssues": "N"
+            }
+        )
+
+    bom_list = [material_row, label_row]
+
+    sql.append_multiple_records(
+        table="BomStructure",
+        rows=bom_list
+    )
