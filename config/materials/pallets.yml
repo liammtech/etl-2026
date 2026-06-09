@@ -1,0 +1,30 @@
+PKDR-A: {
+  length: 1200,
+  width: 1000,
+  type: "door"
+}
+PKDR-B: {
+  length: 1200,
+  width: 800,
+  type: "door"
+}
+PKDR-C: {
+  length: 2200,
+  width: 1200,
+  type: "door"
+}
+PKPR-C: {
+  length: 2440,
+  width: 615,
+  type: "profile"
+}
+PKPR-D: {
+  length: 2750,
+  width: 615,
+  type: "profile"
+}
+PKPR-E: {
+  length: 3050,
+  width: 615,
+  type: "profile"
+}

@@ -16,6 +16,31 @@ from tools.transform import substitute_wildcard, normalise_sql_value
 # Can't reliably maintain by hand; table schema changes may come unannounced
 # SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
 
+'''
+JOIN SYNTAX
+
+row = get_single_record(
+    table="BomStructure AS b",
+    joins=[
+        sql.Join(                       # When used in another module, Join class is available via sql module
+            table="InvMaster AS i",
+            on="b.Component = i.StockCode",
+            join_type="INNER"
+        )
+    ],
+    criteria={
+        "b.ParentPart": "WFDWLG0895H",
+        "b.Route": "0"
+    },
+    return_columns=[
+        "b.ParentPart",
+        "b.Component",
+        "i.Description",
+        "i.StockUom"
+    ]
+)
+'''
+
 
 class Join(NamedTuple):
     table: str

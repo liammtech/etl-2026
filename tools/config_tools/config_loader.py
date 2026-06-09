@@ -96,3 +96,6 @@ def get_material_via_dimension(
         lookup_key=dimension,
         group_name=material
     )
+
+def get_pallets() -> Any:
+    return _load_yaml(config_filepath="config/materials/pallets.yml")

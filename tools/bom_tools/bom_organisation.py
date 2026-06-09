@@ -259,6 +259,7 @@ def specify_lldr_edged_sides(
     print(sides_edged)
     return sides_edged
 
+
 def specify_jayl_edged_sides(
     *,
     no_edged_sides: Literal[2, 3, "DEBAN2", "DEBAN3"] = 2,
@@ -291,6 +292,7 @@ def specify_jayl_edged_sides(
 
     return sides_edged
 
+
 def get_range_modal_component(
     *,
     stock_code_prefix: str,
@@ -312,9 +314,11 @@ def get_range_modal_component(
     print(modal_component)
     return modal_component
 
+
 def build_op_num_mapping(op_nums: list[int]) -> dict[int, int]:
     unique_sorted = sorted(set(op_nums))
     return {old: new for new, old in enumerate(unique_sorted, start=1)}
+
 
 def defrag_routing(
     stock_code: str,
@@ -376,6 +380,7 @@ def defrag_routing(
             },
             update_data={"OperationOffset": new_op}
         )
+
 
 def get_next_op_number(
     stock_code: str,

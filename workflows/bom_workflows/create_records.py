@@ -218,3 +218,24 @@ def create_std_sales_code_bom(
         table="BomStructure",
         rows=bom_list
     )
+
+
+# Recursive sales code BOMs - until I can figure out where to put them
+
+def create_full_sales_code_routings(
+    parent_child_skus: dict,
+    routes: list         
+) -> None:
+    for parent_sku, child_sku in parent_child_skus.items():
+        for r in routes:
+            create_std_sales_code_ops(
+                stock_code=parent_sku,
+                route=r
+            )
+
+            create_std_sales_code_bom(
+                parent_part=parent_sku,
+                component=child_sku,
+                route=r
+            )
+ 

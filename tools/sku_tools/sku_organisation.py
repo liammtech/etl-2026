@@ -43,3 +43,4 @@ def get_sku_warehouse_to_use(stock_code: str) -> str:
             "ManufactureUom"
         }
     )
+
