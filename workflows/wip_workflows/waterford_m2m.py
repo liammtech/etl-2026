@@ -1134,7 +1134,7 @@ def populate_waterford_m2ms() -> None:
             values={
                 "Job": job,
                 "StockCode": centre_panel_zlam,
-                "Warehouse": "DW",
+                "Warehouse": centre_panel_zlam_data.WarehouseToUse,
                 "StockDescription": centre_panel_zlam_data.Description,
                 "QtyPer": centre_panel_qty,
                 "UnitCost": centre_panel_zlam_data.MaterialCost,

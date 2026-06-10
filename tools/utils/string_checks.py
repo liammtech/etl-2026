@@ -5,3 +5,5 @@ def check_if_wildcard(criterion: str) -> bool:
         return True
     else:
         return False
+    
+

@@ -1,0 +1,1783 @@
+kk_main_range:
+
+  "01":
+    item_description: "720 BASE 300"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 300
+      depth: 570
+
+    packs:
+      - role: "main_pack"
+        pattern: "BNBxBA300"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "300 Door"
+        size: "715X296"
+        height: 715
+        width: 296
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "02":
+    item_description: "720 BASE 400"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 400
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA400"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Door"
+        size: "715X396"
+        height: 715
+        width: 396
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "03":
+    item_description: "720 BASE 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 500
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA500"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "04":
+    item_description: "720 BASE 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Door"
+        size: "715X596"
+        height: 715
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "05":
+    item_description: "720 BASE UNDER OVEN 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "oven_housing"
+      height: 720
+      width: 600
+      depth: 570
+      
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxUO600"
+        quantity: 1
+
+    frontals:
+      - type: "filler"
+        description: "600 Under-Oven Filler"
+        size: "110X596"
+        height: 110
+        width: 596
+        quantity: 1
+        drilling: null
+
+    hardware: {}
+
+  "06":
+    item_description: "720 BASE FULL DRW 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawer"
+      height: 720
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBD600"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "600 Standard Drawer"
+        size: "140X596"
+        height: 140
+        width: 596
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "drawer"
+        description: "600 Pan Drawer"
+        size: "283X596"
+        height: 283
+        width: 596
+        quantity: 2
+        drilling: "Pan Drawer Drilling"
+
+    hardware:
+      drawerbox_600w_3_set: 1
+
+  "07":
+    item_description: "720 BASE FULL DRW 800"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawer"
+      height: 720
+      width: 800
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBD800"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "800 Standard Drawer"
+        size: "140X796"
+        height: 140
+        width: 796
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "drawer"
+        description: "800 Pan Drawer"
+        size: "283X596"
+        height: 283
+        width: 796
+        quantity: 2
+        drilling: "Pan Drawer Drilling"
+
+    hardware:
+      drawerbox_800w_3_set: 1
+      
+  "08":
+    item_description: "720 BASE 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 1000
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA1000"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "09":
+    item_description: "720 BASE BLIND CNR 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "blind_corner"
+      height: 720
+      width: 1000
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA1000"
+        quantity: 1
+
+      - role: "blanking_pack"
+        pattern: "BNBWBBP72"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "corner_post"
+        description: "Base/Wall Corner Post"
+        footprint: "80X80"
+        height: 715
+        width_left: 80
+        width_right: 80
+        quantity: 1
+        drilling: "pre_drilled"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "11":
+    item_description: "720 WALL 300"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 300
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL300"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "300 Door"
+        size: "715X296"
+        height: 715
+        width: 296
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "12":
+    item_description: "720 WALL 400"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 400
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL400"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Door"
+        size: "715X396"
+        height: 715
+        width: 396
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "13":
+    item_description: "720 WALL 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 500
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL500"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "14":
+    item_description: "720 WALL 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 600
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Door"
+        size: "715X596"
+        height: 715
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "15":
+    item_description: "720 WALL 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 1000
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL1000"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "16":
+    item_description: "720 WALL BLIND CNR 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "blind_corner"
+      height: 720
+      width: 600
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL600"
+        quantity: 1
+
+      packs:
+      - role: "blanking_pack"
+        pattern: "BNBWWBP72"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X296"
+        height: 715
+        width: 296
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "18":
+    item_description: "360 BRIDGE 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "bridge"
+      height: 360
+      width: 500
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBR500"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Bridging Door"
+        size: "355X496"
+        height: 355
+        width: 496
+        quantity: 1
+        drilling: "Flap Stay Drilling"
+
+    hardware:
+      flap_stay: 1
+
+  "19":
+    item_description: "360 BRIDGE 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "bridge"
+      height: 360
+      width: 600
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBR600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Bridging Door"
+        size: "355X596"
+        height: 355
+        width: 596
+        quantity: 1
+        drilling: "Flap Stay Drilling"
+
+    hardware:
+      flap_stay: 1
+
+  "20":
+    item_description: "1970 LARDER 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "larder"
+      height: 1970
+      width: 500
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL500MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Upper Larder Door"
+        size: "1245X496"
+        height: 1245
+        width: 496
+        quantity: 1
+        drilling: "T98 T616 B98"
+
+      - type: "door"
+        description: "500 Lower Larder Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 5
+      mount_plates: 5
+
+  "21":
+    item_description: "1970 DOUBLE OVEN 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "double_oven_housing"
+      height: 1970
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL600MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Upper Double Oven Door"
+        size: "490X596"
+        height: 490
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "door"
+        description: "600 Lower Double Oven Door"
+        size: "570X596"
+        height: 570
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+      
+  "22":
+    item_description: "1970 FRIDGE/FREEZER 70/30 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "fridge_freezer_housing"
+      height: 1970
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL600MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Upper Double Oven Door"
+        size: "490X596"
+        height: 490
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "door"
+        description: "600 Lower Double Oven Door"
+        size: "570X596"
+        height: 570
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "23":
+    item_description: "150H Plinth"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "profile"
+      subtype: "plinth"
+
+      length: 2745
+      height: 150
+      depth: 18
+
+  "24":
+    item_description: "Multi-Purpose Rail"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "profile"
+      subtype: "multi_purpose_rail"
+
+      length: 2745
+      height: 56
+      depth: 36
+
+  "25":
+    item_description: "Roll of Edging Tape 10M"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "consumable"
+      subtype: "edging"
+
+      length: 50000
+      width: 22
+      depth: 1
+
+  "26":
+    item_description: "Sample Door"
+
+    item_type: "promotional"
+
+    promotional:
+      category: "frontal"
+      subtype: "sample_door"
+
+      height: 570
+      width: 396
+
+  "27":
+    item_description: "600 Appliance Door"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "appliance_door"
+
+      height: 715
+      width: 596
+
+  "28":
+    item_description: "Base End Panel"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "end_panel"
+
+      height: 900
+      width: 600
+
+  "30":
+    item_description: "Tall End Panel"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "end_panel"
+
+      height: 2400
+      width: 600
+      
+  "31":
+    item_description: "1970 SINGLE OVEN 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "oven_housing"
+      height: 1970
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL600MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Upper Single Oven Door"
+        size: "645X596"
+        height: 645
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "door"
+        description: "600 Lower Single Oven Door"
+        size: "715X596"
+        height: 715
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+      
+  "32":
+    item_description: "1970 OVEN & MICROWAVE HOUSING 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "micro_oven_housing"
+      height: 1970
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL600MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Oven/Micro Housing Door"
+        size: "450X596"
+        height: 450
+        width: 596
+        quantity: 2
+        drilling: "T114 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "34":
+    item_description: "1970 LARDER 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "larder"
+      height: 1970
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL500MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Upper Larder Door"
+        size: "1245X596"
+        height: 1245
+        width: 596
+        quantity: 1
+        drilling: "T98 T616 B98"
+
+      - type: "door"
+        description: "600 Lower Larder Door"
+        size: "715X596"
+        height: 715
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 5
+      mount_plates: 5
+
+  "35":
+    item_description: "720 SINK BASE 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "sink"
+      height: 720
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Door"
+        size: "715X596"
+        height: 715
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "36":
+    item_description: "720 BASE 800"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 800
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA800"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Door"
+        size: "715X396"
+        height: 715
+        width: 396
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "37":
+    item_description: "720 BASE BLIND CNR 800"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "blind_corner"
+      height: 720
+      width: 800
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA800"
+        quantity: 1
+
+      - role: "blanking_pack"
+        pattern: "BNBWBBP72"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Door"
+        size: "715X396"
+        height: 715
+        width: 396
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "corner_post"
+        description: "Base/Wall Corner Post"
+        footprint: "80X80"
+        height: 715
+        width_left: 80
+        width_right: 80
+        quantity: 1
+        drilling: "pre_drilled"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "38":
+    item_description: "720 WALL 800"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 800
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL800"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Door"
+        size: "715X396"
+        height: 715
+        width: 396
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "39":
+    item_description: "720 BASE 450"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 450
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA450"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "450 Door"
+        size: "715X446"
+        height: 715
+        width: 446
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "40":
+    item_description: "720 WALL 450"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 450
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL450"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "450 Door"
+        size: "715X446"
+        height: 715
+        width: 446
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "41":
+    item_description: "720 BASE FULL DRW 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawer"
+      height: 720
+      width: 500
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBD500"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "500 Standard Drawer"
+        size: "140X496"
+        height: 140
+        width: 496
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "drawer"
+        description: "500 Pan Drawer"
+        size: "283X496"
+        height: 283
+        width: 496
+        quantity: 2
+        drilling: "Pan Drawer Drilling"
+
+    hardware:
+      drawerbox_500w_3_set: 1
+
+  "42":
+    item_description: "Side Filler"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "filler"
+
+      height: 715
+      width: 146
+
+  "43":
+    item_description: "Appliance Fascia"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "appliance_door"
+
+      height: 490
+      width: 596
+
+  "44":
+    item_description: "Wall End Panel"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "end_panel"
+
+      height: 800
+      width: 350
+
+  "45":
+    item_description: "450 Appliance Door"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "appliance_door"
+
+      height: 715
+      width: 446
+
+  "46":
+    item_description: "Breakfast Bar Back Panel"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "panel"
+
+      height: 2100
+      width: 900
+
+  "51":
+    item_description: "720 BASE PULL-OUT 150"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline_with_pull_out"
+      height: 720
+      width: 150
+      depth: 570
+
+    packs:
+      - role: "main_pack"
+        pattern: "BNBxBA150"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "150 Door"
+        size: "715X146"
+        height: 715
+        width: 146
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      wirework_base_150w: 1
+
+  "52":
+    item_description: "1970 LARDER 300"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "larder"
+      height: 1970
+      width: 300
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL300MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "300 Upper Larder Door"
+        size: "1245X296"
+        height: 1245
+        width: 296
+        quantity: 1
+        drilling: "T98 T616 B98"
+
+      - type: "door"
+        description: "300 Lower Larder Door"
+        size: "715X296"
+        height: 715
+        width: 296
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 5
+      mount_plates: 5
+
+  "53":
+    item_description: "1970 LARDER PULL-OUT 300"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "tall"
+      subtype: "larder_with_pullout"
+      height: 1970
+      width: 300
+      depth: 570
+
+      packs:
+      - role: "side_pack"
+        pattern: "BNBxLTEP"
+        quantity: 1
+
+      - role: "mid_pack"
+        pattern: "BNBxL300MP"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "300 Upper Larder Door"
+        size: "1245X296"
+        height: 1245
+        width: 296
+        quantity: 1
+        drilling: "T98 T616 B98"
+
+      - type: "door"
+        description: "300 Lower Larder Door"
+        size: "715X296"
+        height: 715
+        width: 296
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 5
+      mount_plates: 5
+      wirework_larder_frame_300w: 1
+      wirework_larder_runners_300w: 1
+      wirework_larder_baskets_300w: 1
+      larder_strapping_plates_kit: 1
+
+  "54":
+    item_description: "Base/Wall Corner Post"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "frontal"
+      subtype: "corner_post"
+
+      footprint: "80X80"
+      height: 715
+      width_left: 80
+      width_right: 80
+
+  "65":
+    item_description: "720 BASE CNR DH NUVOLA 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "blind_corner_with_pullout"
+      height: 720
+      width: 1000
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA1000"
+        quantity: 1
+
+      - role: "blanking_pack"
+        pattern: "BNBWBBP72"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Door"
+        size: "715X496"
+        height: 715
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+      - type: "corner_post"
+        description: "Base/Wall Corner Post"
+        footprint: "80X80"
+        height: 715
+        width_left: 80
+        width_right: 80
+        quantity: 1
+        drilling: "pre_drilled"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+      wirework_base_corner_dh: 1
+
+  "66":
+    item_description: "900 BOILER HOUSING 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "boiler_housing"
+      height: 900
+      width: 600
+      depth: 450
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBOCA"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Tall Wall Door"
+        size: "895X596"
+        height: 895
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "70":
+    item_description: "720 BELFAST SINK BASE 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "belfast_sink"
+      height: 455
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBSBC600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Belfast Sink Door"
+        size: "455X596"
+        height: 455
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+      
+  "71":
+    item_description: "720 BASE 900"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "highline"
+      height: 720
+      width: 900
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA900"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "450 Door"
+        size: "715X446"
+        height: 715
+        width: 446
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "72":
+    item_description: "720 WALL 900"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "standard"
+      height: 720
+      width: 900
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxWL900"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "450 Door"
+        size: "715X446"
+        height: 715
+        width: 446
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "73":
+    item_description: "288 BRIDGE 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "bridge"
+      height: 288
+      width: 500
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxSBR500"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "500 Short Bridging Door"
+        size: "283X496"
+        height: 283
+        width: 496
+        quantity: 1
+        drilling: "Flap Stay Drilling"
+
+    hardware:
+      flap_stay: 1
+
+  "74":
+    item_description: "720 CANOPY EXTRACTOR 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "extractor"
+      height: 455
+      width: 600
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxCEX600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Extractor Door"
+        size: "450X596"
+        height: 450
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+
+  "75":
+    item_description: "720 CANOPY EXTRACTOR 800"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "extractor"
+      height: 455
+      width: 800
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxCEX800"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "400 Extractor Door"
+        size: "450X396"
+        height: 450
+        width: 396
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+
+  "76":
+    item_description: "720 DRAWERLINE BASE 400"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawerline"
+      height: 720
+      width: 400
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA400"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "400 Standard Drawer"
+        size: "140X396"
+        height: 140
+        width: 396
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "door"
+        description: "400 Drawerline Door"
+        size: "570X396"
+        height: 570
+        width: 396
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+      single_std_drawer_400w: 1
+
+  "77":
+    item_description: "720 DRAWERLINE BASE 500"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawerline"
+      height: 720
+      width: 500
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA500"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "500 Standard Drawer"
+        size: "140X496"
+        height: 140
+        width: 496
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "door"
+        description: "500 Drawerline Door"
+        size: "570X496"
+        height: 570
+        width: 496
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+      single_std_drawer_500w: 1
+
+  "78":
+    item_description: "720 DRAWERLINE BASE 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawerline"
+      height: 720
+      width: 600
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA600"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "600 Standard Drawer"
+        size: "140X596"
+        height: 140
+        width: 596
+        quantity: 1
+        drilling: "Std Drawer Drilling"
+
+      - type: "door"
+        description: "600 Drawerline Door"
+        size: "570X596"
+        height: 570
+        width: 596
+        quantity: 1
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 2
+      mount_plates: 2
+      single_std_drawer_600w: 1
+
+  "79":
+    item_description: "720 DRAWERLINE BASE LH 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawerline"
+      height: 720
+      width: 1000
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA1000"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "1000 Standard Drawer"
+        size: "140X496"
+        height: 140
+        width: 496
+        quantity: 2
+        drilling: "Std Drawer Drilling"
+
+      - type: "door"
+        description: "600 Drawerline Door"
+        size: "570X596"
+        height: 570
+        width: 496
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+      single_std_drawer_500w: 1
+      clips_fittings_pack: 1
+
+  "80":
+    item_description: "720 DRAWERLINE BASE RH 1000"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "base"
+      subtype: "drawerline"
+      height: 720
+      width: 1000
+      depth: 570
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxBA1000"
+        quantity: 1
+
+    frontals:
+      - type: "drawer"
+        description: "1000 Standard Drawer"
+        size: "140X496"
+        height: 140
+        width: 496
+        quantity: 2
+        drilling: "Std Drawer Drilling"
+
+      - type: "door"
+        description: "600 Drawerline Door"
+        size: "570X596"
+        height: 570
+        width: 496
+        quantity: 2
+        drilling: "T98 B98"
+
+    hardware:
+      hinges: 4
+      mount_plates: 4
+      single_std_drawer_500w: 1
+      clips_fittings_pack: 1
+
+  "81":
+    item_description: "720 MICROWAVE WALL 600"
+
+    item_type: "cabinet_unit"
+
+    cabinet:
+      category: "wall"
+      subtype: "microwave_housing"
+      height: 720
+      width: 600
+      depth: 330
+
+      packs:
+      - role: "main_pack"
+        pattern: "BNBxMWU600"
+        quantity: 1
+
+    frontals:
+      - type: "door"
+        description: "600 Micro Wall Door"
+        size: "310X596"
+        height: 310
+        width: 596
+        quantity: 1
+        drilling: "Flap Stay Drilling"
+
+    hardware:
+      flap_stay: 1
+
+  "82":
+    item_description: "100H Capping Rail"
+
+    item_type: "accessory"
+
+    accessory:
+      category: "profile"
+      subtype: "capping rail"
+
+      length: 2745
+      height: 100
+      depth: 18
