@@ -1,6 +1,6 @@
 import yaml
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 
 def _load_yaml_section(
@@ -61,7 +61,6 @@ def load_row_defaults(table_name: str) -> dict:
     )
 
 
-
 def get_colour_from_prefix(
     sku_prefix: str,
     table_name: str | None = None
@@ -97,5 +96,32 @@ def get_material_via_dimension(
         group_name=material
     )
 
+
 def get_pallets() -> Any:
     return _load_yaml(config_filepath="config/materials/pallets.yml")
+
+
+def get_kitchen_kit_values(
+    value_group: Literal[
+        "cab-colours",
+        "cab-configs",
+        "door-colours",
+        "door-styles",
+        "product-classes",
+        "service-types"
+    ]
+):
+
+    match value_group:
+        case "cab-colours":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_cab_colours.yml")
+        case "cab-configs":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_cab_configs.yml")
+        case "door-colours":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_door_colours.yml")
+        case "door-styles":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_door_styles.yml")
+        case "product-classes":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_product_classes.yml")
+        case "service-types":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_service_types.yml")

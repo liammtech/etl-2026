@@ -1,0 +1,16 @@
+kk_main_range_product_classes:
+
+  "KKA": "KITCHENKIT ACCESSORIES"
+  "KKF": "KITCHENKIT FLAT PACK RANGE"
+  "KKJ": "KITCHEN KIT- J PULL"
+  "KKP": "KITCHEN KIT PROMOTIONAL"
+  "KKR": "KITCHENKIT RIGID RANGE"
+  "KKSL": "KITCHEN KIT-SLAB RANGES"
+
+kk_door_range_product_classes:
+
+  "KKD": "KITCHENKIT DOORS"
+
+kk_component_range_product_classes:
+
+  "KKC": "KITCHENKIT COMPONENTS"
