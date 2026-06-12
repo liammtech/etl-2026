@@ -16,13 +16,20 @@ REMOVE D CODES
     - Route
     - SequenceNum
     - Component
-5. Filter out any entries from this list where the product class of the Parent Part does not begin with "KK"
-6. Identify any entries from this list where the product configuration has the part as undrilled 
+5. Validate each parent code in the list, they fall into three categories:
+    - Kitchen Kit main range: make a list to treat these one way
+    - Kitchen Kit doors: make a list to treat these another way
+    - Anything else: an oddity, make a list to print to the terminal when the job is done, because they probably shouldn't be working from D codes
+
+    
+OLD LOGIC - GOING TO REWRITE:
+6. MAIN RANGE: Identify any entries from this list where the product configuration has the part in question as undrilled 
     - add them to new list (List B)
     - include same fields as List A
     - compare them against a config list
     - these D codes will still be swapped, but will be missed out when adding in the drilling ops
     - e.g. a 715x446 door will be drilled when part of the 450 unit (FKxxxx39), but not when sold as an appliance door (FKxxxx45)
+
 7. For every entry in List A, swap the D-code door for the non-D code (keying in by ParentPart and Route)
 8. From List A, filter out all records that have a match in List B (call this List C)
 9. For all entries in List C:
@@ -77,4 +84,5 @@ def sub_out_d_code(stock_code: str) -> None:
 
     pprint(d_code_bom_instances)
 
-    # 6. Identify any entries from this list where the product configuration has the part as undrilled 
+    # 6. Identify any entries from this list where the product configuration has the part as undrilled
+

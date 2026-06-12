@@ -87,6 +87,12 @@ def check_if_valid_main_range_KK_code(stock_code: str) -> bool:
         print(f"{stock_code} is a valid main range KK code")
         return True
 
+
+def check_if_valid_kk_door_sales_code(stock_code: str) -> bool:
+    pass
+    
+
+
 def check_if_d_code(stock_code: str) -> bool:
     '''
     - ends in a letter "D"
