@@ -432,7 +432,8 @@ def lldr_std_single(stock_code: str):
 # J-Pull - Standard
 def jayl_std_single(stock_code: str):
     bom_records_exist = check_if_in_table(
-        stock_code=stock_code,
+        key_field="ParentPart",
+        key_value=stock_code,
         table="BomStructure",
         sql_getter_func=get_multiple_records
     )
@@ -441,7 +442,8 @@ def jayl_std_single(stock_code: str):
         raise RecordNotFoundError(f"No record found for {stock_code} in table BomStructure")
 
     zInvExtra_exists = check_if_in_table(
-        stock_code=stock_code,
+        key_field="StockCode",
+        key_value=stock_code,
         table="zInvExtra",
         sql_getter_func=get_single_record
     )

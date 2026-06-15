@@ -22,6 +22,6 @@ def copy_oem_door_code_basic():
     PROCESS
     1. Copy the InvMaster data
     2. Copy the zInvExtra data
-    3. Create fresh InvMaster record, copy to it using:
+    3. Create fresh InvMaster record
         
     '''
