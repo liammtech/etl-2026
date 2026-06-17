@@ -324,7 +324,10 @@ def check_if_door_config_is_drilled(
         return False
     
 
-def check_if_standalone_door_is_drilled(door_code: str):
+def check_if_standalone_door_is_drilled(
+        door_code: str,
+        check_if_kk_door_sales: bool = False
+    ):
     """
     Takes a simple Kitchen Kit door sales code (specifically a sales code), and determines if that door is supposed to be drilled or not
 
@@ -334,3 +337,12 @@ def check_if_standalone_door_is_drilled(door_code: str):
     Returns:
         bool
     """
+
+    if check_if_kk_door_sales:
+        if not check_if_valid_kk_door_sales_code(stock_code=door_code):
+            print("Not a valid KK door sales code - terminating.")
+            return
+        
+    doors = get_kitchen_kit_values("door-sizes")
+
+    
