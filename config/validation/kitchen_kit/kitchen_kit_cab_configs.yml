@@ -144,7 +144,7 @@ kk_cab_configs:
         height: 110
         width: 596
         quantity: 1
-        drilling: None
+        drilling: null
 
     hardware: {}
 
@@ -1183,7 +1183,7 @@ kk_cab_configs:
         height: 715
         width: 146
         quantity: 1
-        drilling: "T98 B98"
+        drilling: null
 
     hardware:
       wirework_base_150w: 1

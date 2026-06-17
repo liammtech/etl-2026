@@ -251,10 +251,17 @@ def check_if_cab_config_has_any_drilled_doors(stock_code: str) -> bool:
         return False
 
 
-def check_if_door_config_is_drilled(parent_code: str, component: str) -> bool:
+def check_if_door_config_is_drilled(
+        parent_code: str,
+        door_code: str | None = None,
+        door_size: str | None = None
+    ) -> bool:
     """
     Check if a particular door within a particular Kitchen Kit cabinet config
-    needs to be drilled. Works from the door size as a key.
+    needs to be drilled. Works from the door size as a key (accepts either the
+    door code from the BOM or the door size directly).
+
+    Exactly one of door_code or door_size must be provided.
 
     TODO: Door size as a key could become ineffective if multiple sizes exist
     with different drilling patterns, within the same unit. At this point in
@@ -266,23 +273,52 @@ def check_if_door_config_is_drilled(parent_code: str, component: str) -> bool:
     Args:
         parent_code: The parent code or config number you are looking to check
         within (parses the same as check_if_cab_config_has_any_drilled_doors() )
-        component: The door code, which the function will query the size of and
-        use as the key within the config's door list
+
+        door_code: Mutually exclusive with door_size. The code as it appears in
+        the BOMs, looks up the size from it
+
+        door_size: Mutually exclusive with door_size. Expected in "715X596"
+        format, works directly as a key
 
     Returns:
         A bool value: True if the door is to be drilled, otherwise False
     """
-    config_to_check = parent_code[-2:]
 
-    door_size = sql.get_single_record(
-        table="zInvExtra",
-        criteria={
-            "StockCode": component
-        },
-        return_columns={
-            "Height",
-            "Width"
-        }
-    )
+    if (door_code is None) == (door_size is None):
+        raise ValueError(
+            "Exactly one of 'door_code' or 'ardoor_sizeg_b' must be provided."
+        )
     
+    if door_code is not None:
+        door_height, door_width = sql.get_single_record(
+            table="zInvExtra",
+            criteria={
+                "StockCode": door_code
+            },
+            return_columns={
+                "Height",
+                "Width"
+            },
+        )
 
+        door_size = str(int(door_height)) + "X" + str(int(door_width))
+        
+    print(f"Door size is {door_size}")
+    config_to_check = parent_code[-2:]
+    cab_configs = get_kitchen_kit_values(value_group="cab-configs")
+
+    drilling = next(
+        (
+            item["drilling"]
+            for item in cab_configs["kk_cab_configs"][config_to_check]["frontals"]
+            if item["size"] == door_size
+        ),
+        None
+    )
+
+    if drilling is not None:
+        print(f"Door is drilled - drilling: {drilling}")
+        return True
+    else:
+        print("Door is undrilled")
+        return False
