@@ -106,6 +106,7 @@ def get_kitchen_kit_values(
         "cab-colours",
         "cab-configs",
         "door-colours",
+        "door-sizes",
         "door-styles",
         "product-classes",
         "service-types"
@@ -121,6 +122,8 @@ def get_kitchen_kit_values(
             return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_door_colours.yml")
         case "door-styles":
             return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_door_styles.yml")
+        case "door-sizes":
+            return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_door_sizes.yml")
         case "product-classes":
             return _load_yaml(config_filepath="config/validation/kitchen_kit/kitchen_kit_product_classes.yml")
         case "service-types":

@@ -286,7 +286,7 @@ def check_if_door_config_is_drilled(
 
     if (door_code is None) == (door_size is None):
         raise ValueError(
-            "Exactly one of 'door_code' or 'ardoor_sizeg_b' must be provided."
+            "Exactly one of 'door_code' or 'door_size' must be provided."
         )
     
     if door_code is not None:
@@ -322,3 +322,15 @@ def check_if_door_config_is_drilled(
     else:
         print("Door is undrilled")
         return False
+    
+
+def check_if_standalone_door_is_drilled(door_code: str):
+    """
+    Takes a simple Kitchen Kit door sales code (specifically a sales code), and determines if that door is supposed to be drilled or not
+
+    Args:
+        door_code: The sales code to check if it's to be drilled
+
+    Returns:
+        bool
+    """

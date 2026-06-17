@@ -2,6 +2,6 @@ from validation.kk_validation import check_if_door_config_is_drilled
 
 def test():
     check_if_door_config_is_drilled(
-        parent_code="FKKF0001",
-        door_code="PFGW030D"
+        parent_code="FKKF0005",
+        door_size="110X596"
     )

@@ -1,0 +1,18 @@
+kitchen_kit_bom_routes:
+  - "0"
+  - "1"
+  - "5"
+  - "6"
+  - "T"
+
+retail_bom_routes:
+  - "0"
+  - "5"
+  - "6"
+
+production_bom_routes:
+  - "0"
+
+cut_and_edged_bom_routes:
+  - "0"
+  - "1"

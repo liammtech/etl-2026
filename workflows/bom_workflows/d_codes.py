@@ -21,14 +21,17 @@ REMOVE D CODES
     - Kitchen Kit doors: make a list to treat these another way
     - Anything else: an oddity, make a list to print to the terminal when the job is done, because they probably shouldn't be working from D codes
 6. Main range code treatment - for each row:
-    - 
+    - See function notes
 7. Door sale code treatment
+    - See function notes
 8. Anomalies treatment
 '''
 
 # 1. Accept D code as argument 
+def sub_out_d_code(stock_code: str) -> None:
+    '''
 
-def sub_out_d_code(stock_code: str) -> None: 
+    '''
 
     # 2. Check that it is in fact a "D" code
     if not check_if_d_code(stock_code=stock_code):
@@ -79,3 +82,21 @@ def sub_out_d_code(stock_code: str) -> None:
     pprint(f"Main range codes: \n{main_range_codes}\n\n")
     pprint(f"Door sales codes: \n{door_sales_codes}\n\n")
     pprint(f"Anomalies: \n{anomalies}\n\n")
+
+    # 6. Main range code treatment - for each row:
+
+    # OPS
+    # - Check if the product config is supposed to have any drilling at all
+    # - Check if all Kitchen Kit standard routes have a DPDRL operation
+    # - If any don't, insert DPDRL into the operations list for that route
+
+    # BOMS
+    # - Swap out the D code for it's non-D variant, for each route
+    # - Check if this item is supposed to be drilled
+    # - If yes, for each route, check that drilling instruction is in place:
+    #   - Get SequenceNum (already have ParentPart, Route, Component)
+    #   - Using all four keys, check if there is an associated BomStructure+ record
+    #   - If there is no record, create one
+    #   - If there is a record, check whether the drilling instruction is correct via config
+    #   - If incorrect, correct it
+    #   - Continue to next row
