@@ -216,3 +216,73 @@ def check_if_non_d_code_exists(stock_code: str) -> bool:
     )
 
     return True if non_d_code else False
+
+
+def check_if_cab_config_has_any_drilled_doors(stock_code: str) -> bool:
+    """
+    Check if a particular Kitchen Kit cabinet configuration number (01, 02),
+    should have any doors in it's BOM that need to be drilled.
+
+    Args:
+        stock_code: This can be a main range stock code, or just the final two
+        characters. The function strips it down to the last two characters and
+        checks if they're a valid key in the Kitchen Kit configurations list.
+
+    Returns:
+        A bool value: True if there are any doors with a non-null drilling
+        instruction associated with that config, otherwise False
+    """
+
+    config_to_check = stock_code[-2:]
+    cab_configs = get_kitchen_kit_values(value_group="cab-configs")
+
+    frontals = cab_configs["kk_cab_configs"][config_to_check]["frontals"]
+
+    frontal_drillings = []
+
+    for i, j in enumerate(frontals):
+        frontal_drillings.append(frontals[i]["drilling"])
+
+    if any(drill_instance != 'None' for drill_instance in frontal_drillings):
+        print(f"\nConfig {config_to_check} contains drilling: {frontal_drillings}")
+        return True
+    else:
+        print(f"\nConfig {config_to_check} is an undrilled config")
+        return False
+
+
+def check_if_door_config_is_drilled(parent_code: str, component: str) -> bool:
+    """
+    Check if a particular door within a particular Kitchen Kit cabinet config
+    needs to be drilled. Works from the door size as a key.
+
+    TODO: Door size as a key could become ineffective if multiple sizes exist
+    with different drilling patterns, within the same unit. At this point in
+    time, there are no Kitchen Kit configs that have multiples of the same door
+    with different drilling. This has not always been the case and could change
+    at a later point, so work will need to be done to futureproof: a specific
+    door id system.
+
+    Args:
+        parent_code: The parent code or config number you are looking to check
+        within (parses the same as check_if_cab_config_has_any_drilled_doors() )
+        component: The door code, which the function will query the size of and
+        use as the key within the config's door list
+
+    Returns:
+        A bool value: True if the door is to be drilled, otherwise False
+    """
+    config_to_check = parent_code[-2:]
+
+    door_size = sql.get_single_record(
+        table="zInvExtra",
+        criteria={
+            "StockCode": component
+        },
+        return_columns={
+            "Height",
+            "Width"
+        }
+    )
+    
+

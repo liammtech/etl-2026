@@ -144,7 +144,7 @@ kk_cab_configs:
         height: 110
         width: 596
         quantity: 1
-        drilling: null
+        drilling: None
 
     hardware: {}
 
