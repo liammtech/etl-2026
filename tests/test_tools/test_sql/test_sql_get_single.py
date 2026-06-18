@@ -37,7 +37,7 @@ def test_with_return_column_as_string():
     rtn = get_single_record(
         table="zInvExtra",
         criteria={
-            "StockCode": "PJMW895X296"
+            "StockCode": "ORAGW715X596"
         },
         return_columns="LinkedStockCode",
         flatten=True

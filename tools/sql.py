@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pyodbc import Row
+from pyodbc import Cursor, Row
 from collections.abc import Sequence
 from typing import Any, Literal, NamedTuple
 
@@ -7,18 +7,19 @@ from db.connection import get_cursor
 from tools.utils.string_checks import check_if_wildcard
 from tools.transform import substitute_wildcard, normalise_sql_value
 
-# All below functions assume a single table
-# Getters with joins may be added at a later date when need becomes apparent
 
-# TODO: validate all sql function arguments:
-# Certainly make a list of "allowed tables", and implement this as a filter
-# Whether or not it is worth it to validate all column names within a table before any SQL ops, is TBD
-# May save on transactions, but it means instituting a way to automatically refresh the table schemas
-# Can't reliably maintain by hand; table schema changes may come unannounced
-# SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
+# TODO: Add table-name validation via an ALLOWED_TABLES whitelist.
+#       Table names are interpolated into SQL and cannot be parameterised.
 
-# TODO: Factor comparison operators into getters (from updater)
-# TODO: Factor joins into updater (from getters)
+# TODO: Consider dynamic column-name validation from database schema metadata.
+#       Avoid maintaining table schemas manually; Syspro schema changes may occur
+#       outside this project.
+
+# TODO: Ensure all CRUD helpers share the same criteria handling:
+#       equality, LIKE wildcards, comparison operators, and NOT LIKE.
+
+# TODO: Keep JOIN support focused on SELECT helpers unless a concrete joined
+#       UPDATE/DELETE use case appears.
 
 '''
 JOIN SYNTAX
@@ -44,8 +45,10 @@ row = get_single_record(
     ]
 )
 '''
+
 VALID_OPS = {"=", "!=", "<>", ">", ">=", "<", "<=", "LIKE", "NOT LIKE"}
 
+TEXT_COLUMNS = {"Route"}
 
 class Join(NamedTuple):
     table: str
@@ -53,28 +56,117 @@ class Join(NamedTuple):
     join_type: Literal["INNER", "LEFT", "RIGHT"] = "INNER"
 
 
-TEXT_COLUMNS = {"Route"}
+def _build_where_clause(
+    criteria: dict[str, object],
+) -> tuple[str, list[object]]:
+    """Build a parameterised SQL WHERE clause from a criteria dictionary.
 
+    Criteria values may be supplied directly for equality checks:
 
-def build_where_clause(criteria):
-    clauses = []
-    params = []
+        {"StockCode": "ABC123"}
 
-    for col, val in criteria.items():
-        if col in TEXT_COLUMNS and val is not None:
-            val = str(val).strip()
+    Or as an ``(operator, value)`` tuple for explicit comparisons:
+
+        {"Operation": (">", 10)}
+        {"Route": ("NOT LIKE", "A*")}
+
+    String values containing application wildcards are automatically
+    converted to SQL wildcards using ``substitute_wildcard()`` and matched
+    using ``LIKE`` when no explicit operator is supplied.
+
+    Supported comparison operators are defined by ``VALID_OPS``.
+
+    Args:
+        criteria: Mapping of column names to filter values or
+            ``(operator, value)`` tuples.
+
+    Returns:
+        A tuple containing:
+
+        - A parameterised SQL WHERE clause string.
+        - A list of parameter values corresponding to the placeholders.
+
+    Raises:
+        ValueError: If ``criteria`` is empty.
+        ValueError: If an unsupported SQL operator is supplied.
+
+    Examples:
+        Equality matching:
+
+            _build_where_clause({
+                "StockCode": "FKKH2341",
+                "Route": "0",
+            })
+
+        Wildcard matching:
+
+            _build_where_clause({
+                "StockCode": "FKK?####",
+            })
+
+        Comparison operators:
+
+            _build_where_clause({
+                "Operation": (">", 10),
+            })
+
+        Explicit LIKE matching:
+
+            _build_where_clause({
+                "StockCode": ("NOT LIKE", "FKKR*"),
+            })
+    """
+    if not criteria:
+        raise ValueError("Criteria cannot be empty.")
+
+    clauses: list[str] = []
+    params: list[object] = []
+
+    def _prepare_value(column: str, value: object) -> tuple[str, object]:
+        if isinstance(value, Row):
+            value = value[0]
+
+        value = normalise_sql_value(column, value)
+
+        op = "="
+
+        if isinstance(value, str) and check_if_wildcard(value):
+            value = substitute_wildcard(value)
+            op = "LIKE"
+
+        elif isinstance(value, str) and ("%" in value or "_" in value):
+            op = "LIKE"
+
+        return op, value
+
+    for column, value in criteria.items():
+        if isinstance(value, list):
+            sub_clauses: list[str] = []
+
+            for subvalue in value:
+                sub_op, subvalue = _prepare_value(column, subvalue)
+                sub_clauses.append(f"{column} {sub_op} ?")
+                params.append(subvalue)
+
+            clauses.append("(" + " OR ".join(sub_clauses) + ")")
+            continue
 
         if (
-            isinstance(val, tuple)
-            and len(val) == 2
-            and val[0] in VALID_OPS
+            isinstance(value, tuple)
+            and len(value) == 2
+            and isinstance(value[0], str)
         ):
-            op, param = val
-        else:
-            op = "LIKE" if isinstance(val, str) and ("%" in val or "_" in val) else "="
-            param = val
+            op = value[0].upper()
+            param = value[1]
 
-        clauses.append(f"{col} {op} ?")
+            if op not in VALID_OPS:
+                raise ValueError(f"Invalid SQL operator: {op!r}")
+
+            _, param = _prepare_value(column, param)
+        else:
+            op, param = _prepare_value(column, value)
+
+        clauses.append(f"{column} {op} ?")
         params.append(param)
 
     return " AND ".join(clauses), params
@@ -86,15 +178,21 @@ def get_single_record(
     criteria: dict[str, object],
     return_columns: str | list[str] = "*",
     joins: list[Join] | None = None,
-    flatten: bool = False
+    flatten: bool = False,
+    strict: bool = False,
+    cursor: Cursor | None = None,
 ) -> Row | object | None:
+    """Fetch a single record from a table.
 
+    By default, this returns the first matching row. If ``strict=True``,
+    the function raises a ValueError when more than one matching row is found.
+    """
     if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
 
+    where_clause, params = _build_where_clause(criteria)
+
     sql = [f"SELECT {return_columns} FROM {table}"]
-    params = []
-    where_clauses = []
 
     if joins:
         for join in joins:
@@ -102,43 +200,46 @@ def get_single_record(
                 f"{join.join_type} JOIN {join.table} ON {join.on}"
             )
 
-    for col, val in criteria.items():
-        if val is None:
-            continue
-
-        if isinstance(val, Row):
-            val = val[0]
-
-        val = normalise_sql_value(col, val)
-
-        if check_if_wildcard(val):
-            val = substitute_wildcard(val)
-            where_clauses.append(f"{col} LIKE ?")
-        else:
-            where_clauses.append(f"{col} = ?")
-
-        params.append(val)
-
-    if where_clauses:
-        sql.append("WHERE " + " AND ".join(where_clauses))
+    sql.append(f"WHERE {where_clause}")
 
     final_sql = " ".join(sql)
 
-    with get_cursor() as cursor:
-        cursor.execute(final_sql, params)
-        fetch_result = cursor.fetchone()
+    def _execute(active_cursor: Cursor) -> Row | object | None:
+        active_cursor.execute(final_sql, params)
 
-        if fetch_result is None:
-            return None
+        if strict:
+            rows = active_cursor.fetchmany(2)
+
+            if not rows:
+                return None
+
+            if len(rows) > 1:
+                raise ValueError(
+                    f"Expected one record from {table}, got multiple."
+                )
+
+            fetch_result = rows[0]
+        else:
+            fetch_result = active_cursor.fetchone()
+
+            if fetch_result is None:
+                return None
 
         if flatten:
             if len(fetch_result) > 1:
                 raise ValueError(
-                    "Cannot flatten SQL fetch result: more than one column returned"
+                    "Cannot flatten SQL fetch result: more than one column returned."
                 )
+
             return fetch_result[0]
 
         return fetch_result
+
+    if cursor is not None:
+        return _execute(cursor)
+
+    with get_cursor() as managed_cursor:
+        return _execute(managed_cursor)
     
 
 def get_multiple_records(
@@ -348,7 +449,7 @@ def update_records(
         return
 
     set_clause = ", ".join([f"{k} = ?" for k in update_data.keys()])
-    where_clause, where_params = build_where_clause(criteria)
+    where_clause, where_params = _build_where_clause(criteria)
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + where_params
@@ -431,7 +532,7 @@ def shift_unique_sequence(
 
         criteria:
             Dictionary of criteria used to select rows for shifting.
-            Supports all operators accepted by ``build_where_clause()``.
+            Supports all operators accepted by ``_build_where_clause()``.
 
             Comparison operators may be specified as tuples:
 
@@ -486,7 +587,7 @@ def shift_unique_sequence(
 
     order_direction = "DESC" if delta > 0 else "ASC"
 
-    where_clause, params = build_where_clause(criteria)
+    where_clause, params = _build_where_clause(criteria)
 
     select_sql = (
         f"SELECT {sequence_column} "
@@ -514,7 +615,7 @@ def shift_unique_sequence(
                     sequence_column: old_value,
                 }
 
-                update_where_clause, update_params = build_where_clause(update_criteria)
+                update_where_clause, update_params = _build_where_clause(update_criteria)
 
                 update_sql = (
                     f"UPDATE {table} "
@@ -529,62 +630,3 @@ def shift_unique_sequence(
         except Exception:
             cursor.connection.rollback()
             raise
-
-
-# To implement later:
-
-# def update_records_case(
-#     table: str,
-#     target_column: str,
-#     value_map: dict[object, object],
-#     where: list[tuple[str, str, object]] | None = None,
-# ) -> tuple[str, list[object]]:
-#     if not value_map:
-#         raise ValueError("value_map cannot be empty")
-
-#     case_parts = []
-#     params: list[object] = []
-
-#     for old_value, new_value in value_map.items():
-#         case_parts.append("WHEN ? THEN ?")
-#         params.extend([old_value, new_value])
-
-#     sql = (
-#         f"UPDATE {table} "
-#         f"SET {target_column} = CASE {target_column} "
-#         + " ".join(case_parts)
-#         + " END"
-#     )
-
-#     extra_where = list(where or [])
-#     extra_where.append((target_column, "in", list(value_map.keys())))
-
-#     where_sql_parts = []
-
-#     for column, operator, value in extra_where:
-#         op = operator.lower()
-
-#         if op == "=":
-#             where_sql_parts.append(f"{column} = ?")
-#             params.append(value)
-
-#         elif op == "in":
-#             value = list(value)
-#             if not value:
-#                 raise ValueError(f"IN value for {column} cannot be empty")
-#             placeholders = ", ".join("?" for _ in value)
-#             where_sql_parts.append(f"{column} IN ({placeholders})")
-#             params.extend(value)
-
-#         else:
-#             raise ValueError(f"Unsupported operator in this helper: {operator}")
-
-#     sql += " WHERE " + " AND ".join(where_sql_parts)
-#     print(sql)
-#     print(params)
-
-
-#     with get_cursor() as cursor:
-#         cursor.execute(sql, tuple(params))
-#         cursor.connection.commit()
-
