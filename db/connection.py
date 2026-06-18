@@ -5,7 +5,9 @@ the repository root directory.
 """
 
 import os
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Iterator
 
 import pyodbc
 from dotenv import load_dotenv
@@ -15,17 +17,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env")
 
 
 def _need(name: str) -> str:
-    """Retrieve a required environment variable.
-
-    Args:
-        name: The name of the environment variable.
-
-    Returns:
-        The environment variable value.
-
-    Raises:
-        RuntimeError: If the environment variable is missing or empty.
-    """
+    """Retrieve a required environment variable."""
     value = os.getenv(name)
 
     if not value:
@@ -34,29 +26,9 @@ def _need(name: str) -> str:
     return value
 
 
-def get_prod_cursor() -> pyodbc.Cursor:
-    """Create a cursor for the production SQL Server database.
-
-    Required environment variables:
-
-    - DRIVER
-    - SERVER
-    - DATABASE
-
-    Optional environment variables:
-
-    - TRUSTED_CONNECTION (defaults to "yes")
-    - ENCRYPT (defaults to "yes")
-    - TRUST_SERVER_CERTIFICATE (defaults to "no")
-
-    Returns:
-        A cursor connected to the production database.
-
-    Raises:
-        RuntimeError: If a required environment variable is missing.
-        pyodbc.Error: If the database connection cannot be established.
-    """
-    conn = pyodbc.connect(
+def get_prod_connection() -> pyodbc.Connection:
+    """Create a connection to the production SQL Server database."""
+    return pyodbc.connect(
         f"DRIVER={_need('DRIVER')};"
         f"SERVER={_need('SERVER')};"
         f"DATABASE={_need('DATABASE')};"
@@ -65,64 +37,63 @@ def get_prod_cursor() -> pyodbc.Cursor:
         f"TrustServerCertificate={os.getenv('TRUST_SERVER_CERTIFICATE', 'no')};"
     )
 
-    return conn.cursor()
 
-
-def get_dev_cursor() -> pyodbc.Cursor:
-    """Create a cursor for the development database.
-
-    The development environment uses a file-based ODBC connection.
-
-    Required environment variables:
-
-    - DRIVER_DEV
-    - DBQ_DEV
-
-    Returns:
-        A cursor connected to the development database.
-
-    Raises:
-        RuntimeError: If a required environment variable is missing.
-        pyodbc.Error: If the database connection cannot be established.
-    """
-    conn = pyodbc.connect(
+def get_dev_connection() -> pyodbc.Connection:
+    """Create a connection to the development database."""
+    return pyodbc.connect(
         f"DRIVER={_need('DRIVER_DEV')};"
         f"DBQ={_need('DBQ_DEV')};"
     )
 
-    return conn.cursor()
 
-
-def get_cursor() -> pyodbc.Cursor:
-    """Create a cursor for the configured database environment.
-
-    The target environment is selected using the ``SQL_MODE`` environment
-    variable.
-
-    Supported values are:
-
-    - "Prod" for the production SQL Server database.
-    - "Dev" for the development database.
-
-    Returns:
-        A cursor connected to the configured database.
-
-    Raises:
-        RuntimeError: If ``SQL_MODE`` or another required environment
-            variable is missing.
-        ValueError: If ``SQL_MODE`` is not set to a supported value.
-        pyodbc.Error: If the database connection cannot be established.
-    """
+def get_connection() -> pyodbc.Connection:
+    """Create a connection for the configured database environment."""
     sql_mode = _need("SQL_MODE")
 
     if sql_mode == "Prod":
-        return get_prod_cursor()
+        return get_prod_connection()
 
     if sql_mode == "Dev":
-        return get_dev_cursor()
+        return get_dev_connection()
 
     raise ValueError(
         f"Invalid SQL_MODE: {sql_mode!r}. "
         "Expected one of: 'Prod', 'Dev'."
     )
-```
+
+
+@contextmanager
+def get_cursor() -> Iterator[pyodbc.Cursor]:
+    """Create a managed cursor for the configured database environment.
+
+    The database connection is automatically committed if the wrapped block
+    completes successfully, rolled back if an exception is raised, and closed
+    afterwards in all cases.
+    """
+    conn = get_connection()
+
+    try:
+        cursor = conn.cursor()
+        yield cursor
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def get_prod_cursor() -> pyodbc.Cursor:
+    """Create a cursor for the production SQL Server database.
+
+    Prefer using ``get_cursor()`` for managed connection handling.
+    """
+    return get_prod_connection().cursor()
+
+
+def get_dev_cursor() -> pyodbc.Cursor:
+    """Create a cursor for the development database.
+
+    Prefer using ``get_cursor()`` for managed connection handling.
+    """
+    return get_dev_connection().cursor()
