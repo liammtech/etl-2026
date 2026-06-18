@@ -325,7 +325,7 @@ def check_if_door_config_is_drilled(
     
 
 def check_if_standalone_door_is_drilled(
-        door_code: str,
+        door_sales_code: str,
         check_if_kk_door_sales: bool = False
     ):
     """
@@ -339,10 +339,15 @@ def check_if_standalone_door_is_drilled(
     """
 
     if check_if_kk_door_sales:
-        if not check_if_valid_kk_door_sales_code(stock_code=door_code):
+        if not check_if_valid_kk_door_sales_code(stock_code=door_sales_code):
             print("Not a valid KK door sales code - terminating.")
             return
         
-    doors = get_kitchen_kit_values("door-sizes")
+    sales_code_suffix = door_sales_code[6:]
 
-    
+    door_drillings = get_kitchen_kit_values("door-sizes")
+
+    if door_drillings["kk_door_sizes"][sales_code_suffix]:
+        return True
+    else:
+        return False

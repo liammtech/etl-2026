@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from pyodbc import Row
 from collections.abc import Sequence
-from typing import Literal, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from db.connection import get_cursor
 from tools.utils.string_checks import check_if_wildcard
@@ -15,6 +16,9 @@ from tools.transform import substitute_wildcard, normalise_sql_value
 # May save on transactions, but it means instituting a way to automatically refresh the table schemas
 # Can't reliably maintain by hand; table schema changes may come unannounced
 # SQL op errors tend to make the failed parameter quite clear anyway (maybe formalise an error depending on SQL response)
+
+# TODO: Factor comparison operators into getters (from updater)
+# TODO: Factor joins into updater (from getters)
 
 '''
 JOIN SYNTAX
@@ -40,12 +44,40 @@ row = get_single_record(
     ]
 )
 '''
+VALID_OPS = {"=", "!=", "<>", ">", ">=", "<", "<=", "LIKE", "NOT LIKE"}
 
 
 class Join(NamedTuple):
     table: str
     on: str
     join_type: Literal["INNER", "LEFT", "RIGHT"] = "INNER"
+
+
+TEXT_COLUMNS = {"Route"}
+
+
+def build_where_clause(criteria):
+    clauses = []
+    params = []
+
+    for col, val in criteria.items():
+        if col in TEXT_COLUMNS and val is not None:
+            val = str(val).strip()
+
+        if (
+            isinstance(val, tuple)
+            and len(val) == 2
+            and val[0] in VALID_OPS
+        ):
+            op, param = val
+        else:
+            op = "LIKE" if isinstance(val, str) and ("%" in val or "_" in val) else "="
+            param = val
+
+        clauses.append(f"{col} {op} ?")
+        params.append(param)
+
+    return " AND ".join(clauses), params
 
 
 def get_single_record(
@@ -310,25 +342,19 @@ def update_records(
     table: str,
     criteria: dict[str, object],
     update_data: dict[str, object],
-    
 ) -> None:
-    # print(f"ATTEMPTING TO UPDATE TABLE {table}")
-    # print(f"UPDATE DATA IS: {update_data}")
+
     if not update_data:
         return
-    
-    # validate_table(table)
-    
-    def get_op(v):
-        return "LIKE" if isinstance(v, str) and ("%" in v or "_" in v) else "="
 
     set_clause = ", ".join([f"{k} = ?" for k in update_data.keys()])
-    where_clause = " AND ".join([f"{k} {get_op(v)} ?" for k, v in criteria.items()])
+    where_clause, where_params = build_where_clause(criteria)
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
-    params = list(update_data.values()) + list(criteria.values())
-    # print(sql)
-    # print(params)
+    params = list(update_data.values()) + where_params
+
+    print(sql)
+    print(params)
 
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
@@ -375,6 +401,135 @@ def delete_records(
     with get_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         cursor.connection.commit()
+
+
+def shift_unique_sequence(
+    *,
+    table: str,
+    sequence_column: str,
+    criteria: dict[str, Any],
+    delta: int,
+) -> None:
+    """
+    Safely shifts values in a uniquely constrained sequence column.
+
+    Updates are performed in an order that avoids temporary unique index
+    violations when moving sequential values.
+
+    For positive deltas, records are updated from highest to lowest value.
+    For negative deltas, records are updated from lowest to highest value.
+
+    All updates are executed within a single transaction. If any update
+    fails, all changes are rolled back.
+
+    Args:
+        table:
+            Name of the database table containing the sequence column.
+
+        sequence_column:
+            Name of the unique sequence column to shift.
+
+        criteria:
+            Dictionary of criteria used to select rows for shifting.
+            Supports all operators accepted by ``build_where_clause()``.
+
+            Comparison operators may be specified as tuples:
+
+                {
+                    "StockCode": "FKKH2341",
+                    "Route": "0",
+                    "Operation": (">", 2),
+                }
+
+        delta:
+            Amount by which to shift matching sequence values.
+
+            Positive values increase the sequence.
+            Negative values decrease the sequence.
+            A value of zero performs no action.
+
+    Raises:
+        Exception:
+            Re-raises any exception encountered during the update after
+            rolling back the transaction.
+
+    Examples:
+        Insert a new operation at position 3 by shifting existing
+        operations up by one:
+
+            shift_unique_sequence(
+                table="BomOperations",
+                sequence_column="Operation",
+                criteria={
+                    "StockCode": "FKKH2341",
+                    "Route": "0",
+                    "Operation": (">=", 3),
+                },
+                delta=1,
+            )
+
+        Remove operation 3 and close the gap:
+
+            shift_unique_sequence(
+                table="BomOperations",
+                sequence_column="Operation",
+                criteria={
+                    "StockCode": "FKKH2341",
+                    "Route": "0",
+                    "Operation": (">", 3),
+                },
+                delta=-1,
+            )
+    """
+    if delta == 0:
+        return
+
+    order_direction = "DESC" if delta > 0 else "ASC"
+
+    where_clause, params = build_where_clause(criteria)
+
+    select_sql = (
+        f"SELECT {sequence_column} "
+        f"FROM {table} "
+        f"WHERE {where_clause} "
+        f"ORDER BY {sequence_column} {order_direction}"
+    )
+
+    base_criteria = {
+        col: val
+        for col, val in criteria.items()
+        if col != sequence_column
+    }
+
+    with get_cursor() as cursor:
+        try:
+            cursor.execute(select_sql, params)
+            sequence_values = [row[0] for row in cursor.fetchall()]
+
+            for old_value in sequence_values:
+                new_value = old_value + delta
+
+                update_criteria = {
+                    **base_criteria,
+                    sequence_column: old_value,
+                }
+
+                update_where_clause, update_params = build_where_clause(update_criteria)
+
+                update_sql = (
+                    f"UPDATE {table} "
+                    f"SET {sequence_column} = ? "
+                    f"WHERE {update_where_clause}"
+                )
+
+                cursor.execute(update_sql, [new_value, *update_params])
+
+            cursor.connection.commit()
+
+        except Exception:
+            cursor.connection.rollback()
+            raise
+
 
 # To implement later:
 
@@ -432,3 +587,4 @@ def delete_records(
 #     with get_cursor() as cursor:
 #         cursor.execute(sql, tuple(params))
 #         cursor.connection.commit()
+
