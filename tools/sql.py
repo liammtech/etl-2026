@@ -116,6 +116,7 @@ def _build_where_clause(
                 "StockCode": ("NOT LIKE", "FKKR*"),
             })
     """
+    
     if not criteria:
         raise ValueError("Criteria cannot be empty.")
 
@@ -140,6 +141,10 @@ def _build_where_clause(
         return op, value
 
     for column, value in criteria.items():
+
+        if value is None:
+            continue
+
         if isinstance(value, list):
             sub_clauses: list[str] = []
 
@@ -182,10 +187,91 @@ def get_single_record(
     strict: bool = False,
     cursor: Cursor | None = None,
 ) -> Row | object | None:
-    """Fetch a single record from a table.
+    """Fetch a single record from a database table.
 
-    By default, this returns the first matching row. If ``strict=True``,
-    the function raises a ValueError when more than one matching row is found.
+    Records are filtered using the supplied criteria. Criteria handling
+    supports equality matching, comparison operators, wildcard matching,
+    and lists of values via ``_build_where_clause()``.
+
+    By default, the first matching row is returned. When ``strict=True``,
+    the function validates that no more than one matching row exists.
+
+    If no external cursor is supplied, a managed cursor is created using
+    ``get_cursor()``. When a cursor is provided, the query participates in
+    the caller's transaction scope.
+
+    Args:
+        table: Name of the table to query.
+
+        criteria: Mapping of column names to filter values or
+            ``(operator, value)`` tuples.
+
+        return_columns: Column or columns to return. May be supplied as
+            ``"*"`` to select all columns, a comma-separated string, or
+            a list of column names.
+
+        joins: Optional sequence of JOIN definitions to include in the
+            query.
+
+        flatten: If ``True``, return the first column value directly
+            instead of a ``Row`` object. Requires exactly one column to
+            be returned.
+
+        strict: If ``True``, raise a ``ValueError`` when multiple records
+            match the supplied criteria.
+
+        cursor: Optional database cursor. When provided, the query uses
+            the existing cursor instead of creating a new one.
+
+    Returns:
+        A ``Row`` object containing the matching record, a single value if
+        ``flatten=True``, or ``None`` if no matching record is found.
+
+    Raises:
+        ValueError: If ``criteria`` is empty.
+
+        ValueError: If ``strict=True`` and multiple records match the
+            supplied criteria.
+
+        ValueError: If ``flatten=True`` and more than one column is
+            returned.
+
+    Examples:
+        Fetch a single row:
+
+            get_single_record(
+                table="InvMaster",
+                criteria={"StockCode": "FKKH2341"},
+            )
+
+        Fetch a single value:
+
+            get_single_record(
+                table="InvMaster",
+                criteria={"StockCode": "FKKH2341"},
+                return_columns=["Description"],
+                flatten=True,
+            )
+
+        Enforce uniqueness:
+
+            get_single_record(
+                table="BomOperations",
+                criteria={
+                    "StockCode": "FKKH2341",
+                    "Operation": 10,
+                },
+                strict=True,
+            )
+
+        Participate in an existing transaction:
+
+            with get_cursor() as cursor:
+                record = get_single_record(
+                    table="InvMaster",
+                    criteria={"StockCode": "FKKH2341"},
+                    cursor=cursor,
+                )
     """
     if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
@@ -249,15 +335,115 @@ def get_multiple_records(
     return_columns: str | list[str] = "*",
     joins: list[Join] | None = None,
     order_by: str | None = "StockCode",
-    flatten: bool = False
-) -> list[Row]:
+    flatten: bool = False,
+    cursor: Cursor | None = None,
+) -> list[Row] | list[object]:
+    """Fetch multiple records from a database table.
 
+    Records are filtered using the supplied criteria. Criteria handling
+    supports equality matching, comparison operators, wildcard matching,
+    lists of values, and explicit SQL operators via ``_build_where_clause()``.
+
+    If no external cursor is supplied, a managed cursor is created using
+    ``get_cursor()``. When a cursor is provided, the query participates in
+    the caller's transaction scope.
+
+    Results may optionally be ordered and flattened into a simple list of
+    values when only a single column is required.
+
+    Args:
+        table: Name of the table to query.
+
+        criteria: Mapping of column names to filter values, lists of values,
+            or ``(operator, value)`` tuples.
+
+        return_columns: Column or columns to return. May be supplied as
+            ``"*"`` to select all columns, a comma-separated string, or
+            a list of column names.
+
+        joins: Optional sequence of JOIN definitions to include in the
+            query.
+
+        order_by: Column name to order the results by. Pass ``None`` to
+            omit the ``ORDER BY`` clause.
+
+        flatten: If ``True``, return the first column value from each row
+            instead of ``Row`` objects. Requires exactly one column to be
+            returned.
+
+        cursor: Optional database cursor. When provided, the query uses
+            the existing cursor instead of creating a new one.
+
+    Returns:
+        A list of ``Row`` objects containing the matching records, or a
+        list of values if ``flatten=True``.
+
+        An empty list is returned if no matching records are found.
+
+    Raises:
+        ValueError: If ``criteria`` is empty.
+
+        ValueError: If an unsupported SQL operator is supplied.
+
+    Examples:
+        Fetch all matching rows:
+
+            get_multiple_records(
+                table="BomOperations",
+                criteria={
+                    "StockCode": "FKKH2341",
+                    "Route": "0",
+                },
+            )
+
+        Match multiple values:
+
+            get_multiple_records(
+                table="InvMaster",
+                criteria={
+                    "StockCode": [
+                        "FKKH2341",
+                        "FKKH2342",
+                        "FKK?####",
+                    ],
+                },
+            )
+
+        Use comparison operators:
+
+            get_multiple_records(
+                table="BomOperations",
+                criteria={
+                    "Operation": (">", 10),
+                },
+            )
+
+        Fetch a flattened list of values:
+
+            get_multiple_records(
+                table="InvMaster",
+                criteria={
+                    "ProductClass": "KKF",
+                },
+                return_columns=["StockCode"],
+                flatten=True,
+            )
+
+        Participate in an existing transaction:
+
+            with get_cursor() as cursor:
+                records = get_multiple_records(
+                    table="BomOperations",
+                    criteria={"StockCode": "FKKH2341"},
+                    cursor=cursor,
+                )
+    """
     if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
 
+    where_clause, params = _build_where_clause(criteria)
+
     sql = [f"SELECT {return_columns} FROM {table}"]
-    params = []
-    where_clauses = []
 
     if joins:
         for join in joins:
@@ -265,49 +451,7 @@ def get_multiple_records(
                 f"{join.join_type} JOIN {join.table} ON {join.on}"
             )
 
-    for col, val in criteria.items():
-        if val is None:
-            continue
-
-        if isinstance(val, list):
-            sub_clauses = []
-
-            for subval in val:
-                if isinstance(subval, Row):
-                    subval = subval[0]
-
-                subval = normalise_sql_value(col, subval)
-
-                if check_if_wildcard(subval):
-                    subval = substitute_wildcard(subval)
-                    sub_clauses.append(f"{col} LIKE ?")
-                else:
-                    sub_clauses.append(f"{col} = ?")
-
-                params.append(subval)
-
-            if sub_clauses:
-                where_clauses.append(
-                    "(" + " OR ".join(sub_clauses) + ")"
-                )
-
-            continue
-
-        if isinstance(val, Row):
-            val = val[0]
-
-        val = normalise_sql_value(col, val)
-
-        if check_if_wildcard(val):
-            val = substitute_wildcard(val)
-            where_clauses.append(f"{col} LIKE ?")
-        else:
-            where_clauses.append(f"{col} = ?")
-
-        params.append(val)
-
-    if where_clauses:
-        sql.append("WHERE " + " AND ".join(where_clauses))
+    sql.append(f"WHERE {where_clause}")
 
     if order_by:
         if table in ("BomStructure", "[BomStructure+]"):
@@ -317,125 +461,163 @@ def get_multiple_records(
 
     final_sql = " ".join(sql)
 
-    with get_cursor() as cursor:
-        cursor.execute(final_sql, params)
-        return cursor.fetchall()
+    def _execute(active_cursor: Cursor) -> list[Row] | list[object]:
+        active_cursor.execute(final_sql, params)
+        rows = active_cursor.fetchall()
+
+        if flatten:
+            return [row[0] for row in rows]
+
+        return rows
+
+    if cursor is not None:
+        return _execute(cursor)
+
+    with get_cursor() as managed_cursor:
+        return _execute(managed_cursor)
     
 
 def append_single_record(
     *,
     table: str,
-    post_data: dict[str, object],
+    row: dict[str, object],
+    cursor: Cursor | None = None,
 ) -> None:
-    
-    if not post_data:
-        return
+    """Insert a single row into a database table.
 
-    # validate_table(table)
+    Args:
+        table: Name of the table to insert into.
 
-    # Use a fixed column order so values line up
-    columns = list(post_data.keys())
-    placeholders = ", ".join("?" for _ in columns)
-    sql = f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})"
+        row: Mapping of column names to values for the new record.
 
-    values = [post_data[column] for column in columns]
+        cursor: Optional database cursor. When provided, the insert uses
+            the existing cursor instead of creating a new one.
 
-    with get_cursor() as cursor:
-        cursor.execute(sql, values)
-        cursor.connection.commit()
+    Raises:
+        ValueError: If ``row`` is empty.
 
-
-def append_single_record(
-    *,
-    table: str,
-    row: dict[str, object]
-) -> None:
+        pyodbc.Error: If the insert fails.
+    """
     if not row:
-        print("tools.sql.append_single_record(): No row provided, terminating.")
-        return
-
-    # validate_table(table)
-
-    # print(f"append_single_record():")
-    # print(f"Table appending to: {table}")
-    # print(f"Row being appended: {row}")
+        raise ValueError("Cannot append an empty row.")
 
     columns = list(row.keys())
-    column_names = ", ".join(f"[{col}]" for col in columns)
+    column_names = ", ".join(f"[{column}]" for column in columns)
     placeholders = ", ".join("?" for _ in columns)
 
     sql = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
     params = [row[column] for column in columns]
 
-    with get_cursor() as cursor:
+    def _execute(active_cursor: Cursor) -> None:
         try:
-            cursor.execute(sql, params)
+            active_cursor.execute(sql, params)
         except Exception:
             print("\nFAILED INSERT")
             print(sql)
 
-            for col, val in zip(columns, params):
-                print(f"{col}: {val!r} ({type(val)})")
+            for column, value in zip(columns, params):
+                print(f"{column}: {value!r} ({type(value)})")
 
             raise
+
+    if cursor is not None:
+        _execute(cursor)
+        return
+
+    with get_cursor() as managed_cursor:
+        _execute(managed_cursor)
 
 
 def append_multiple_records(
     *,
     table: str,
-    rows: Sequence[dict[str, object]]
+    rows: Sequence[dict[str, object] | Row],
+    cursor: Cursor | None = None,
 ) -> None:
-    for i, row in enumerate(rows):
-        if row.keys() != rows[0].keys():
-            # print("Row 0 keys:")
-            # print(set(rows[0].keys()))
+    """Insert multiple rows into a database table.
 
-            # print(f"Row {i} keys:")
-            # print(set(row.keys()))
+    Args:
+        table: Name of the table to insert into.
 
-            # print("Missing from this row:")
-            # print(set(rows[0].keys()) - set(row.keys()))
+        rows: Sequence of row mappings to insert. ``pyodbc.Row`` objects
+            are also accepted and converted to dictionaries.
 
-            # print("Extra in this row:")
-            # print(set(row.keys()) - set(rows[0].keys()))
+        cursor: Optional database cursor. When provided, the insert uses
+            the existing cursor instead of creating a new one.
 
-            raise ValueError(f"Row {i} has different columns to row 0")
+    Raises:
+        ValueError: If ``rows`` is empty.
 
+        ValueError: If rows do not all contain the same columns.
+
+        pyodbc.Error: If the insert fails.
+    """
     if not rows:
-        print("tools.sql.append_multiple_records(): No rows provided, terminating.")
-        return
-    
-    if isinstance(rows[0], Row):
-        rows = [dict(zip([column[0] for column in r.cursor_description], r)) for r in rows]
+        raise ValueError("Cannot append an empty sequence of rows.")
 
-    # validate_table(table)
-    first_row = rows[0]
+    normalised_rows: list[dict[str, object]] = []
+
+    for row in rows:
+        if isinstance(row, Row):
+            row = dict(
+                zip(
+                    [column[0] for column in row.cursor_description],
+                    row,
+                )
+            )
+
+        normalised_rows.append(row)
+
+    first_row = normalised_rows[0]
+
+    for index, row in enumerate(normalised_rows):
+        if row.keys() != first_row.keys():
+            raise ValueError(
+                f"Row {index} has different columns to row 0."
+            )
+
     excluded_keys = {
-        k for k, v in first_row.items() 
-        if isinstance(v, (bytes, bytearray)) and len(v) == 8 # Standard SQL timestamp size
-        or k.lower() in ('TimeStamp')
+        key
+        for key, value in first_row.items()
+        if (
+            isinstance(value, (bytes, bytearray))
+            and len(value) == 8
+        )
+        or key.lower() == "timestamp"
     }
 
-    # Use the first row to define the schema for this batch
-    columns = [k for k in first_row.keys() if k not in excluded_keys]
-    column_names = ", ".join(f"[{col}]" for col in columns)
+    columns = [
+        column
+        for column in first_row.keys()
+        if column not in excluded_keys
+    ]
+
+    column_names = ", ".join(f"[{column}]" for column in columns)
     placeholders = ", ".join("?" for _ in columns)
 
     sql = f"INSERT INTO {table} ({column_names}) VALUES ({placeholders})"
 
-    # Optional: sanity check that all rows have the same keys
-    for i, row in enumerate(rows):
-        if row.keys() != rows[0].keys():
-            raise ValueError(f"Row {i} has different columns to row 0")
-
     param_sets = [
         [row[column] for column in columns]
-        for row in rows
+        for row in normalised_rows
     ]
 
-    with get_cursor() as cursor:
-        cursor.executemany(sql, param_sets)
-        cursor.connection.commit()
+    def _execute(active_cursor: Cursor) -> None:
+        try:
+            active_cursor.executemany(sql, param_sets)
+        except Exception:
+            print("\nFAILED MULTI-INSERT")
+            print(sql)
+            print(f"Rows attempted: {len(param_sets)}")
+            print(f"Columns: {columns}")
+            raise
+
+    if cursor is not None:
+        _execute(cursor)
+        return
+
+    with get_cursor() as managed_cursor:
+        _execute(managed_cursor)
 
 
 def update_records(
@@ -443,65 +625,110 @@ def update_records(
     table: str,
     criteria: dict[str, object],
     update_data: dict[str, object],
+    cursor: Cursor | None = None,
+    debug: bool = False,
 ) -> None:
+    """Update records in a database table.
 
+    Records matching ``criteria`` are updated using the values supplied in
+    ``update_data``. Criteria handling is delegated to
+    ``_build_where_clause()``.
+
+    Args:
+        table: Name of the table to update.
+
+        criteria: Mapping of column names to filter values, lists of values,
+            or ``(operator, value)`` tuples.
+
+        update_data: Mapping of column names to new values.
+
+        cursor: Optional database cursor. When provided, the update uses
+            the existing cursor instead of creating a new one.
+
+        debug: If ``True``, print the generated SQL and parameter values.
+
+    Raises:
+        ValueError: If ``update_data`` is empty.
+
+        ValueError: If ``criteria`` is empty.
+
+        pyodbc.Error: If the update fails.
+    """
     if not update_data:
-        return
+        raise ValueError("Cannot update records with empty update_data.")
 
-    set_clause = ", ".join([f"{k} = ?" for k in update_data.keys()])
+    set_clause = ", ".join(
+        f"[{column}] = ?"
+        for column in update_data.keys()
+    )
+
     where_clause, where_params = _build_where_clause(criteria)
 
     sql = f"UPDATE {table} SET {set_clause} WHERE {where_clause}"
     params = list(update_data.values()) + where_params
 
-    print(sql)
-    print(params)
+    if debug:
+        print(sql)
+        print(params)
 
-    with get_cursor() as cursor:
-        cursor.execute(sql, tuple(params))
-        cursor.connection.commit()
+    def _execute(active_cursor: Cursor) -> None:
+        active_cursor.execute(sql, params)
+
+    if cursor is not None:
+        _execute(cursor)
+        return
+
+    with get_cursor() as managed_cursor:
+        _execute(managed_cursor)
 
 
 def delete_records(
     *,
     table: str,
     criteria: dict[str, object],
+    cursor: Cursor | None = None,
+    debug: bool = False,
 ) -> None:
+    """Delete records from a database table.
 
-    if not criteria:
-        print("tools.sql.delete_records(): No criteria provided, terminating.")
-        return
+    Records matching ``criteria`` are deleted. Criteria handling is
+    delegated to ``_build_where_clause()``, so equality matching,
+    wildcard matching, comparison operators, and lists of values are
+    supported.
 
-    where_parts = []
-    params = []
+    Args:
+        table: Name of the table to delete from.
 
-    for col, val in criteria.items():
+        criteria: Mapping of column names to filter values, lists of values,
+            or ``(operator, value)`` tuples.
 
-        if isinstance(val, str):
-            wildcarded_val = substitute_wildcard(val)
+        cursor: Optional database cursor. When provided, the delete uses
+            the existing cursor instead of creating a new one.
 
-            # If substitution changed it, or it already contains SQL wildcards
-            if wildcarded_val != val or "%" in wildcarded_val or "_" in wildcarded_val:
-                where_parts.append(f"{col} LIKE ?")
-            else:
-                where_parts.append(f"{col} = ?")
+        debug: If ``True``, print the generated SQL and parameter values.
 
-            params.append(wildcarded_val)
+    Raises:
+        ValueError: If ``criteria`` is empty.
 
-        else:
-            where_parts.append(f"{col} = ?")
-            params.append(val)
-
-    where_clause = " AND ".join(where_parts)
+        pyodbc.Error: If the delete fails.
+    """
+    where_clause, params = _build_where_clause(criteria)
 
     sql = f"DELETE FROM {table} WHERE {where_clause}"
 
-    print(sql)
-    print(params)
+    if debug:
+        print(sql)
+        print(params)
 
-    with get_cursor() as cursor:
-        cursor.execute(sql, tuple(params))
-        cursor.connection.commit()
+    def _execute(active_cursor: Cursor) -> None:
+        active_cursor.execute(sql, params)
+
+    if cursor is not None:
+        _execute(cursor)
+        return
+
+    with get_cursor() as managed_cursor:
+        _execute(managed_cursor)
 
 
 def shift_unique_sequence(
