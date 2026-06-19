@@ -1,4 +1,4 @@
-import tools.sql as sql
+import db.sql as sql
 
 def reset_mrp(stock_code: str) -> None:
 

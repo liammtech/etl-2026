@@ -1,4 +1,4 @@
-from tools.sql import get_single_record, get_multiple_records
+from db.sql import get_single_record, get_multiple_records
 import validation.general_validation as general_validation
 
 def test_single_code():

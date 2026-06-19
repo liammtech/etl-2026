@@ -1,4 +1,4 @@
-from tools.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
+from db.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
 from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number, copy_bomops_to_new_route
 from validation.general_validation import check_if_in_table
 # option 1

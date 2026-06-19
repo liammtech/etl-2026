@@ -1,4 +1,4 @@
-import tools.sql as sql
+import db.sql as sql
 from tools.config_tools.config_loader import get_pallets
 from typing import Literal
 from pprint import pprint

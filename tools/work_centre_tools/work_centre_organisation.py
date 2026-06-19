@@ -1,4 +1,4 @@
-from tools.sql import get_single_record
+from db.sql import get_single_record
 
 def get_work_centre_description(
     work_centre: str

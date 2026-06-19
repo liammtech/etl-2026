@@ -1,6 +1,6 @@
 import pytest
 from pyodbc import Row
-from tools.sql import append_multiple_records, get_multiple_records
+from db.sql import append_multiple_records, get_multiple_records
 
 
 def test_return_type():

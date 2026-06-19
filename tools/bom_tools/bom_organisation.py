@@ -1,4 +1,4 @@
-import tools.sql as sql
+import db.sql as sql
 from tools.utils.data_utils import row_to_dict
 from validation.general_validation import check_if_in_table
 from typing import Literal

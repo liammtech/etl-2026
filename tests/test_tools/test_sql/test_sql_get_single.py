@@ -1,6 +1,6 @@
 import pytest
 from pyodbc import Row
-from tools.sql import get_single_record
+from db.sql import get_single_record
 
 
 # def test_return_type():

@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from typing import Literal
-from tools import sql
+from db import sql
 from pathlib import Path
 import yaml
 

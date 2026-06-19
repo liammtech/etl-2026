@@ -1,6 +1,6 @@
 import re
 from pprint import pprint
-import tools.sql as sql
+import db.sql as sql
 from tools.config_tools.config_loader import get_kitchen_kit_values
 
 def check_if_valid_main_range_KK_code(stock_code: str) -> bool:

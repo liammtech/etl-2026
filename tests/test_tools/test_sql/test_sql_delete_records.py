@@ -1,4 +1,4 @@
-from tools.sql import delete_records
+from db.sql import delete_records
 
 def test_delete_records():
     delete_records(

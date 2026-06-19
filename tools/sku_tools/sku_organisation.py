@@ -1,4 +1,4 @@
-from tools.sql import get_single_record
+from db.sql import get_single_record
 
 def get_sku_description(stock_code: str) -> str:
     return get_single_record(
