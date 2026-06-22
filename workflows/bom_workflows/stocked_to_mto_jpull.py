@@ -1,9 +1,6 @@
 from db.sql import get_multiple_records, get_single_record, delete_records, update_records, append_multiple_records, append_single_record
 from tools.bom_tools.bom_organisation import defrag_routing, get_next_op_number, copy_bomops_to_new_route
 from validation.general_validation import check_if_in_table
-# option 1
-from tools.row_builders_stock_codes import build_single_bomstructure_row as build_bom_row, build_single_bomoperations_row as build_op_row
-# option 2
 from tools.row_builders import build_bomoperations_row, build_bomstructure_row
 from pprint import pprint
 
@@ -261,7 +258,7 @@ def switch_jpull_stocked_to_mto(stock_code: str):
 
     # 7. Add in PK0170 label to op 1 (non-kit issue)
 
-    PK0170_row = build_bom_row(
+    PK0170_row = build_bomstructure_row(
         parent_part=stock_code,
         component="PK0170",
         overlays={

@@ -2,7 +2,7 @@ import db.sql as sql
 from tools.utils.data_utils import row_to_dict
 from validation.general_validation import check_if_in_table
 from typing import Literal
-from tools.row_builders_stock_codes import build_single_bomoperations_row
+from tools.row_builders import build_bomoperations_row
 
 from collections import Counter
 
@@ -13,7 +13,7 @@ def copy_bomops_to_new_route(
     source_route: str,
     dest_stock_code: str = None,
     dest_route: str
-):
+) -> None:
     """
     Copy BomOperations and BomStructure records for a given parent stock code and route,
     to a new route for the same parent code (or optionally, a new parent code).
@@ -157,6 +157,9 @@ def move_ops_to_new_route(
     dest_route: str,
     dest_stock_code: str = None
 ):
+    """
+    Copy BomOperations (not BomStructure) records to new route or parent stock code
+    """
     if dest_stock_code == None:
         dest_stock_code = source_stock_code
 
@@ -518,7 +521,7 @@ def insert_operation(
         delta=1
     )
         
-    op_row = build_single_bomoperations_row(
+    op_row = build_bomoperations_row(
         stock_code=stock_code,
         route=route,
         operation=op_number,

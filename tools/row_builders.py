@@ -1,11 +1,11 @@
 from dataclasses import fields, is_dataclass
 from tools.config_tools.config_loader import load_row_defaults
 from tools.wip_tools.wip_organisation import apply_wip_material_uom
-from models import MODEL_REGISTRY
+from models.tables import MODEL_REGISTRY
 from typing import Any, Type
 import yaml
 
-# Table row creators - which utilise a generic build_row()
+# Table row creators - which utilise a generic _build_row()
 
 # Whilst these interfaces currently present as a duplicated function, there may be validation/transformation steps
 # to build in later, specific to each table
@@ -22,7 +22,7 @@ def load_wip_material_uom_flags() -> dict[str, dict[str, str]]:
     return data["wip_material_uom_flags"]
 
 
-def build_row(
+def _build_row(
     *,
     table_name: str,
     values: dict[str, Any],
@@ -73,7 +73,7 @@ def build_invmaster_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="InvMaster",
         values=values,
         overlays=overlays,
@@ -84,7 +84,7 @@ def build_invmasterplus_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="[InvMaster+]",
         values=values,
         overlays=overlays,
@@ -95,7 +95,7 @@ def build_zinvextra_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="zInvExtra",
         values=values,
         overlays=overlays,
@@ -106,7 +106,7 @@ def build_invwarehouse_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="InvWarehouse",
         values=values,
         overlays=overlays,
@@ -117,7 +117,7 @@ def build_invwarehouseplus_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="[InvWarehouse+]",
         values=values,
         overlays=overlays,
@@ -128,7 +128,7 @@ def build_arcuststkxref_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="ArCustStkXref",
         values=values,
         overlays=overlays,
@@ -139,7 +139,7 @@ def build_invnarration_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="InvNarration",
         values=values,
         overlays=overlays,
@@ -150,7 +150,7 @@ def build_invnarrationhdr_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="InvNarrationHdr",
         values=values,
         overlays=overlays,
@@ -161,7 +161,7 @@ def build_admmultimedia_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="AdmMultimedia",
         values=values,
         overlays=overlays,
@@ -174,7 +174,7 @@ def build_bomstructure_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="BomStructure",
         values=values,
         overlays=overlays,
@@ -185,7 +185,7 @@ def build_bomoperations_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="BomOperations",
         values=values,
         overlays=overlays,
@@ -196,7 +196,7 @@ def build_bomstructureplus_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="[BomStructure+]",
         values=values,
         overlays=overlays,
@@ -207,7 +207,7 @@ def build_bomoperationsplus_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="[BomOperations+]",
         values=values,
         overlays=overlays,
@@ -216,13 +216,22 @@ def build_bomoperationsplus_row(
 
 # -- Pricing -- 
 
-
 def build_invprice_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="InvPrice",
+        values=values,
+        overlays=overlays,
+    )
+
+def build_sorcontractprice_row(
+    values: dict[str, Any],
+    overlays: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return _build_row(
+        table_name="SorContractPrice",
         values=values,
         overlays=overlays,
     )
@@ -233,7 +242,7 @@ def build_wipjoballlab_row(
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return build_row(
+    return _build_row(
         table_name="WipJobAllLab",
         values=values,
         overlays=overlays,
@@ -251,7 +260,7 @@ def build_wipjoballmat_row(
 
     print(values)
 
-    return build_row(
+    return _build_row(
         table_name="WipJobAllMat",
         values=values,
         overlays=overlays
