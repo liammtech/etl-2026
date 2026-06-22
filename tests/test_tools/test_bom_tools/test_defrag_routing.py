@@ -1,7 +1,12 @@
-from tools.bom_tools.bom_organisation import defrag_routing
+from tools.bom_tools.bom_organisation import defrag_routing, defrag_routing_multiple
 
-def test_defrag_routing():
-    defrag_routing(
-        stock_code="JKKD04283X496",
-        route="T"
+# def test_defrag_routing():
+#     defrag_routing(
+#         stock_code="JKKD04283X496",
+#         route="T"
+#     )
+
+def test_defrag_routing_multiple():
+    defrag_routing_multiple(
+        range = ["FKKV4001","FKKV4002","FKKV4003","FKKV4004","FKKV4005","FKKV4006","FKKV4007","FKKV4008","FKKV4009","FKKV4011","FKKV4012","FKKV4013","FKKV4014","FKKV4015","FKKV4016","FKKV4018","FKKV4019","FKKV4020","FKKV4021","FKKV4022","FKKV4023","FKKV4026","FKKV4027","FKKV4028","FKKV4030","FKKV4031","FKKV4032","FKKV4034","FKKV4035","FKKV4036","FKKV4037","FKKV4038","FKKV4039","FKKV4040","FKKV4041","FKKV4042","FKKV4043","FKKV4044","FKKV4045","FKKV4046","FKKV4051","FKKV4052","FKKV4053","FKKV4054","FKKV4065","FKKV4066","FKKV4070","FKKV4071","FKKV4072","FKKV4073","FKKV4074","FKKV4075","FKKV4076","FKKV4077","FKKV4078","FKKV4079","FKKV4080","FKKV4081","FKKV4082"]
     )

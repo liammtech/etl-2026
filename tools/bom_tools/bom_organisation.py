@@ -9,11 +9,21 @@ from collections import Counter
 # This is essentially an analogue of the copy BomOperations route function in Syspro
 def copy_bomops_to_new_route(
     *,
-    source_route: str,
     source_stock_code: str, 
-    dest_route: str,
-    dest_stock_code: str = None
+    source_route: str,
+    dest_stock_code: str = None,
+    dest_route: str
 ):
+    """
+    Copy BomOperations and BomStructure records for a given parent stock code and route,
+    to a new route for the same parent code (or optionally, a new parent code).
+
+    Args:
+        source_stock_code: the parent code from which to copy routing and BOM records from
+        source_route: the particular BOM route to copy records from
+        dest_stock_code (optional): to use if copying to a new/different stock code
+        dest_route: the route to be copied to
+    """
     source_route = str(source_route).strip()
     dest_route = str(dest_route).strip()
 
@@ -138,6 +148,7 @@ def copy_bomops_to_new_route(
         )
 
     # FUNCTION NOT FINISHED
+
 
 def move_ops_to_new_route(
     *,
@@ -324,7 +335,7 @@ def build_op_num_mapping(op_nums: list[int]) -> dict[int, int]:
 
 def defrag_routing(
     stock_code: str,
-    route: str
+    route: str = "*"
 ):
     # One stock code, in one route, at a time
     
@@ -385,6 +396,13 @@ def defrag_routing(
         )
 
 
+def defrag_routing_multiple(
+    range: list
+) -> None:
+    for i in range: 
+        defrag_routing(i)
+
+
 def get_next_op_number(
     stock_code: str,
     route: str = 0
@@ -436,6 +454,7 @@ def check_if_work_centre_in_routing(
     )
 
     return True if query_result else False
+
 
 def insert_operation(
     stock_code: str,

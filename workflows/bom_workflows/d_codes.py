@@ -217,3 +217,141 @@ def sub_out_d_code(stock_code: str) -> None:
         # This is because they're a non-standard setup and likely an error
 
     # TERMINATE
+
+
+def sub_in_d_code(stock_code: str) -> None:
+    """
+    Replaces instances of a non-D door/component code in BOMs with its D-code variant.
+
+    Example:
+        ABC123 -> ABC123D
+
+    This is the reverse of sub_out_d_code().
+    """
+
+    # 1. Reject if already a D code
+    if kk.check_if_d_code(stock_code=stock_code):
+        print(f"\n\nStock code {stock_code} is already a 'D' code - terminating.\n\n")
+        return
+
+    d_code = f"{stock_code}D"
+
+    # 2. Check that D-code equivalent exists
+    # You may need to write this validator if it doesn't exist yet.
+    if not kk.check_if_stock_code_exists(stock_code=d_code):
+        print(f"\n\nD-code equivalent {d_code} doesn't exist, setup is required - terminating.\n\n")
+        return
+
+    # 3. Find BOM instances using the non-D code
+    bom_query_result = sql.get_multiple_records(
+        table="InvMaster AS i",
+        joins=[
+            sql.Join(
+                table="BomStructure AS b",
+                on="i.StockCode = b.ParentPart",
+                join_type="INNER"
+            )
+        ],
+        criteria={
+            "b.Component": stock_code
+        },
+        return_columns=[
+            "b.ParentPart",
+            "i.ProductClass",
+            "b.Route",
+            "b.SequenceNum",
+            "b.Component"
+        ]
+    )
+
+    main_range_codes = []
+    door_sales_codes = []
+    anomalies = []
+
+    for row in bom_query_result:
+        if kk.check_if_valid_main_range_KK_code(row.ParentPart):
+            main_range_codes.append(row)
+        elif kk.check_if_valid_kk_door_sales_code(row.ParentPart):
+            door_sales_codes.append(row)
+        else:
+            anomalies.append(row)
+
+    pprint(f"Main range codes: \n{main_range_codes}\n\n")
+    pprint(f"Door sales codes: \n{door_sales_codes}\n\n")
+    pprint(f"Anomalies: \n{anomalies}\n\n")
+
+    # 4. Main range treatment
+    for row in main_range_codes:
+        drilling_reqd = kk.check_if_cab_config_has_any_drilled_doors(
+            stock_code=row.ParentPart
+        )
+
+        if drilling_reqd:
+            dpdrl_exists = check_if_work_centre_in_routing(
+                stock_code=row.ParentPart,
+                route=row.Route,
+                work_centre="DPDRL"
+            )
+
+            if not dpdrl_exists:
+                insert_operation(
+                    stock_code=row.ParentPart,
+                    route=row.Route,
+                    work_centre="DPDRL",
+                    after_work_centre="DPCHK"
+                )
+
+        sql.update_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": row.ParentPart,
+                "Route": row.Route,
+                "Component": row.Component
+            },
+            update_data={
+                "Component": d_code
+            }
+        )
+
+        defrag_routing(stock_code=row.ParentPart, route=row.Route)
+
+    # 5. Door sales code treatment
+    for row in door_sales_codes:
+        drilling_reqd = kk.check_if_standalone_door_is_drilled(
+            door_sales_code=row.ParentPart
+        )
+
+        if drilling_reqd:
+            dpdrl_exists = check_if_work_centre_in_routing(
+                stock_code=row.ParentPart,
+                route=row.Route,
+                work_centre="DPDRL"
+            )
+
+            if not dpdrl_exists:
+                insert_operation(
+                    stock_code=row.ParentPart,
+                    route=row.Route,
+                    work_centre="DPDRL",
+                    after_work_centre="DPCHK"
+                )
+
+        sql.update_records(
+            table="BomStructure",
+            criteria={
+                "ParentPart": row.ParentPart,
+                "Route": row.Route,
+                "Component": row.Component
+            },
+            update_data={
+                "Component": d_code
+            }
+        )
+
+        defrag_routing(stock_code=row.ParentPart, route=row.Route)
+
+    # 6. Anomalies
+    if anomalies:
+        print("The following rows are non-standard setups, please check:")
+        for row in anomalies:
+            print(f"\n{row}")
