@@ -3,7 +3,7 @@ import domain.warehouse.bins as warehouse
 from config.loaders.yaml_loader import get_config_constant_value
 from config.loaders.colours import get_colour_from_prefix
 from config.loaders.materials import get_material_via_range_colour, get_material_via_dimension
-from tools.row_builders import build_wipjoballlab_row, build_wipjoballmat_row
+from records.wip import build_wipjoballlab_row, build_wipjoballmat_row
 from domain.manufacturing.work_centres import get_work_centre_description
 import domain.manufacturing.qty_per.waterford_qty_per_calcs as waterford
 from domain.wip.materials import get_uom_fields

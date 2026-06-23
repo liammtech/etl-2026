@@ -2,7 +2,7 @@ from db.sql import get_multiple_records, get_single_record, delete_records, upda
 from domain.bom.migration import copy_bomops_to_new_route
 from domain.bom.routing import defrag_routing, get_next_op_number
 from validation.general_validation import check_if_in_table
-from tools.row_builders import build_bomoperations_row, build_bomstructure_row
+from records.bom import build_bomoperations_row, build_bomstructure_row
 from pprint import pprint
 
 '''

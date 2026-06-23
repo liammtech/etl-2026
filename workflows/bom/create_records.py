@@ -1,6 +1,7 @@
 import db.sql as sql
 from datetime import datetime
-import tools.row_builders as row_builder
+import records.inventory as inventory
+import records.bom as bom
 
 # These builders act as an interface to the row builders, that actually set up and post the table records in the format that they generally want to exist in on the system
 
@@ -9,7 +10,7 @@ def create_invwarehouse_record(
     warehouse: str = "DW"
 ) -> None:
 
-    invwarehouse_row = row_builder.build_invwarehouse_row(
+    invwarehouse_row = inventory.build_invwarehouse_row(
         values={
             "StockCode": stock_code,
             "Warehouse": warehouse,
@@ -43,12 +44,11 @@ def create_invwarehouse_record_range(stock_code: str):
         create_invwarehouse_record(stock_code=sku)
 
 
-
 def create_invmasterplus_record(
     stock_code: str
 ) -> None:
     
-    invmasterplus_row = row_builder.build_invmasterplus_row(
+    invmasterplus_row = inventory.build_invmasterplus_row(
         values={
             "StockCode": stock_code
         }
@@ -58,6 +58,7 @@ def create_invmasterplus_record(
         table="[InvMaster+]",
         row=invmasterplus_row
     )
+
 
 def create_invmasterplus_record_range(stock_code: str):
     
@@ -89,7 +90,7 @@ def create_std_sales_code_ops(
     route: str    
 ) -> None:
     
-    dppick_row = row_builder.build_bomoperations_row(
+    dppick_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -99,7 +100,7 @@ def create_std_sales_code_ops(
         }
     )
     
-    dpchk_row = row_builder.build_bomoperations_row(
+    dpchk_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -109,7 +110,7 @@ def create_std_sales_code_ops(
         }
     )
     
-    dppack_row = row_builder.build_bomoperations_row(
+    dppack_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -119,7 +120,7 @@ def create_std_sales_code_ops(
         }
     )
     
-    dpdesp_row = row_builder.build_bomoperations_row(
+    dpdesp_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -142,7 +143,7 @@ def create_std_drilled_sales_ops(
     route: str = "6"   
 ) -> None:
     
-    dppick_row = row_builder.build_bomoperations_row(
+    dppick_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -152,7 +153,7 @@ def create_std_drilled_sales_ops(
         }
     )
     
-    dpchk_row = row_builder.build_bomoperations_row(
+    dpchk_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -162,7 +163,7 @@ def create_std_drilled_sales_ops(
         }
     )
     
-    dpdrl_row = row_builder.build_bomoperations_row(
+    dpdrl_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -172,7 +173,7 @@ def create_std_drilled_sales_ops(
         }
     )
     
-    dppack_row = row_builder.build_bomoperations_row(
+    dppack_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -182,7 +183,7 @@ def create_std_drilled_sales_ops(
         }
     )
     
-    dpdesp_row = row_builder.build_bomoperations_row(
+    dpdesp_row = bom.build_bomoperations_row(
         values={
             "StockCode": stock_code,
             "Route": route,
@@ -207,7 +208,7 @@ def create_std_sales_code_bom(
     skip_label: bool = False 
 ) -> None:
     
-    material_row = row_builder.build_bomstructure_row(
+    material_row = bom.build_bomstructure_row(
         values={
             "ParentPart": parent_part,
             "Component": component,
@@ -219,7 +220,7 @@ def create_std_sales_code_bom(
     )
 
     if not skip_label:
-        label_row = row_builder.build_bomstructure_row(
+        label_row = bom.build_bomstructure_row(
             values={
                 "ParentPart": parent_part,
                 "Component": "PK0179",

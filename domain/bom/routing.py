@@ -1,5 +1,5 @@
 import db.sql as sql
-from tools.row_builders import build_bomoperations_row
+from records.bom import build_bomoperations_row
 
 
 def build_op_num_mapping(op_nums: list[int]) -> dict[int, int]:
