@@ -1,6 +1,6 @@
 from dataclasses import fields, is_dataclass
 from config.loaders.defaults import load_row_defaults
-from tools.wip_tools.wip_organisation import apply_wip_material_uom
+from domain.wip.materials import apply_wip_material_uom
 from models.tables import MODEL_REGISTRY
 from typing import Any, Type
 import yaml
