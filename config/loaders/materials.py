@@ -10,7 +10,7 @@ def get_material_via_range_colour(
 ) -> str:
     """Get a material stock code from product range, material type, and colour."""
     return get_value_from_grouped_yaml(
-        config_filepath=f"config/materials/{product_range}_materials.yml",
+        config_filepath=f"config/data/materials/{product_range}_materials.yml",
         lookup_key=colour,
         group_name=material,
     )
@@ -23,7 +23,7 @@ def get_material_via_dimension(
 ) -> str:
     """Get a material stock code from product range, material type, and dimension."""
     return get_value_from_grouped_yaml(
-        config_filepath=f"config/materials/{product_range}_materials.yml",
+        config_filepath=f"config/data/materials/{product_range}_materials.yml",
         lookup_key=dimension,
         group_name=material,
     )
@@ -31,4 +31,4 @@ def get_material_via_dimension(
 
 def get_pallets() -> Any:
     """Load pallet material configuration."""
-    return load_yaml("config/materials/pallets.yml")
+    return load_yaml("config/data/materials/pallets.yml")

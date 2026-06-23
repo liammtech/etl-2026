@@ -1,0 +1,30 @@
+standard_sales:
+    - operation: 1
+      work_centre: DPPICK
+      milestone: Y
+    - operation: 2
+      work_centre: DPCHK
+      milestone: N
+    - operation: 3
+      work_centre: DPPACK
+      milestone: Y
+    - operation: 4
+      work_centre: DPDESP
+      milestone: Y
+
+drilled_sales:
+  - operation: 1
+    work_centre: DPPICK
+    milestone: Y
+  - operation: 2
+    work_centre: DPCHK
+    milestone: N
+  - operation: 3
+    work_centre: DPDRL
+    milestone: Y
+  - operation: 4
+    work_centre: DPPACK
+    milestone: Y
+  - operation: 5
+    work_centre: DPDESP
+    milestone: Y
