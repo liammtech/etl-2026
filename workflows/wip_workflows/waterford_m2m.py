@@ -4,7 +4,7 @@ import tools.warehouse_tools.warehouse_organisation as warehouse
 from tools.config_tools.config_loader import get_colour_from_prefix, get_material_via_range_colour, get_material_via_dimension, get_config_constant_value
 from tools.row_builders import build_wipjoballlab_row, build_wipjoballmat_row
 from tools.work_centre_tools.work_centre_organisation import get_work_centre_description
-import tools.calculations.waterford_qty_per_calcs as waterford
+import domain.manufacturing.qty_per.waterford_qty_per_calcs as waterford
 from tools.wip_tools.wip_organisation import get_uom_fields
 from datetime import date, timedelta
 from decimal import Decimal

@@ -1,5 +1,5 @@
 import pytest
-import tools.calculations.pressed_qty_per_calcs as pressed
+import domain.manufacturing.qty_per.pressed_qty_per_calcs as pressed
 
 def test_mel_calc():
     pressed.calculate_mel_board_qty(

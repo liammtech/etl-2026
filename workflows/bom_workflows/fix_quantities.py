@@ -5,9 +5,9 @@ from domain.manufacturing.edgebanding import specify_lldr_edged_sides, specify_j
 from db.sql import update_records, get_single_record, get_multiple_records
 from validation.general_validation import check_if_in_table, RecordNotFoundError
 from validation.jpull_validation import find_correct_jpull_deban_op, get_jpull_direction
-import tools.calculations.pressed_qty_per_calcs as pressed
-import tools.calculations.edged_qty_per_calcs as edged
-import tools.calculations.jpull_qty_per_calcs as jpull
+import domain.manufacturing.qty_per.pressed_qty_per_calcs as pressed
+import domain.manufacturing.qty_per.edged_qty_per_calcs as edged
+import domain.manufacturing.qty_per.jpull_qty_per_calcs as jpull
 
 # Membrane Pressed - Standard
 def memp_std_single(stock_code: str):
