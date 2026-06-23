@@ -10,8 +10,7 @@ def build_row(
     table_name: str,
     values: dict[str, Any],
     overlays: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-
+) -> Any:
     table_name = table_name.replace("[", "").replace("]", "")
 
     model = MODEL_REGISTRY[table_name]
@@ -20,7 +19,6 @@ def build_row(
         raise TypeError(f"{model} is not a dataclass")
 
     row = load_row_defaults(table_name=table_name)
-
     model_fields = {field.name for field in fields(model)}
 
     unknown_values = set(values) - model_fields
@@ -29,22 +27,9 @@ def build_row(
             f"Unknown fields for {model.__name__}: {unknown_values}"
         )
 
-    missing_required = {
-        field.name
-        for field in fields(model)
-        if field.default is field.default_factory
-        and field.name not in values
-        and field.name not in row
-    }
-
-    if missing_required:
-        raise ValueError(
-            f"Missing required fields for {model.__name__}: {missing_required}"
-        )
-
     row.update(values)
 
     if overlays:
         row.update(overlays)
 
-    return row
+    return model(**row)
