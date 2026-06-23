@@ -1,4 +1,4 @@
-from tools.bom_tools.bom_organisation import copy_bomops_to_new_route
+from domain.bom.migration import copy_bomops_to_new_route
 
 def test_copy_ops():
     copy_bomops_to_new_route(

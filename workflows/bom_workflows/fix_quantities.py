@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Literal
 
-from domain.edgebanding import specify_lldr_edged_sides, specify_jayl_edged_sides
+from domain.manufacturing.edgebanding import specify_lldr_edged_sides, specify_jayl_edged_sides
 from db.sql import update_records, get_single_record, get_multiple_records
 from validation.general_validation import check_if_in_table, RecordNotFoundError
 from validation.jpull_validation import find_correct_jpull_deban_op, get_jpull_direction
