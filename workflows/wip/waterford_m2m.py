@@ -1,6 +1,5 @@
 import db.sql as sql
-import tools.sku_tools.sku_organisation as sku
-import tools.warehouse_tools.warehouse_organisation as warehouse
+import domain.warehouse.bins as warehouse
 from config.loaders.yaml_loader import get_config_constant_value
 from config.loaders.colours import get_colour_from_prefix
 from config.loaders.materials import get_material_via_range_colour, get_material_via_dimension

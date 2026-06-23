@@ -3,7 +3,6 @@ from pyodbc import Row
 
 VALID_OPS = {"=", "!=", "<>", ">", ">=", "<", "<=", "LIKE", "NOT LIKE"}
 
-
 TEXT_FIELDS = {
     "Route",
     "StockCode",

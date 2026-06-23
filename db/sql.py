@@ -20,6 +20,7 @@ from db.helpers import build_where_clause, substitute_wildcard, check_if_wildcar
 # TODO: Keep JOIN support focused on SELECT helpers unless a concrete joined
 #       UPDATE/DELETE use case appears.
 
+
 '''
 JOIN SYNTAX
 
