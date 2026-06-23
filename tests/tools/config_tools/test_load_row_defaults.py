@@ -1,4 +1,4 @@
-from tools.config_tools.config_loader import load_row_defaults
+from config.loaders.defaults import load_row_defaults
 from pprint import pprint
 
 def test_load_row_defaults():

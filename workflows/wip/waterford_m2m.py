@@ -1,7 +1,9 @@
 import db.sql as sql
 import tools.sku_tools.sku_organisation as sku
 import tools.warehouse_tools.warehouse_organisation as warehouse
-from tools.config_tools.config_loader import get_colour_from_prefix, get_material_via_range_colour, get_material_via_dimension, get_config_constant_value
+from config.loaders.yaml_loader import get_config_constant_value
+from config.loaders.colours import get_colour_from_prefix
+from config.loaders.materials import get_material_via_range_colour, get_material_via_dimension
 from tools.row_builders import build_wipjoballlab_row, build_wipjoballmat_row
 from tools.work_centre_tools.work_centre_organisation import get_work_centre_description
 import domain.manufacturing.qty_per.waterford_qty_per_calcs as waterford
@@ -18,6 +20,7 @@ STANDARD_WIDTHS = [292, 296, 304, 346, 352, 364, 396, 446, 496, 596, 696, 796, 8
 WIDTH_LOWER_BOUND = 196
 WIDTH_UPPER_BOUND = 996
 SHOULDER_WIDTH = 65
+
 
 def populate_waterford_m2ms() -> None:
 

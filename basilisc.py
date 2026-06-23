@@ -53,6 +53,7 @@ JOBS = {
     "create-invmasterplus-record-range": create_invmasterplus_record_range
 }
 
+
 def parse_cli_arg(arg: str):
     arg = arg.strip()
 
@@ -68,6 +69,7 @@ def parse_cli_arg(arg: str):
         return json.loads(arg)
     except json.JSONDecodeError:
         return arg
+
 
 def main():
     args = sys.argv[1:]
