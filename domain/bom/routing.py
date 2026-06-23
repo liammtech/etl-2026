@@ -76,7 +76,6 @@ def defrag_routing_multiple(
         defrag_routing(i)
 
 
-
 def get_next_op_number(
     stock_code: str,
     route: str = 0
@@ -130,7 +129,6 @@ def check_if_work_centre_in_routing(
     return True if query_result else False
 
 
-
 def check_if_work_centre_in_routing(
     stock_code: str,
     route: str,
@@ -159,7 +157,6 @@ def check_if_work_centre_in_routing(
     )
 
     return True if query_result else False
-
 
 
 def insert_operation(

@@ -1,0 +1,1 @@
+"""Configuration, defaults, validation rules, and reference data."""

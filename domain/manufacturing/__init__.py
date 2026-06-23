@@ -1,0 +1,1 @@
+"""Manufacturing-specific BOM logic."""
