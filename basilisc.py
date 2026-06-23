@@ -9,7 +9,7 @@ from workflows.bom.stocked_to_mto_jpull import switch_jpull_stocked_to_mto, jpul
 from workflows.bom.restore_linked_stock_codes import restore_linked_sku, restore_linked_skus_range
 from workflows.bom.create_records import create_invwarehouse_record, create_invmasterplus_record, create_invwarehouse_record_range, create_invmasterplus_record_range, create_full_sales_code_routings
 from workflows.bom.d_codes import sub_out_d_code, sub_in_d_code
-from tools.sku_tools.palletisation import determine_pallet_spec
+from domain.sku.palletisation import determine_pallet_spec
 
 from dotenv import load_dotenv
 import os

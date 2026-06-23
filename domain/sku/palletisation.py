@@ -75,5 +75,5 @@ def determine_pallet_spec(
 
     pallets = get_pallets()
 
-    pprint(pallets['PKDR-A']['length'])
+    # pprint(pallets['PKDR-A']['length'])
 
