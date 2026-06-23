@@ -1,4 +1,4 @@
-from tools.bom_tools.bom_organisation import get_next_op_number
+from domain.bom.routing import get_next_op_number
 
 def test_get_next_op_number():
     next_op = get_next_op_number(

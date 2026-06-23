@@ -1,4 +1,4 @@
-from tools.bom_tools.bom_organisation import insert_operation
+from domain.bom.routing import insert_operation
 
 def test():
     insert_operation(

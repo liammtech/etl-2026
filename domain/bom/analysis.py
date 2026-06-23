@@ -1,3 +1,4 @@
+import db.sql as sql
 from collections import Counter
 
 def get_range_modal_component(

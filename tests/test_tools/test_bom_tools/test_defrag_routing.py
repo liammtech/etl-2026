@@ -1,4 +1,4 @@
-from tools.bom_tools.bom_organisation import defrag_routing, defrag_routing_multiple
+from domain.bom.routing import defrag_routing, defrag_routing_multiple
 
 # def test_defrag_routing():
 #     defrag_routing(
