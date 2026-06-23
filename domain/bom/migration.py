@@ -1,5 +1,5 @@
 import db.sql as sql
-from tools.utils.data_utils import row_to_dict
+from utils.data import row_to_dict
 from validation.general_validation import check_if_in_table
 
 def copy_bomops_to_new_route(

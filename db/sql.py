@@ -4,8 +4,7 @@ from collections.abc import Sequence
 from typing import Any, Literal, NamedTuple
 
 from db.connection import get_cursor
-from tools.utils.string_checks import check_if_wildcard
-from tools.transform import substitute_wildcard, normalise_sql_value
+from db.helpers import build_where_clause, substitute_wildcard, check_if_wildcard, normalise_sql_value
 
 
 # TODO: Add table-name validation via an ALLOWED_TABLES whitelist.
@@ -50,6 +49,16 @@ row = get_single_record(
 VALID_OPS = {"=", "!=", "<>", ">", ">=", "<", "<=", "LIKE", "NOT LIKE"}
 
 TEXT_COLUMNS = {"Route"}
+
+TEXT_FIELDS = {
+    "Route",
+    "StockCode",
+    "ParentPart",
+    "Component",
+    "Warehouse",
+    "Operation",
+}
+
 
 class Join(NamedTuple):
     table: str
@@ -277,7 +286,7 @@ def get_single_record(
     if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
 
-    where_clause, params = _build_where_clause(criteria)
+    where_clause, params = build_where_clause(criteria)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
 
@@ -442,7 +451,7 @@ def get_multiple_records(
     if not isinstance(return_columns, str):
         return_columns = ", ".join(return_columns)
 
-    where_clause, params = _build_where_clause(criteria)
+    where_clause, params = build_where_clause(criteria)
 
     sql = [f"SELECT {return_columns} FROM {table}"]
 
