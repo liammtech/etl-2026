@@ -1,191 +1,171 @@
-# Standard - 2 / 3 sides edged
+fragments:
 
-jayl_stocked_wrapped_bottom:
-  - operation: 1
-    work_centre: DJSAW
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN2
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DSHRIN
-    milestone: Y
+  source:
+    stocked:
+      - work_centre: DJSAW
+        milestone: N
+      - work_centre: DJDET
+        milestone: Y
 
-jayl_stocked_edged_bottom:
-  - operation: 1
-    work_centre: DJSAW
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN3
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DSHRIN
-    milestone: Y
+    mto:
+      - work_centre: DSAWC
+        milestone: N
+      - work_centre: DJDET
+        milestone: Y
 
-# "D" code versions
+  edging:
+    wrapped_bottom:
+      - work_centre: DEBAN2
+        milestone: Y
 
-jayl_predrilled_wrapped_bottom:
-  - operation: 1
-    work_centre: DJSAW
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN2
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 4
-    work_centre: DDRILL
-    milestone: Y
-  - operation: 5
-    work_centre: DSHRIN
-    milestone: Y
+    edged_bottom:
+      - work_centre: DEBAN3
+        milestone: Y
 
-jayl_predrilled_edged_bottom:
-  - operation: 1
-    work_centre: DJSAW
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN3
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 4
-    work_centre: DDRILL
-    milestone: Y
-  - operation: 5
-    work_centre: DSHRIN
-    milestone: Y
+  shaping:
+    standard:
+      - work_centre: DJSHAP
+        milestone: Y
 
-# MTO
+  drilling:
+    production_ddrill:
+      - work_centre: DDRILL
+        milestone: Y
 
-jayl_mto_wrapped_bottom:
-  - operation: 1
-    work_centre: DSAWC
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN2
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DPPICK
-    milestone: Y
-  - operation: 6
-    work_centre: DPCHK
-    milestone: N
-  - operation: 7
-    work_centre: DPPACK
-    milestone: Y
-  - operation: 8
-    work_centre: DPDESP
-    milestone: Y
+    warehouse_dpdrill:
+      - work_centre: DPDRL
+        milestone: Y
 
-jayl_mto_edged_bottom:
-  - operation: 1
-    work_centre: DSAWC
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN3
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DPPICK
-    milestone: Y
-  - operation: 6
-    work_centre: DPCHK
-    milestone: N
-  - operation: 7
-    work_centre: DPPACK
-    milestone: Y
-  - operation: 8
-    work_centre: DPDESP
-    milestone: Y
+  finish:
+    stocked:
+      - work_centre: DSHRIN
+        milestone: Y
 
-# MTO Drilled
+    mto_before_drill:
+      - work_centre: DPPICK
+        milestone: Y
+      - work_centre: DPCHK
+        milestone: N
 
-jayl_mto_drilled_wrapped_bottom:
-  - operation: 1
-    work_centre: DSAWC
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN2
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DPPICK
-    milestone: Y
-  - operation: 6
-    work_centre: DPCHK
-    milestone: N
-  - operation: 7
-    work_centre: DPDRL
-    milestone: Y
-  - operation: 8
-    work_centre: DPPACK
-    milestone: Y
-  - operation: 9
-    work_centre: DPDESP
-    milestone: Y
+    mto_after_drill:
+      - work_centre: DPPACK
+        milestone: Y
+      - work_centre: DPDESP
+        milestone: Y
 
-jayl_mto_drilled_wrapped_bottom:
-  - operation: 1
-    work_centre: DSAWC
-    milestone: N
-  - operation: 2
-    work_centre: DJDET
-    milestone: Y
-  - operation: 3
-    work_centre: DEBAN3
-    milestone: Y
-  - operation: 4
-    work_centre: DJSHAP
-    milestone: Y
-  - operation: 5
-    work_centre: DPPICK
-    milestone: Y
-  - operation: 6
-    work_centre: DPCHK
-    milestone: N
-  - operation: 7
-    work_centre: DPDRL
-    milestone: Y
-  - operation: 8
-    work_centre: DPPACK
-    milestone: Y
-  - operation: 9
-    work_centre: DPDESP
-    milestone: Y
+    oem:
+      - work_centre: DPKDRB
+        milestone: Y
+
+templates:
+
+  # Standard
+
+  stocked_wrapped:
+    steps:
+      - source: stocked
+      - edging: wrapped_bottom
+      - shaping: standard
+      - finish: stocked
+
+  stocked_edged:
+    steps:
+      - source: stocked
+      - edging: edged_bottom
+      - shaping: standard
+      - finish: stocked
+
+
+  # "D" Codes
+
+  stocked_predrilled_wrapped:
+    steps:
+      - source: stocked
+      - edging: wrapped_bottom
+      - shaping: standard
+      - drilling: production_ddrill
+      - finish: stocked
+
+  stocked_predrilled_edged:
+    steps:
+      - source: stocked
+      - edging: edged_bottom
+      - shaping: standard
+      - drilling: production_ddrill
+      - finish: stocked
+
+
+  # MTO
+
+  mto_wrapped:
+    steps:
+      - source: mto
+      - edging: wrapped_bottom
+      - shaping: standard
+      - finish: mto_before_drill
+      - finish: mto_after_drill
+
+  mto_edged:
+    steps:
+      - source: mto
+      - edging: edged_bottom
+      - shaping: standard
+      - finish: mto_before_drill
+      - finish: mto_after_drill
+
+
+  # MTO Drilled
+
+  mto_drilled_wrapped:
+    steps:
+      - source: mto
+      - edging: wrapped_bottom
+      - shaping: standard
+      - finish: mto_before_drill
+      - drilling: warehouse_dpdrill
+      - finish: mto_after_drill
+
+  mto_drilled_edged:
+    steps:
+      - source: mto
+      - edging: edged_bottom
+      - shaping: standard
+      - finish: mto_before_drill
+      - drilling: warehouse_dpdrill
+      - finish: mto_after_drill
+
+
+  # OEM
+
+  oem_wrapped:
+    steps:
+      - source: stocked
+      - edging: wrapped_bottom
+      - shaping: standard
+      - finish: oem
+
+  oem_edged:
+    steps:
+      - source: stocked
+      - edging: edged_bottom
+      - shaping: standard
+      - finish: oem
+
+
+  # OEM Drilled
+
+  oem_drilled_wrapped:
+    steps:
+      - source: stocked
+      - edging: wrapped_bottom
+      - shaping: standard
+      - drilling: production_ddrill
+      - finish: oem
+
+  oem_drilled_edged:
+    steps:
+      - source: stocked
+      - edging: edged_bottom
+      - shaping: standard
+      - drilling: production_ddrill
+      - finish: oem

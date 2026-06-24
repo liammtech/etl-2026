@@ -1,7 +1,7 @@
 # domain/bom/routing_templates.py
 
 import db.sql as sql
-from config.loaders.routings import get_routing_template
+from config.loaders.routings.general import get_routing_template
 from records import bom
 
 
