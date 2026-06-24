@@ -1,7 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
-
 import yaml
 
 
@@ -78,7 +77,7 @@ def resolve_jpull_operations_template(
         )
 
     template = templates[template_name]
-    steps = template.get("steps")
+    steps = template.get("steps") 
 
     if not isinstance(steps, list):
         raise ValueError(
