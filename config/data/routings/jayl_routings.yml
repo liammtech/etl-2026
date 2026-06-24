@@ -59,9 +59,11 @@ fragments:
 
 templates:
 
-  # Standard
-
   stocked_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: stocked
+      drilled: false
     steps:
       - source: stocked
       - edging: wrapped_bottom
@@ -69,16 +71,21 @@ templates:
       - finish: stocked
 
   stocked_edged:
+    selector:
+      edge_type: edged
+      destination: stocked
+      drilled: false
     steps:
       - source: stocked
       - edging: edged_bottom
       - shaping: standard
       - finish: stocked
 
-
-  # "D" Codes
-
   stocked_predrilled_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: stocked
+      drilled: true
     steps:
       - source: stocked
       - edging: wrapped_bottom
@@ -87,6 +94,10 @@ templates:
       - finish: stocked
 
   stocked_predrilled_edged:
+    selector:
+      edge_type: edged
+      destination: stocked
+      drilled: true
     steps:
       - source: stocked
       - edging: edged_bottom
@@ -94,10 +105,11 @@ templates:
       - drilling: production_ddrill
       - finish: stocked
 
-
-  # MTO
-
   mto_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: mto
+      drilled: false
     steps:
       - source: mto
       - edging: wrapped_bottom
@@ -106,6 +118,10 @@ templates:
       - finish: mto_after_drill
 
   mto_edged:
+    selector:
+      edge_type: edged
+      destination: mto
+      drilled: false
     steps:
       - source: mto
       - edging: edged_bottom
@@ -113,10 +129,11 @@ templates:
       - finish: mto_before_drill
       - finish: mto_after_drill
 
-
-  # MTO Drilled
-
   mto_drilled_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: mto
+      drilled: true
     steps:
       - source: mto
       - edging: wrapped_bottom
@@ -126,6 +143,10 @@ templates:
       - finish: mto_after_drill
 
   mto_drilled_edged:
+    selector:
+      edge_type: edged
+      destination: mto
+      drilled: true
     steps:
       - source: mto
       - edging: edged_bottom
@@ -134,10 +155,11 @@ templates:
       - drilling: warehouse_dpdrill
       - finish: mto_after_drill
 
-
-  # OEM
-
   oem_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: oem
+      drilled: false
     steps:
       - source: stocked
       - edging: wrapped_bottom
@@ -145,16 +167,21 @@ templates:
       - finish: oem
 
   oem_edged:
+    selector:
+      edge_type: edged
+      destination: oem
+      drilled: false
     steps:
       - source: stocked
       - edging: edged_bottom
       - shaping: standard
       - finish: oem
 
-
-  # OEM Drilled
-
   oem_drilled_wrapped:
+    selector:
+      edge_type: wrapped
+      destination: oem
+      drilled: true
     steps:
       - source: stocked
       - edging: wrapped_bottom
@@ -163,6 +190,10 @@ templates:
       - finish: oem
 
   oem_drilled_edged:
+    selector:
+      edge_type: edged
+      destination: oem
+      drilled: true
     steps:
       - source: stocked
       - edging: edged_bottom

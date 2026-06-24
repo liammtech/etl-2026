@@ -178,6 +178,10 @@ fragments:
 templates:
 
   edged_stocked_nested:
+    selector:
+      source_method: nest
+      destination: stocked
+      drilled: false
     steps:
       - source: nest
       - edging: selected
@@ -185,6 +189,10 @@ templates:
       - finish: stocked
 
   edged_stocked_routed:
+    selector:
+      source_method: rout
+      destination: stocked
+      drilled: false
     steps:
       - source: rout
       - edging: selected
@@ -192,6 +200,10 @@ templates:
       - finish: stocked
 
   edged_stocked_nested_drilled:
+    selector:
+      source_method: nest
+      destination: stocked
+      drilled: true
     steps:
       - source: nest
       - edging: selected
@@ -199,6 +211,10 @@ templates:
       - finish: stocked
 
   edged_stocked_routed_drilled:
+    selector:
+      source_method: rout
+      destination: stocked
+      drilled: true
     steps:
       - source: rout
       - edging: selected
@@ -206,6 +222,10 @@ templates:
       - finish: stocked
 
   edged_mto_nested:
+    selector:
+      source_method: nest
+      destination: mto
+      drilled: false
     steps:
       - source: nest
       - edging: selected
@@ -214,6 +234,10 @@ templates:
       - finish: mto_after_drill
 
   edged_mto_routed:
+    selector:
+      source_method: rout
+      destination: mto
+      drilled: false
     steps:
       - source: rout
       - edging: selected
@@ -222,6 +246,10 @@ templates:
       - finish: mto_after_drill
 
   edged_mto_nested_drilled:
+    selector:
+      source_method: nest
+      destination: mto
+      drilled: true
     steps:
       - source: nest
       - edging: selected
@@ -230,6 +258,10 @@ templates:
       - finish: mto_after_drill
 
   edged_mto_routed_drilled:
+    selector:
+      source_method: rout
+      destination: mto
+      drilled: true
     steps:
       - source: rout
       - edging: selected
@@ -238,6 +270,10 @@ templates:
       - finish: mto_after_drill
 
   edged_oem_nested:
+    selector:
+      source_method: nest
+      destination: oem
+      drilled: false
     steps:
       - source: nest
       - edging: selected
@@ -245,6 +281,10 @@ templates:
       - finish: oem
 
   edged_oem_routed:
+    selector:
+      source_method: rout
+      destination: oem
+      drilled: false
     steps:
       - source: rout
       - edging: selected
@@ -252,6 +292,10 @@ templates:
       - finish: oem
 
   edged_oem_nested_drilled:
+    selector:
+      source_method: nest
+      destination: oem
+      drilled: true
     steps:
       - source: nest
       - edging: selected
@@ -259,6 +303,10 @@ templates:
       - finish: oem
 
   edged_oem_routed_drilled:
+    selector:
+      source_method: rout
+      destination: oem
+      drilled: true
     steps:
       - source: rout
       - edging: selected

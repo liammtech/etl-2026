@@ -6,43 +6,44 @@ import yaml
 
 
 EDGED_DOORS_ROUTINGS_PATH = Path(
-    "config/data/routings/lldr_routings.yml"
+    "config/data/routings/edged_routings.yml"
 )
 
 
 def get_edged_door_template_name(
     *,
-    source_method: Literal["nest", "rout"],
-    destination: Literal["stocked", "mto", "oem"],
+    source_method: str,
+    destination: str,
     drilled: bool,
 ) -> str:
-    template_map = {
-    ("nest", "stocked", False): "edged_stocked_nested",
-    ("nest", "stocked", True): "edged_stocked_nested_drilled",
+    config = load_edged_door_routings_config()
+    templates = config["templates"]
 
-    ("rout", "stocked", False): "edged_stocked_routed",
-    ("rout", "stocked", True): "edged_stocked_routed_drilled",
+    matches = []
 
-    ("nest", "mto", False): "edged_mto_nested",
-    ("nest", "mto", True): "edged_mto_nested_drilled",
+    for template_name, template in templates.items():
+        selector = template.get("selector", {})
 
-    ("rout", "mto", False): "edged_mto_routed",
-    ("rout", "mto", True): "edged_mto_routed_drilled",
+        if selector == {
+            "source_method": source_method,
+            "destination": destination,
+            "drilled": drilled,
+        }:
+            matches.append(template_name)
 
-    ("nest", "oem", False): "edged_oem_nested",
-    ("nest", "oem", True): "edged_oem_nested_drilled",
-
-    ("rout", "oem", False): "edged_oem_routed",
-    ("rout", "oem", True): "edged_oem_routed_drilled",
-    }
-
-    try:
-        return template_map[(source_method, destination, drilled)]
-    except KeyError:
+    if not matches:
         raise ValueError(
-            f"Unsupported edged door routing combination: "
+            f"No edged door routing template found for "
             f"{source_method=}, {destination=}, {drilled=}"
-        ) from None
+        )
+
+    if len(matches) > 1:
+        raise ValueError(
+            f"Multiple edged door routing templates found for "
+            f"{source_method=}, {destination=}, {drilled=}: {matches}"
+        )
+
+    return matches[0]
 
 
 @lru_cache

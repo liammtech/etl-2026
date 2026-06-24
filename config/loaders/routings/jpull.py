@@ -1,14 +1,11 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
 
 
 JPULL_OPS_PATH = Path("config/data/routings/jayl_routings.yml")
-
-
-from typing import Literal
 
 
 def get_jpull_template_name(
@@ -17,44 +14,36 @@ def get_jpull_template_name(
     drilled: bool,
     destination: Literal["stocked", "mto", "oem"],
 ) -> str:
-    """
-    Resolve frontend J-Pull routing options to a routing template name.
+    config = load_jpull_operations_config()
 
-    Args:
-        edge_type:
-            wrapped
-            edged
+    templates = config["templates"]
 
-        drilled:
-            Whether drilling operations should be included.
+    matches = []
 
-        destination:
-            stocked
-            mto
-            oem
+    for template_name, template in templates.items():
 
-    Returns:
-        Template name from the J-Pull routing configuration.
-    """
+        selector = template.get("selector", {})
 
-    template_prefixes = {
-        ("stocked", False): "stocked",
-        ("stocked", True): "stocked_predrilled",
-        ("mto", False): "mto",
-        ("mto", True): "mto_drilled",
-        ("oem", False): "oem",
-        ("oem", True): "oem_drilled",
-    }
+        if selector == {
+            "edge_type": edge_type,
+            "destination": destination,
+            "drilled": drilled,
+        }:
+            matches.append(template_name)
 
-    try:
-        prefix = template_prefixes[(destination, drilled)]
-    except KeyError:
+    if not matches:
         raise ValueError(
-            f"Unsupported destination/drilled combination: "
-            f"{destination!r}, {drilled!r}"
-        ) from None
+            f"No J-Pull routing template found for "
+            f"{edge_type=}, {destination=}, {drilled=}"
+        )
 
-    return f"{prefix}_{edge_type}"
+    if len(matches) > 1:
+        raise ValueError(
+            f"Multiple J-Pull routing templates found for "
+            f"{edge_type=}, {destination=}, {drilled=}: {matches}"
+        )
+
+    return matches[0]
 
 
 @lru_cache
@@ -72,9 +61,6 @@ def load_jpull_operations_config() -> dict[str, Any]:
         raise ValueError("J-Pull operations config missing 'templates'.")
 
     return data
-
-
-from typing import Any
 
 
 def resolve_jpull_operations_template(

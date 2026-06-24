@@ -2,7 +2,7 @@ from workflows.bom.routings.jpull import create_jpull_routing
 
 def test():
     create_jpull_routing(
-        stock_code="JPULLCODE",
+        stock_code="JPULLCODE7",
         route=0,
         edge_type="edged",
         drilled=True,
