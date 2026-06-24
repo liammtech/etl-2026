@@ -19,67 +19,13 @@ def create_std_drilled_sales_code_ops(stock_code: str, route: str) -> None:
     )
 
 
-# def create_std_drilled_sales_ops(
-#     stock_code: str,
-#     route: str = "6"   
-# ) -> None:
-    
-#     dppick_row = bom.build_bomoperations_row(
-#         values={
-#             "StockCode": stock_code,
-#             "Route": route,
-#             "Operation": 1,
-#             "WorkCentre": "DPPICK",
-#             "Milestone": "Y"
-#         }
-#     )
-    
-#     dpchk_row = bom.build_bomoperations_row(
-#         values={
-#             "StockCode": stock_code,
-#             "Route": route,
-#             "Operation": 2,
-#             "WorkCentre": "DPCHK",
-#             "Milestone": "N"
-#         }
-#     )
-    
-#     dpdrl_row = bom.build_bomoperations_row(
-#         values={
-#             "StockCode": stock_code,
-#             "Route": route,
-#             "Operation": 3,
-#             "WorkCentre": "DPDRL",
-#             "Milestone": "Y"
-#         }
-#     )
-    
-#     dppack_row = bom.build_bomoperations_row(
-#         values={
-#             "StockCode": stock_code,
-#             "Route": route,
-#             "Operation": 4,
-#             "WorkCentre": "DPPACK",
-#             "Milestone": "Y"
-#         }
-#     )
-    
-#     dpdesp_row = bom.build_bomoperations_row(
-#         values={
-#             "StockCode": stock_code,
-#             "Route": route,
-#             "Operation": 5,
-#             "WorkCentre": "DPDESP",
-#             "Milestone": "Y"
-#         }
-#     )
+def create_std_cabinet_routing(stock_code: str, route: str) -> None:
+    create_routing_from_template(
+        stock_code=stock_code,
+        route=route,
+        template_name="standard_cab",
+    )
 
-#     ops_list = [dppick_row, dpchk_row, dpdrl_row, dppack_row, dpdesp_row]
-
-#     sql.append_multiple_records(
-#         table="BomOperations",
-#         rows=ops_list
-#     )
 
 
 def create_std_sales_code_bom(

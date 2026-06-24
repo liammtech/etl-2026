@@ -1,0 +1,191 @@
+# Standard - 2 / 3 sides edged
+
+jayl_stocked_wrapped_bottom:
+  - operation: 1
+    work_centre: DJSAW
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN2
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DSHRIN
+    milestone: Y
+
+jayl_stocked_edged_bottom:
+  - operation: 1
+    work_centre: DJSAW
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN3
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DSHRIN
+    milestone: Y
+
+# "D" code versions
+
+jayl_predrilled_wrapped_bottom:
+  - operation: 1
+    work_centre: DJSAW
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN2
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 4
+    work_centre: DDRILL
+    milestone: Y
+  - operation: 5
+    work_centre: DSHRIN
+    milestone: Y
+
+jayl_predrilled_edged_bottom:
+  - operation: 1
+    work_centre: DJSAW
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN3
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 4
+    work_centre: DDRILL
+    milestone: Y
+  - operation: 5
+    work_centre: DSHRIN
+    milestone: Y
+
+# MTO
+
+jayl_mto_wrapped_bottom:
+  - operation: 1
+    work_centre: DSAWC
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN2
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DPPICK
+    milestone: Y
+  - operation: 6
+    work_centre: DPCHK
+    milestone: N
+  - operation: 7
+    work_centre: DPPACK
+    milestone: Y
+  - operation: 8
+    work_centre: DPDESP
+    milestone: Y
+
+jayl_mto_edged_bottom:
+  - operation: 1
+    work_centre: DSAWC
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN3
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DPPICK
+    milestone: Y
+  - operation: 6
+    work_centre: DPCHK
+    milestone: N
+  - operation: 7
+    work_centre: DPPACK
+    milestone: Y
+  - operation: 8
+    work_centre: DPDESP
+    milestone: Y
+
+# MTO Drilled
+
+jayl_mto_drilled_wrapped_bottom:
+  - operation: 1
+    work_centre: DSAWC
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN2
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DPPICK
+    milestone: Y
+  - operation: 6
+    work_centre: DPCHK
+    milestone: N
+  - operation: 7
+    work_centre: DPDRL
+    milestone: Y
+  - operation: 8
+    work_centre: DPPACK
+    milestone: Y
+  - operation: 9
+    work_centre: DPDESP
+    milestone: Y
+
+jayl_mto_drilled_wrapped_bottom:
+  - operation: 1
+    work_centre: DSAWC
+    milestone: N
+  - operation: 2
+    work_centre: DJDET
+    milestone: Y
+  - operation: 3
+    work_centre: DEBAN3
+    milestone: Y
+  - operation: 4
+    work_centre: DJSHAP
+    milestone: Y
+  - operation: 5
+    work_centre: DPPICK
+    milestone: Y
+  - operation: 6
+    work_centre: DPCHK
+    milestone: N
+  - operation: 7
+    work_centre: DPDRL
+    milestone: Y
+  - operation: 8
+    work_centre: DPPACK
+    milestone: Y
+  - operation: 9
+    work_centre: DPDESP
+    milestone: Y

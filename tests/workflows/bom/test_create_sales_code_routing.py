@@ -1,7 +1,7 @@
-from workflows.bom.routings import create_std_drilled_sales_code_ops
+import workflows.bom.routings.sales_codes as ops
 
 def test():
-    create_std_drilled_sales_code_ops(
-        stock_code="HELLOTHERE",
-        route=6
+    ops.create_rigid_drilled_sales_code_ops(
+        stock_code="RNBWMISC600",
+        route=0
     )

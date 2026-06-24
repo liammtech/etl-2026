@@ -1,5 +1,5 @@
 from db.sql import update_records, get_single_record, get_multiple_records
-from workflows.bom_workflows.fix_quantities import memp_std_single, lldr_std_single, jayl_std_single
+from workflows.bom.fix_quantities import memp_std_single, lldr_std_single, jayl_std_single
 
 def memp_std_range(stock_code: str):
 

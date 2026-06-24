@@ -1,0 +1,95 @@
+cab_side:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: REDGE2
+    milestone: Y
+  - operation: 4
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_bottom:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_top_bottom:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_shelf:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+
+cab_base_back:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+
+cab_wall_back:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_top_rail:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: REDGE2
+    milestone: Y
+  - operation: 4
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_blanking_panel:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: REDGE2
+    milestone: Y
+  - operation: 4
+    work_centre: RDRIL1
+    milestone: Y
+
+cab_blanking_return:
+  - operation: 1
+    work_centre: RSAW
+    milestone: Y
+  - operation: 2
+    work_centre: REDGE1
+    milestone: Y
+  - operation: 3
+    work_centre: RSAW
+    milestone: Y

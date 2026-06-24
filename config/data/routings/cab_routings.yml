@@ -1,0 +1,7 @@
+standard_cab:
+  - operation: 1
+    work_centre: RPICK
+    milestone: N
+  - operation: 2
+    work_centre: RBOX
+    milestone: Y
