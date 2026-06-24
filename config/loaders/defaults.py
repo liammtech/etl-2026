@@ -11,6 +11,6 @@ def load_row_defaults(table_name: str) -> dict:
     )
 
     return load_yaml_section(
-        config_filepath=f"config/defaults/{normalised_name}_defaults.yml",
+        config_filepath=f"config/data/defaults/{normalised_name}_defaults.yml",
         section_name=f"{normalised_name}_defaults",
     )

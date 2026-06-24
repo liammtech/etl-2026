@@ -32,4 +32,4 @@ def build_row(
     if overlays:
         row.update(overlays)
 
-    return model(**row)
+    return row
