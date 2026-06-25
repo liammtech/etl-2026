@@ -22,29 +22,6 @@ ProductionDrillWorkCentre = Literal[
 ]
 
 
-def get_edged_door_template_name(
-    *,
-    source_method: SourceMethod,
-    destination: Destination,
-) -> str:
-    template_names = {
-        ("nest", "stocked"): "edged_stocked_nested",
-        ("rout", "stocked"): "edged_stocked_routed",
-        ("nest", "mto"): "edged_mto_nested",
-        ("rout", "mto"): "edged_mto_routed",
-        ("nest", "oem"): "edged_oem_nested",
-        ("rout", "oem"): "edged_oem_routed",
-    }
-
-    try:
-        return template_names[(source_method, destination)]
-    except KeyError:
-        raise ValueError(
-            "Unsupported edged door routing combination: "
-            f"{source_method=}, {destination=}"
-        )
-
-
 @lru_cache
 def load_edged_door_routings_config() -> dict[str, Any]:
     with EDGED_DOORS_ROUTINGS_PATH.open("r", encoding="utf-8") as f:
@@ -53,13 +30,65 @@ def load_edged_door_routings_config() -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError("Edged door routings config must be a mapping.")
 
-    if "fragments" not in data:
-        raise ValueError("Edged door routings config missing 'fragments'.")
+    required_keys = {"fragments", "templates"}
 
-    if "templates" not in data:
-        raise ValueError("Edged door routings config missing 'templates'.")
+    missing_keys = required_keys - set(data)
+
+    if missing_keys:
+        raise ValueError(
+            "Edged door routings config missing required keys: "
+            f"{sorted(missing_keys)}"
+        )
+
+    if not isinstance(data["fragments"], dict):
+        raise ValueError("'fragments' must be a mapping.")
+
+    if not isinstance(data["templates"], dict):
+        raise ValueError("'templates' must be a mapping.")
 
     return data
+
+
+def get_edged_door_template_name(
+    *,
+    source_method: SourceMethod,
+    destination: Destination,
+) -> str:
+    """
+    Resolve frontend edged-door routing options to a template name.
+
+    The actual template names live in YAML. This function only matches
+    against template metadata.
+    """
+
+    config = load_edged_door_routings_config()
+    templates = config["templates"]
+
+    matches = []
+
+    for template_name, template in templates.items():
+        if template.get("source_method") != source_method:
+            continue
+
+        if template.get("destination") != destination:
+            continue
+
+        matches.append(template_name)
+
+    if len(matches) == 1:
+        return matches[0]
+
+    if not matches:
+        raise ValueError(
+            "No edged door routing template found for: "
+            f"{source_method=}, {destination=}"
+        )
+
+    raise ValueError(
+        "Multiple edged door routing templates found for: "
+        f"{source_method=}, {destination=}. "
+        f"Matches: {sorted(matches)}"
+    )
 
 
 def _resolve_operation(
@@ -242,6 +271,7 @@ def resolve_edged_door_operations_template(
     resolved_ops: list[dict[str, Any]] = []
 
     source_fragment = fragments["source"][source_method]
+
     resolved_ops.extend(
         _get_fragment_operations(
             fragment=source_fragment,
@@ -251,6 +281,7 @@ def resolve_edged_door_operations_template(
     )
 
     edging_fragment = fragments["edging"]
+
     resolved_ops.extend(
         _get_fragment_operations(
             fragment=edging_fragment,

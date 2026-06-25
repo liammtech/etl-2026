@@ -20,17 +20,41 @@ def get_pressed_door_template_name(
     construction: Construction,
     destination: Destination,
 ) -> str:
-    template_names = {
-        ("standard", "industrial"): "standard_industrial",
-        ("standard", "stocked"): "standard_stocked",
-        ("standard", "mto"): "standard_mto",
-        ("plant_on", "industrial"): "plant_on_industrial",
-        ("plant_on", "stocked"): "plant_on_stocked",
-        ("plant_on", "mto"): "plant_on_mto",
-        ("plant_in", "industrial"): "plant_in_industrial",
-        ("plant_in", "stocked"): "plant_in_stocked",
-        ("plant_in", "mto"): "plant_in_mto",
-    }
+    """
+    Resolve frontend pressed-door routing options to a template name.
+
+    The actual template names live in YAML. This function only matches
+    against template metadata.
+    """
+
+    config = load_pressed_door_routings_config()
+    templates = config["templates"]
+
+    matches = []
+
+    for template_name, template in templates.items():
+        if template.get("construction") != construction:
+            continue
+
+        if template.get("destination") != destination:
+            continue
+
+        matches.append(template_name)
+
+    if len(matches) == 1:
+        return matches[0]
+
+    if not matches:
+        raise ValueError(
+            "No pressed door routing template found for: "
+            f"{construction=}, {destination=}"
+        )
+
+    raise ValueError(
+        "Multiple pressed door routing templates found for: "
+        f"{construction=}, {destination=}. "
+        f"Matches: {sorted(matches)}"
+    )
 
     try:
         return template_names[(construction, destination)]

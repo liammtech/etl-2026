@@ -2,7 +2,7 @@ from workflows.bom.routings.edged import create_edged_door_routing
 
 def test():
     create_edged_door_routing(
-        stock_code="EDGED002",
+        stock_code="EDGED004",
         route=0,
         source_method="rout",
         edge_count=2,
