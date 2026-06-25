@@ -1,0 +1,129 @@
+fragments:
+  saw_work_centres:
+    3: DSAW03
+    4: DSAW04
+    6: DSAW06
+    15: DSAW15
+    16: DSAW16
+    18: DSAW18
+    19: DSAW19
+    22: DSAW22
+    25: DSAW25
+
+
+  constructions:
+    standard:
+      layers:
+        - role: main
+          thickness_field: main_thickness
+
+      pre_pressing_ops:
+        - DROUT
+
+    plant_on:
+      layers:
+        - role: main
+          thickness_field: main_thickness
+        - role: overlay
+          thickness_field: overlay_thickness
+          require_single_digit: true
+
+      pre_pressing_ops:
+        - DASSY
+        - DROUT
+
+    plant_in:
+      layers:
+        - role: main
+          thickness_field: main_thickness
+        - role: insert
+          thickness_field: overlay_thickness
+          require_single_digit: true
+
+      pre_pressing_ops:
+        - DINSER
+        - DROUT
+
+  common_pressing_flow:
+    - DU2REC
+    - DFSND2
+    - DSPRAY
+    - DMPRES
+    - DINSPE
+
+  drilling:
+    production_work_centres:
+      DBIESSE: BIESSE DRILL
+      DCYFLE: DRILL/GROOVE SCM CYFLEX F900 PRO
+      DDRILL: P&H DRILLING DEPARTMENT
+      DFAM: FAM RAIL DRILL
+      DMORBI: MORBIDELLI THROUGH FEED DRILL
+      DSPRIN: SPRINT - 5 PIECE
+
+    production_positions:
+      pre_press:
+        insert_after: DROUT
+
+      post_press:
+        insert_after: DINSPE
+
+    mto:
+      work_centre: DPDRL
+      insert_after: DPCHK
+
+  destinations:
+    industrial:
+      ending_ops:
+        - DPKDRB
+
+    stocked:
+      ending_ops:
+        - DSHRINK
+        - DPPACK
+
+    mto:
+      pre_drilling_ops:
+        - DPPICK
+        - DPCHK
+
+      post_drilling_ops:
+        - DPPACK
+        - DPDESP
+
+
+templates:
+  standard_industrial:
+    construction: standard
+    destination: industrial
+
+  standard_stocked:
+    construction: standard
+    destination: stocked
+
+  standard_mto:
+    construction: standard
+    destination: mto
+
+  plant_on_industrial:
+    construction: plant_on
+    destination: industrial
+
+  plant_on_stocked:
+    construction: plant_on
+    destination: stocked
+
+  plant_on_mto:
+    construction: plant_on
+    destination: mto
+
+  plant_in_industrial:
+    construction: plant_in
+    destination: industrial
+
+  plant_in_stocked:
+    construction: plant_in
+    destination: stocked
+
+  plant_in_mto:
+    construction: plant_in
+    destination: mto
