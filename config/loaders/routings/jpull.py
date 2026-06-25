@@ -1,45 +1,52 @@
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
+
 import yaml
 
 
 JPULL_OPS_PATH = Path("config/data/routings/jayl_routings.yml")
 
 
+BottomEdgeType = Literal["wrapped", "edged"]
+Destination = Literal["stocked", "mto", "oem"]
+ProductionDrillWorkCentre = Literal[
+    "DBIESSE",
+    "DCYFLE",
+    "DDRILL",
+    "DFAM",
+    "DMORBI",
+    "DSPRIN",
+]
+
+
 def get_jpull_template_name(
     *,
-    edge_type: Literal["wrapped", "edged"],
-    drilled: bool,
-    destination: Literal["stocked", "mto", "oem"],
+    bottom_edge_type: BottomEdgeType,
+    destination: Destination,
 ) -> str:
     config = load_jpull_operations_config()
-
     templates = config["templates"]
 
     matches = []
 
     for template_name, template in templates.items():
-
-        selector = template.get("selector", {})
-
-        if selector == {
-            "edge_type": edge_type,
-            "destination": destination,
-            "drilled": drilled,
-        }:
+        if (
+            template.get("edge_type") == bottom_edge_type
+            and template.get("destination") == destination
+        ):
             matches.append(template_name)
 
     if not matches:
         raise ValueError(
             f"No J-Pull routing template found for "
-            f"{edge_type=}, {destination=}, {drilled=}"
+            f"{bottom_edge_type=}, {destination=}"
         )
 
     if len(matches) > 1:
         raise ValueError(
             f"Multiple J-Pull routing templates found for "
-            f"{edge_type=}, {destination=}, {drilled=}: {matches}"
+            f"{bottom_edge_type=}, {destination=}: {matches}"
         )
 
     return matches[0]
@@ -62,8 +69,109 @@ def load_jpull_operations_config() -> dict[str, Any]:
     return data
 
 
+def _get_fragment_operations(
+    *,
+    fragment: dict[str, Any],
+) -> list[dict[str, Any]]:
+    operations = fragment.get("operations")
+
+    if not isinstance(operations, list):
+        raise ValueError("Fragment must contain an 'operations' list.")
+
+    return [operation.copy() for operation in operations]
+
+
+def _insert_after_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    insert_after: str,
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    operations = [operation.copy() for operation in operations]
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == insert_after:
+            operations.insert(index + 1, operation_to_insert.copy())
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{insert_after!r} is not present in resolved operations."
+    )
+
+
+def _insert_after_work_centre_prefix(
+    *,
+    operations: list[dict[str, Any]],
+    insert_after_prefix: str,
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    operations = [operation.copy() for operation in operations]
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"].startswith(insert_after_prefix):
+            operations.insert(index + 1, operation_to_insert.copy())
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"no work centre starts with {insert_after_prefix!r}."
+    )
+
+
+def _apply_drilling(
+    *,
+    operations: list[dict[str, Any]],
+    destination: Destination,
+    drilled: bool,
+    production_drill_work_centre: ProductionDrillWorkCentre | None,
+    fragments: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not drilled:
+        return operations
+
+    drilling_config = fragments["drilling"]
+
+    if destination == "mto":
+        mto_drilling = drilling_config["mto"]
+
+        return _insert_after_work_centre(
+            operations=operations,
+            insert_after=mto_drilling["insert_after"],
+            operation_to_insert={
+                "work_centre": mto_drilling["work_centre"],
+                "milestone": "Y",
+            },
+        )
+
+    if production_drill_work_centre is None:
+        raise ValueError(
+            "production_drill_work_centre is required for drilled "
+            "non-MTO J-Pull doors."
+        )
+
+    if production_drill_work_centre not in drilling_config["production_work_centres"]:
+        raise ValueError(
+            "Unsupported production drill work centre: "
+            f"{production_drill_work_centre!r}"
+        )
+
+    production_drilling = drilling_config["production"]
+
+    return _insert_after_work_centre_prefix(
+        operations=operations,
+        insert_after_prefix=production_drilling["insert_after_prefix"],
+        operation_to_insert={
+            "work_centre": production_drill_work_centre,
+            "milestone": "Y",
+        },
+    )
+
+
 def resolve_jpull_operations_template(
+    *,
     template_name: str,
+    context: dict[str, Any],
 ) -> list[dict[str, Any]]:
     config = load_jpull_operations_config()
 
@@ -77,32 +185,68 @@ def resolve_jpull_operations_template(
         )
 
     template = templates[template_name]
-    steps = template.get("steps") 
 
-    if not isinstance(steps, list):
-        raise ValueError(
-            f"Template {template_name!r} must contain a 'steps' list."
-        )
+    edge_type = template["edge_type"]
+    destination = template["destination"]
+    source = template["source"]
 
     resolved_ops: list[dict[str, Any]] = []
 
-    for step in steps:
-        if not isinstance(step, dict) or len(step) != 1:
-            raise ValueError(
-                f"Invalid step in template {template_name!r}: {step!r}"
+    resolved_ops.extend(
+        _get_fragment_operations(
+            fragment=fragments["source"][source],
+        )
+    )
+
+    resolved_ops.extend(
+        _get_fragment_operations(
+            fragment=fragments["edging"][edge_type],
+        )
+    )
+
+    resolved_ops.extend(
+        _get_fragment_operations(
+            fragment=fragments["shaping"]["standard"],
+        )
+    )
+
+    finish_fragment = fragments["finish"][destination]
+
+    if destination == "mto":
+        resolved_ops.extend(
+            [operation.copy() for operation in finish_fragment["pre_drilling_ops"]]
+        )
+
+        resolved_ops = _apply_drilling(
+            operations=resolved_ops,
+            destination=destination,
+            drilled=bool(context.get("drilled", False)),
+            production_drill_work_centre=context.get(
+                "production_drill_work_centre"
+            ),
+            fragments=fragments,
+        )
+
+        resolved_ops.extend(
+            [operation.copy() for operation in finish_fragment["post_drilling_ops"]]
+        )
+
+    else:
+        resolved_ops = _apply_drilling(
+            operations=resolved_ops,
+            destination=destination,
+            drilled=bool(context.get("drilled", False)),
+            production_drill_work_centre=context.get(
+                "production_drill_work_centre"
+            ),
+            fragments=fragments,
+        )
+
+        resolved_ops.extend(
+            _get_fragment_operations(
+                fragment=finish_fragment,
             )
-
-        fragment_group, fragment_name = next(iter(step.items()))
-
-        try:
-            fragment_ops = fragments[fragment_group][fragment_name]
-        except KeyError:
-            raise ValueError(
-                f"Template {template_name!r} references unknown fragment "
-                f"{fragment_group}.{fragment_name!r}."
-            ) from None
-
-        resolved_ops.extend(fragment_ops)
+        )
 
     return [
         {

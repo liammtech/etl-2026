@@ -1,5 +1,20 @@
 fragments:
 
+  saw_work_centres:
+    3mm: DSAW03
+    4mm: DSAW04
+    6mm: DSAW06
+    7mm: DSAW07
+    8mm: DSAW08
+    9mm: DSAW09
+    12mm: DSAW12
+    15mm: DSAW15
+    16mm: DSAW16
+    18mm: DSAW18
+    19mm: DSAW19
+    22mm: DSAW22
+    25mm: DSAW25
+
   source:
     nest:
       operations:
@@ -7,139 +22,43 @@ fragments:
           milestone: Y
 
     rout:
-      variants:
-        thickness:
-          3mm:
-            operations:
-              - work_centre: DSAW03
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
+      operations:
+        - work_centre_from_context: thickness
+          lookup: saw_work_centres
+          milestone: Y
 
-          4mm:
-            operations:
-              - work_centre: DSAW04
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
+        - work_centre: DROUT
+          milestone: Y
 
-          6mm:
-            operations:
-              - work_centre: DSAW06
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          7mm:
-            operations:
-              - work_centre: DSAW07
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          8mm:
-            operations:
-              - work_centre: DSAW08
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          9mm:
-            operations:
-              - work_centre: DSAW09
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          12mm:
-            operations:
-              - work_centre: DSAW12
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          15mm:
-            operations:
-              - work_centre: DSAW15
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          16mm:
-            operations:
-              - work_centre: DSAW16
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          18mm:
-            operations:
-              - work_centre: DSAW18
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          19mm:
-            operations:
-              - work_centre: DSAW19
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          22mm:
-            operations:
-              - work_centre: DSAW22
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
-
-          25mm:
-            operations:
-              - work_centre: DSAW25
-                milestone: Y
-              - work_centre: DROUT
-                milestone: Y
+  edging_work_centres:
+    "0": null
+    "1": DEBAN1
+    "2": DEBAN2
+    "3": DEBAN3
+    "4": DEBAN4
 
   edging:
-    selected:
-      variants:
-        edge_count:
-          "0":
-            operations: []
-
-          "1":
-            operations:
-              - work_centre: DEBAN1
-                milestone: Y
-
-          "2":
-            operations:
-              - work_centre: DEBAN2
-                milestone: Y
-
-          "3":
-            operations:
-              - work_centre: DEBAN3
-                milestone: Y
-
-          "4":
-            operations:
-              - work_centre: DEBAN4
-                milestone: Y
+    operations:
+      - work_centre_from_context: edge_count
+        lookup: edging_work_centres
+        skip_if_null: true
+        milestone: Y
 
   drilling:
-    none:
-      operations: []
+    production_work_centres:
+      DBIESSE: BIESSE DRILL
+      DCYFLE: DRILL/GROOVE SCM CYFLEX F900 PRO
+      DDRILL: P&H DRILLING DEPARTMENT
+      DFAM: FAM RAIL DRILL
+      DMORBI: MORBIDELLI THROUGH FEED DRILL
+      DSPRIN: SPRINT - 5 PIECE
 
-    production_ddrill:
-      operations:
-        - work_centre: DDRILL
-          milestone: Y
+    production:
+      insert_after_prefix: DEBAN
 
-    warehouse_dpdrill:
-      operations:
-        - work_centre: DPDRL
-          milestone: Y
+    mto:
+      work_centre: DPDRL
+      insert_after: DPCHK
 
   finish:
     stocked:
@@ -147,168 +66,52 @@ fragments:
         - work_centre: DSHRIN
           milestone: Y
 
-    mto_before_drill:
-      operations:
+    mto:
+      pre_drilling_ops:
         - work_centre: DPPICK
           milestone: Y
         - work_centre: DPCHK
           milestone: N
 
-    mto_after_drill:
-      operations:
+      post_drilling_ops:
         - work_centre: DPPACK
           milestone: Y
         - work_centre: DPDESP
           milestone: Y
 
     oem:
-      variants:
-        pallet_type:
-          standard_pallet:
-            operations:
-              - work_centre: DPKDRB
-                milestone: Y
+      operations:
+        - work_centre_from_context: pallet_type
+          lookup: pallet_work_centres
+          milestone: Y
 
-          long_pallet:
-            operations:
-              - work_centre: DPALPK
-                milestone: Y
+  pallet_work_centres:
+    standard_pallet: DPKDRB
+    long_pallet: DPALPK
 
 
 templates:
 
   edged_stocked_nested:
-    selector:
-      source_method: nest
-      destination: stocked
-      drilled: false
-    steps:
-      - source: nest
-      - edging: selected
-      - drilling: none
-      - finish: stocked
+    source_method: nest
+    destination: stocked
 
   edged_stocked_routed:
-    selector:
-      source_method: rout
-      destination: stocked
-      drilled: false
-    steps:
-      - source: rout
-      - edging: selected
-      - drilling: none
-      - finish: stocked
-
-  edged_stocked_nested_drilled:
-    selector:
-      source_method: nest
-      destination: stocked
-      drilled: true
-    steps:
-      - source: nest
-      - edging: selected
-      - drilling: production_ddrill
-      - finish: stocked
-
-  edged_stocked_routed_drilled:
-    selector:
-      source_method: rout
-      destination: stocked
-      drilled: true
-    steps:
-      - source: rout
-      - edging: selected
-      - drilling: production_ddrill
-      - finish: stocked
+    source_method: rout
+    destination: stocked
 
   edged_mto_nested:
-    selector:
-      source_method: nest
-      destination: mto
-      drilled: false
-    steps:
-      - source: nest
-      - edging: selected
-      - finish: mto_before_drill
-      - drilling: none
-      - finish: mto_after_drill
+    source_method: nest
+    destination: mto
 
   edged_mto_routed:
-    selector:
-      source_method: rout
-      destination: mto
-      drilled: false
-    steps:
-      - source: rout
-      - edging: selected
-      - finish: mto_before_drill
-      - drilling: none
-      - finish: mto_after_drill
-
-  edged_mto_nested_drilled:
-    selector:
-      source_method: nest
-      destination: mto
-      drilled: true
-    steps:
-      - source: nest
-      - edging: selected
-      - finish: mto_before_drill
-      - drilling: warehouse_dpdrill
-      - finish: mto_after_drill
-
-  edged_mto_routed_drilled:
-    selector:
-      source_method: rout
-      destination: mto
-      drilled: true
-    steps:
-      - source: rout
-      - edging: selected
-      - finish: mto_before_drill
-      - drilling: warehouse_dpdrill
-      - finish: mto_after_drill
+    source_method: rout
+    destination: mto
 
   edged_oem_nested:
-    selector:
-      source_method: nest
-      destination: oem
-      drilled: false
-    steps:
-      - source: nest
-      - edging: selected
-      - drilling: none
-      - finish: oem
+    source_method: nest
+    destination: oem
 
   edged_oem_routed:
-    selector:
-      source_method: rout
-      destination: oem
-      drilled: false
-    steps:
-      - source: rout
-      - edging: selected
-      - drilling: none
-      - finish: oem
-
-  edged_oem_nested_drilled:
-    selector:
-      source_method: nest
-      destination: oem
-      drilled: true
-    steps:
-      - source: nest
-      - edging: selected
-      - drilling: production_ddrill
-      - finish: oem
-
-  edged_oem_routed_drilled:
-    selector:
-      source_method: rout
-      destination: oem
-      drilled: true
-    steps:
-      - source: rout
-      - edging: selected
-      - drilling: production_ddrill
-      - finish: oem
+    source_method: rout
+    destination: oem

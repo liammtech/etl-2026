@@ -1,10 +1,11 @@
-from workflows.bom.routings.jpull import create_jpull_routing
+from workflows.bom.routings.jpull import create_jpull_door_routing
 
 def test():
-    create_jpull_routing(
-        stock_code="JPULLCODE7",
+    create_jpull_door_routing(
+        stock_code="JAYL002",
         route=0,
-        edge_type="edged",
+        bottom_edge_type="wrapped",
         drilled=True,
-        destination="mto"
+        destination="oem",
+        production_drill_work_centre="DCYFLE"
     )

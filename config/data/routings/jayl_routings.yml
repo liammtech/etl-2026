@@ -2,201 +2,105 @@ fragments:
 
   source:
     stocked:
-      - work_centre: DJSAW
-        milestone: N
-      - work_centre: DJDET
-        milestone: Y
+      operations:
+        - work_centre: DJSAW
+          milestone: N
+        - work_centre: DJDET
+          milestone: Y
 
     mto:
-      - work_centre: DSAWC
-        milestone: N
-      - work_centre: DJDET
-        milestone: Y
+      operations:
+        - work_centre: DSAWC
+          milestone: N
+        - work_centre: DJDET
+          milestone: Y
 
   edging:
-    wrapped_bottom:
-      - work_centre: DEBAN2
-        milestone: Y
+    wrapped:
+      operations:
+        - work_centre: DEBAN2
+          milestone: Y
 
-    edged_bottom:
-      - work_centre: DEBAN3
-        milestone: Y
+    edged:
+      operations:
+        - work_centre: DEBAN3
+          milestone: Y
 
   shaping:
     standard:
-      - work_centre: DJSHAP
-        milestone: Y
+      operations:
+        - work_centre: DJSHAP
+          milestone: Y
 
   drilling:
-    production_ddrill:
-      - work_centre: DDRILL
-        milestone: Y
+    production_work_centres:
+      DBIESSE: BIESSE DRILL
+      DCYFLE: DRILL/GROOVE SCM CYFLEX F900 PRO
+      DDRILL: P&H DRILLING DEPARTMENT
+      DFAM: FAM RAIL DRILL
+      DMORBI: MORBIDELLI THROUGH FEED DRILL
+      DSPRIN: SPRINT - 5 PIECE
 
-    warehouse_dpdrill:
-      - work_centre: DPDRL
-        milestone: Y
+    production:
+      insert_after_prefix: DEBAN
+
+    mto:
+      work_centre: DPDRL
+      insert_after: DPCHK
 
   finish:
     stocked:
-      - work_centre: DSHRIN
-        milestone: Y
+      operations:
+        - work_centre: DSHRIN
+          milestone: Y
 
-    mto_before_drill:
-      - work_centre: DPPICK
-        milestone: Y
-      - work_centre: DPCHK
-        milestone: N
+    mto:
+      pre_drilling_ops:
+        - work_centre: DPPICK
+          milestone: Y
+        - work_centre: DPCHK
+          milestone: N
 
-    mto_after_drill:
-      - work_centre: DPPACK
-        milestone: Y
-      - work_centre: DPDESP
-        milestone: Y
+      post_drilling_ops:
+        - work_centre: DPPACK
+          milestone: Y
+        - work_centre: DPDESP
+          milestone: Y
 
     oem:
-      - work_centre: DPKDRB
-        milestone: Y
+      operations:
+        - work_centre: DPKDRB
+          milestone: Y
+
 
 templates:
 
   stocked_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: stocked
-      drilled: false
-    steps:
-      - source: stocked
-      - edging: wrapped_bottom
-      - shaping: standard
-      - finish: stocked
+    edge_type: wrapped
+    destination: stocked
+    source: stocked
 
   stocked_edged:
-    selector:
-      edge_type: edged
-      destination: stocked
-      drilled: false
-    steps:
-      - source: stocked
-      - edging: edged_bottom
-      - shaping: standard
-      - finish: stocked
-
-  stocked_predrilled_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: stocked
-      drilled: true
-    steps:
-      - source: stocked
-      - edging: wrapped_bottom
-      - shaping: standard
-      - drilling: production_ddrill
-      - finish: stocked
-
-  stocked_predrilled_edged:
-    selector:
-      edge_type: edged
-      destination: stocked
-      drilled: true
-    steps:
-      - source: stocked
-      - edging: edged_bottom
-      - shaping: standard
-      - drilling: production_ddrill
-      - finish: stocked
+    edge_type: edged
+    destination: stocked
+    source: stocked
 
   mto_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: mto
-      drilled: false
-    steps:
-      - source: mto
-      - edging: wrapped_bottom
-      - shaping: standard
-      - finish: mto_before_drill
-      - finish: mto_after_drill
+    edge_type: wrapped
+    destination: mto
+    source: mto
 
   mto_edged:
-    selector:
-      edge_type: edged
-      destination: mto
-      drilled: false
-    steps:
-      - source: mto
-      - edging: edged_bottom
-      - shaping: standard
-      - finish: mto_before_drill
-      - finish: mto_after_drill
-
-  mto_drilled_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: mto
-      drilled: true
-    steps:
-      - source: mto
-      - edging: wrapped_bottom
-      - shaping: standard
-      - finish: mto_before_drill
-      - drilling: warehouse_dpdrill
-      - finish: mto_after_drill
-
-  mto_drilled_edged:
-    selector:
-      edge_type: edged
-      destination: mto
-      drilled: true
-    steps:
-      - source: mto
-      - edging: edged_bottom
-      - shaping: standard
-      - finish: mto_before_drill
-      - drilling: warehouse_dpdrill
-      - finish: mto_after_drill
+    edge_type: edged
+    destination: mto
+    source: mto
 
   oem_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: oem
-      drilled: false
-    steps:
-      - source: stocked
-      - edging: wrapped_bottom
-      - shaping: standard
-      - finish: oem
+    edge_type: wrapped
+    destination: oem
+    source: stocked
 
   oem_edged:
-    selector:
-      edge_type: edged
-      destination: oem
-      drilled: false
-    steps:
-      - source: stocked
-      - edging: edged_bottom
-      - shaping: standard
-      - finish: oem
-
-  oem_drilled_wrapped:
-    selector:
-      edge_type: wrapped
-      destination: oem
-      drilled: true
-    steps:
-      - source: stocked
-      - edging: wrapped_bottom
-      - shaping: standard
-      - drilling: production_ddrill
-      - finish: oem
-
-  oem_drilled_edged:
-    selector:
-      edge_type: edged
-      destination: oem
-      drilled: true
-    steps:
-      - source: stocked
-      - edging: edged_bottom
-      - shaping: standard
-      - drilling: production_ddrill
-      - finish: oem
+    edge_type: edged
+    destination: oem
+    source: stocked

@@ -2,12 +2,13 @@ from workflows.bom.routings.edged import create_edged_door_routing
 
 def test():
     create_edged_door_routing(
-        stock_code="EDGEDCODE5",
-        route=5,
+        stock_code="EDGED002",
+        route=0,
         source_method="rout",
-        edge_count=4,
-        destination="mto",
-        drilled=False,
-        thickness="18mm",
-        pallet_type="standard_pallet"
+        edge_count=2,
+        destination="oem",
+        drilled=True,
+        thickness="16mm",
+        pallet_type="long_pallet",
+        production_drill_work_centre="DCYFLE"
     )

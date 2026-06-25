@@ -32,11 +32,18 @@ def create_edged_door_routing(
         "25mm",
     ],
     pallet_type: Literal["standard_pallet", "long_pallet"] = "standard_pallet",
+    production_drill_work_centre: Literal[
+        "DBIESSE",
+        "DCYFLE",
+        "DDRILL",
+        "DFAM",
+        "DMORBI",
+        "DSPRIN",
+    ] | None = None,
 ) -> None:
     template_name = get_edged_door_template_name(
         source_method=source_method,
         destination=destination,
-        drilled=drilled,
     )
 
     operations = resolve_edged_door_operations_template(
@@ -45,6 +52,8 @@ def create_edged_door_routing(
             "thickness": thickness,
             "edge_count": str(edge_count),
             "pallet_type": pallet_type,
+            "drilled": drilled,
+            "production_drill_work_centre": production_drill_work_centre,
         },
     )
 

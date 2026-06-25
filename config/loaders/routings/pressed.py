@@ -7,7 +7,7 @@ from typing import Any, Literal
 import yaml
 
 
-CONFIG_PATH = Path("config/routings/pressed.yml")
+CONFIG_PATH = Path("config/data/routings/memp_routings.yml")
 
 
 Construction = Literal["standard", "plant_on", "plant_in"]

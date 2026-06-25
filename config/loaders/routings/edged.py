@@ -10,40 +10,39 @@ EDGED_DOORS_ROUTINGS_PATH = Path(
 )
 
 
+SourceMethod = Literal["nest", "rout"]
+Destination = Literal["stocked", "mto", "oem"]
+ProductionDrillWorkCentre = Literal[
+    "DBIESSE",
+    "DCYFLE",
+    "DDRILL",
+    "DFAM",
+    "DMORBI",
+    "DSPRIN",
+]
+
+
 def get_edged_door_template_name(
     *,
-    source_method: str,
-    destination: str,
-    drilled: bool,
+    source_method: SourceMethod,
+    destination: Destination,
 ) -> str:
-    config = load_edged_door_routings_config()
-    templates = config["templates"]
+    template_names = {
+        ("nest", "stocked"): "edged_stocked_nested",
+        ("rout", "stocked"): "edged_stocked_routed",
+        ("nest", "mto"): "edged_mto_nested",
+        ("rout", "mto"): "edged_mto_routed",
+        ("nest", "oem"): "edged_oem_nested",
+        ("rout", "oem"): "edged_oem_routed",
+    }
 
-    matches = []
-
-    for template_name, template in templates.items():
-        selector = template.get("selector", {})
-
-        if selector == {
-            "source_method": source_method,
-            "destination": destination,
-            "drilled": drilled,
-        }:
-            matches.append(template_name)
-
-    if not matches:
+    try:
+        return template_names[(source_method, destination)]
+    except KeyError:
         raise ValueError(
-            f"No edged door routing template found for "
-            f"{source_method=}, {destination=}, {drilled=}"
+            "Unsupported edged door routing combination: "
+            f"{source_method=}, {destination=}"
         )
-
-    if len(matches) > 1:
-        raise ValueError(
-            f"Multiple edged door routing templates found for "
-            f"{source_method=}, {destination=}, {drilled=}: {matches}"
-        )
-
-    return matches[0]
 
 
 @lru_cache
@@ -63,61 +62,166 @@ def load_edged_door_routings_config() -> dict[str, Any]:
     return data
 
 
+def _resolve_operation(
+    *,
+    operation: dict[str, Any],
+    context: dict[str, Any],
+    fragments: dict[str, Any],
+) -> dict[str, Any] | None:
+    if "work_centre" in operation:
+        return operation.copy()
+
+    if "work_centre_from_context" not in operation:
+        raise ValueError(
+            "Operation must contain either 'work_centre' or "
+            "'work_centre_from_context'."
+        )
+
+    context_key = operation["work_centre_from_context"]
+    lookup_name = operation["lookup"]
+
+    if context_key not in context:
+        raise ValueError(f"Missing context value: {context_key!r}")
+
+    context_value = context[context_key]
+
+    try:
+        work_centre = fragments[lookup_name][context_value]
+    except KeyError:
+        raise ValueError(
+            f"Unsupported {context_key!r} value {context_value!r} "
+            f"for lookup {lookup_name!r}."
+        ) from None
+
+    if work_centre is None and operation.get("skip_if_null"):
+        return None
+
+    resolved = operation.copy()
+    resolved.pop("work_centre_from_context")
+    resolved.pop("lookup")
+    resolved.pop("skip_if_null", None)
+    resolved["work_centre"] = work_centre
+
+    return resolved
+
+
 def _get_fragment_operations(
     *,
     fragment: dict[str, Any],
-    context: dict[str, str],
+    context: dict[str, Any],
+    fragments: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    if "operations" in fragment:
-        operations = fragment["operations"]
+    operations = fragment.get("operations")
 
-        if not isinstance(operations, list):
-            raise ValueError("'operations' must be a list.")
+    if not isinstance(operations, list):
+        raise ValueError("Fragment must contain an 'operations' list.")
 
-        return operations
+    resolved_operations = []
 
-    if "variants" in fragment:
-        variants = fragment["variants"]
-
-        if not isinstance(variants, dict):
-            raise ValueError("'variants' must be a mapping.")
-
-        if len(variants) != 1:
-            raise ValueError(
-                "Only one variant selector per fragment is currently supported."
-            )
-
-        variant_key, variant_options = next(iter(variants.items()))
-
-        if variant_key not in context:
-            raise ValueError(
-                f"Fragment requires context value {variant_key!r}."
-            )
-
-        selected_value = context[variant_key]
-
-        if selected_value not in variant_options:
-            raise ValueError(
-                f"Unsupported {variant_key!r} value {selected_value!r}. "
-                f"Valid values are: {sorted(variant_options)}"
-            )
-
-        selected_fragment = variant_options[selected_value]
-
-        return _get_fragment_operations(
-            fragment=selected_fragment,
+    for operation in operations:
+        resolved_operation = _resolve_operation(
+            operation=operation,
             context=context,
+            fragments=fragments,
         )
 
+        if resolved_operation is not None:
+            resolved_operations.append(resolved_operation)
+
+    return resolved_operations
+
+
+def _insert_after_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    insert_after: str,
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == insert_after:
+            operations.insert(index + 1, operation_to_insert)
+            return operations
+
     raise ValueError(
-        "Fragment must contain either 'operations' or 'variants'."
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{insert_after!r} is not present in resolved operations."
+    )
+
+
+def _insert_after_work_centre_prefix(
+    *,
+    operations: list[dict[str, Any]],
+    insert_after_prefix: str,
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"].startswith(insert_after_prefix):
+            operations.insert(index + 1, operation_to_insert)
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"no work centre starts with {insert_after_prefix!r}."
+    )
+
+
+def _apply_drilling(
+    *,
+    operations: list[dict[str, Any]],
+    destination: Destination,
+    drilled: bool,
+    production_drill_work_centre: ProductionDrillWorkCentre | None,
+    fragments: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not drilled:
+        return operations
+
+    drilling_config = fragments["drilling"]
+
+    if destination == "mto":
+        mto_drilling = drilling_config["mto"]
+
+        return _insert_after_work_centre(
+            operations=operations,
+            insert_after=mto_drilling["insert_after"],
+            operation_to_insert={
+                "work_centre": mto_drilling["work_centre"],
+                "milestone": "Y",
+            },
+        )
+
+    if production_drill_work_centre is None:
+        raise ValueError(
+            "production_drill_work_centre is required for drilled "
+            "non-MTO edged doors."
+        )
+
+    if production_drill_work_centre not in drilling_config["production_work_centres"]:
+        raise ValueError(
+            "Unsupported production drill work centre: "
+            f"{production_drill_work_centre!r}"
+        )
+
+    production_drilling = drilling_config["production"]
+
+    return _insert_after_work_centre_prefix(
+        operations=operations,
+        insert_after_prefix=production_drilling["insert_after_prefix"],
+        operation_to_insert={
+            "work_centre": production_drill_work_centre,
+            "milestone": "Y",
+        },
     )
 
 
 def resolve_edged_door_operations_template(
     *,
     template_name: str,
-    context: dict[str, str],
+    context: dict[str, Any],
 ) -> list[dict[str, Any]]:
     config = load_edged_door_routings_config()
 
@@ -131,35 +235,63 @@ def resolve_edged_door_operations_template(
         )
 
     template = templates[template_name]
-    steps = template.get("steps")
 
-    if not isinstance(steps, list):
-        raise ValueError(
-            f"Template {template_name!r} must contain a 'steps' list."
-        )
+    source_method = template["source_method"]
+    destination = template["destination"]
 
     resolved_ops: list[dict[str, Any]] = []
 
-    for step in steps:
-        if not isinstance(step, dict) or len(step) != 1:
-            raise ValueError(
-                f"Invalid step in template {template_name!r}: {step!r}"
-            )
+    source_fragment = fragments["source"][source_method]
+    resolved_ops.extend(
+        _get_fragment_operations(
+            fragment=source_fragment,
+            context=context,
+            fragments=fragments,
+        )
+    )
 
-        fragment_group, fragment_name = next(iter(step.items()))
+    edging_fragment = fragments["edging"]
+    resolved_ops.extend(
+        _get_fragment_operations(
+            fragment=edging_fragment,
+            context=context,
+            fragments=fragments,
+        )
+    )
 
-        try:
-            fragment = fragments[fragment_group][fragment_name]
-        except KeyError:
-            raise ValueError(
-                f"Template {template_name!r} references unknown fragment "
-                f"{fragment_group}.{fragment_name!r}."
-            ) from None
+    finish_fragment = fragments["finish"][destination]
+
+    if destination == "mto":
+        resolved_ops.extend(finish_fragment["pre_drilling_ops"])
+
+        resolved_ops = _apply_drilling(
+            operations=resolved_ops,
+            destination=destination,
+            drilled=bool(context.get("drilled", False)),
+            production_drill_work_centre=context.get(
+                "production_drill_work_centre"
+            ),
+            fragments=fragments,
+        )
+
+        resolved_ops.extend(finish_fragment["post_drilling_ops"])
+
+    else:
+        resolved_ops = _apply_drilling(
+            operations=resolved_ops,
+            destination=destination,
+            drilled=bool(context.get("drilled", False)),
+            production_drill_work_centre=context.get(
+                "production_drill_work_centre"
+            ),
+            fragments=fragments,
+        )
 
         resolved_ops.extend(
             _get_fragment_operations(
-                fragment=fragment,
+                fragment=finish_fragment,
                 context=context,
+                fragments=fragments,
             )
         )
 
