@@ -164,6 +164,68 @@ def _insert_after(
     return operations
 
 
+def _insert_before_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    insert_before: str | list[str],
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """
+    Insert an operation immediately after a specific work centre.
+
+    A shallow copy of the operations list is created so that the original
+    sequence remains unchanged. The first operation whose work centre
+    exactly matches ``insert_before`` is used as the insertion point.
+
+    An error is raised if the target work centre is not present, helping to
+    detect configuration drift between insertion rules and routing
+    fragments.
+    """
+
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == insert_before or operation["work_centre"] in insert_before:
+            operations.insert(index, operation_to_insert)
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{insert_before!r} is not present in resolved operations."
+    )
+
+
+def _replace_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    replace: str | list[str],
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """
+    Replace a specific work centre.
+
+    A shallow copy of the operations list is created so that the original
+    sequence remains unchanged. The first operation whose work centre
+    exactly matches ``replace`` is used as the insertion point.
+
+    An error is raised if the target work centre is not present, helping to
+    detect configuration drift between insertion rules and routing
+    fragments.
+    """
+
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == replace or operation["work_centre"] in replace:
+            operations[index] = operation_to_insert
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{replace!r} is not present in resolved operations."
+    )
+
+
 def _resolve_saw_operations(
     *,
     construction_fragment: dict[str, Any],
