@@ -133,6 +133,15 @@ def _get_destination_fragment(
         raise ValueError(f"Unsupported pressed door destination: {destination!r}")
 
 
+def _get_packaging_fragment() -> dict[str, Any]:
+    config = load_pressed_door_routings_config()
+
+    try:
+        return config["fragments"]["packaging"]
+    except KeyError:
+        raise ValueError(f"Could not locate packaging config")
+
+
 def _get_template(
     *,
     template_name: str,
@@ -166,11 +175,13 @@ def _insert_after(
 
 def _insert_before_work_centre(
     *,
-    operations: list[dict[str, Any]],
+    operations: list[Any],
     insert_before: str | list[str],
     operation_to_insert: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """
+    TODO: Line this up with the format of J and Edged: operations should be Dict type with milestones
+
     Insert an operation immediately after a specific work centre.
 
     A shallow copy of the operations list is created so that the original
@@ -185,7 +196,7 @@ def _insert_before_work_centre(
     operations = operations.copy()
 
     for index, operation in enumerate(operations):
-        if operation["work_centre"] == insert_before or operation["work_centre"] in insert_before:
+        if operation == insert_before or operation in insert_before:
             operations.insert(index, operation_to_insert)
             return operations
 
@@ -264,6 +275,7 @@ def _apply_drilling(
     operations: list[str],
     destination: str,
     drilled: bool,
+    packaged: bool,
     production_drill_work_centre: str | None = None,
     production_drill_position: DrillPosition | None = None,
 ) -> list[str]:
@@ -273,7 +285,7 @@ def _apply_drilling(
     config = load_pressed_door_routings_config()
     drilling = config["fragments"]["drilling"]
 
-    if destination == "mto":
+    if destination == "mto" and not packaged:
         mto_drilling = drilling["mto"]
 
         return _insert_after(
@@ -308,14 +320,72 @@ def _apply_drilling(
     )
 
 
+def _apply_packaging(
+    *,
+    operations: list[dict[str, Any]],
+    destination: Destination,
+    packaged: bool,
+    packaging_work_centre: PackagingWorkCentre | None
+) -> list[dict[str, Any]]:
+    print(f"\nOperations are: {operations}")
+    
+    if not packaged:
+        return operations
+    
+    packaging_config = _get_packaging_fragment()
+
+    if destination == "stocked":
+        mto_packaging = packaging_config["stocked"]
+        print(f"\nHere 1")
+
+        return _replace_work_centre(
+            operations=operations,
+            replace=mto_packaging["replace"],
+            operation_to_insert=packaging_work_centre
+        )
+    
+    elif destination == "mto":
+        mto_packaging = packaging_config["mto"]
+        print(f"\nHere 2")
+
+        return _insert_before_work_centre(
+            operations=operations,
+            insert_before=mto_packaging["insert_before"],
+            operation_to_insert=packaging_work_centre
+        )
+    elif destination == "industrial":
+        mto_packaging = packaging_config["oem"]
+        print(f"\nHere 3")
+
+        return _insert_before_work_centre(
+            operations=operations,
+            insert_before=mto_packaging["insert_before"],
+            operation_to_insert=packaging_work_centre
+        )
+    
+    if packaging_work_centre is None:
+        raise ValueError(
+            "packaging_work_centre is required for drilled "
+            "non-MTO edged doors."
+        )
+    
+    if packaging_work_centre not in packaging_config["packaging_work_centres"]:
+        raise ValueError(
+            "Unsupported production packaging work centre: "
+            f"{packaging_work_centre!r}"
+        )
+
+
 def resolve_pressed_door_operations_template(
     *,
     template_name: str,
     main_thickness: int,
     overlay_thickness: int | None = None,
     drilled: bool = False,
+    packaged: bool = False,
     production_drill_work_centre: str | None = None,
     production_drill_position: DrillPosition | None = None,
+    packaging_work_centre: str | None = None,
 ) -> list[str]:
     template = _get_template(template_name=template_name)
 
@@ -345,13 +415,24 @@ def resolve_pressed_door_operations_template(
         operations=operations,
         destination=destination,
         drilled=drilled,
+        packaged=packaged,
         production_drill_work_centre=production_drill_work_centre,
         production_drill_position=production_drill_position,
     )
+
+    operations = _apply_packaging(
+            operations=operations,
+            destination=destination,
+            packaged=packaged,
+            packaging_work_centre=packaging_work_centre,
+        )
 
     if destination == "mto":
         operations.extend(destination_fragment["post_drilling_ops"])
     else:
         operations.extend(destination_fragment["ending_ops"])
 
+    print("\n========================== OPERATIONS HERE ===================================\n")
+    print(operations)
+    print("\n========================== OPERATIONS END ===================================\n")
     return operations

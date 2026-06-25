@@ -16,6 +16,7 @@ def create_pressed_door_routing(
     destination: Literal["industrial", "stocked", "mto"],
     main_thickness: int,
     drilled: bool,
+    packaged: bool,
     overlay_thickness: int | None = None,
     production_drill_work_centre: Literal[
         "DBIESSE",
@@ -26,6 +27,11 @@ def create_pressed_door_routing(
         "DSPRIN",
     ] | None = None,
     production_drill_position: Literal["pre_press", "post_press"] | None = None,
+    packaging_work_centre: Literal[
+        "DCPKU1",
+        "DCPKU2",
+        "DPACKM",
+    ]
 ) -> None:
     template_name = get_pressed_door_template_name(
         construction=construction,
@@ -37,8 +43,10 @@ def create_pressed_door_routing(
         main_thickness=main_thickness,
         overlay_thickness=overlay_thickness,
         drilled=drilled,
+        packaged=packaged,
         production_drill_work_centre=production_drill_work_centre,
         production_drill_position=production_drill_position,
+        packaging_work_centre=packaging_work_centre,
     )
 
     rows = [
