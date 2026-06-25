@@ -13,6 +13,11 @@ CONFIG_PATH = Path("config/data/routings/memp_routings.yml")
 Construction = Literal["standard", "plant_on", "plant_in"]
 Destination = Literal["industrial", "stocked", "mto"]
 DrillPosition = Literal["pre_press", "post_press"]
+PackagingWorkCentre = Literal[
+    "DCPKU1",
+    "DCPKU2",
+    "DPACKM",
+]
 
 
 def get_pressed_door_template_name(

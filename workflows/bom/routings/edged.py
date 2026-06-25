@@ -16,6 +16,7 @@ def create_edged_door_routing(
     edge_count: Literal[0, 1, 2, 3, 4],
     destination: Literal["stocked", "mto", "oem"],
     drilled: bool,
+    packaged: bool,
     thickness: Literal[
         "3mm",
         "4mm",
@@ -40,6 +41,11 @@ def create_edged_door_routing(
         "DMORBI",
         "DSPRIN",
     ] | None = None,
+    packaging_work_centre: Literal[
+        "DCPKU1",
+        "DCPKU2",
+        "DPACKM",
+    ]
 ) -> None:
     template_name = get_edged_door_template_name(
         source_method=source_method,
@@ -53,7 +59,9 @@ def create_edged_door_routing(
             "edge_count": str(edge_count),
             "pallet_type": pallet_type,
             "drilled": drilled,
+            "packaged": packaged,
             "production_drill_work_centre": production_drill_work_centre,
+            "packaging_work_centre": packaging_work_centre,
         },
     )
 

@@ -15,6 +15,7 @@ def create_jpull_door_routing(
     bottom_edge_type: Literal["wrapped", "edged"],
     destination: Literal["stocked", "mto", "oem"],
     drilled: bool,
+    packaged: bool,
     production_drill_work_centre: Literal[
         "DBIESSE",
         "DCYFLE",
@@ -23,6 +24,11 @@ def create_jpull_door_routing(
         "DMORBI",
         "DSPRIN",
     ] | None = None,
+    packaging_work_centre: Literal[
+        "DCPKU1",
+        "DCPKU2",
+        "DPACKM",
+    ]
 ) -> None:
     template_name = get_jpull_template_name(
         bottom_edge_type=bottom_edge_type,
@@ -33,7 +39,9 @@ def create_jpull_door_routing(
         template_name=template_name,
         context={
             "drilled": drilled,
+            "packaged": packaged,
             "production_drill_work_centre": production_drill_work_centre,
+            "packaging_work_centre": packaging_work_centre,
         },
     )
 

@@ -48,6 +48,23 @@ fragments:
       work_centre: DPDRL
       insert_after: DPCHK
 
+  packaging:
+    packaging_work_centres:
+      DCPKU1: CARTON PACKING - UNIT 1
+      DCPKU2: CARTON PACKING - UNIT 2
+      DPACKM: LAYFLAT PACKING PROFILES
+
+    stocked:
+      replace: DSHRIN
+
+    mto:
+      insert_before: DPPICK
+
+    oem:
+      insert_before: 
+        - DPKDRB
+        - DPALPK
+
   finish:
     stocked:
       operations:

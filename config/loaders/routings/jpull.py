@@ -18,6 +18,11 @@ ProductionDrillWorkCentre = Literal[
     "DMORBI",
     "DSPRIN",
 ]
+PackagingWorkCentre = Literal[
+    "DCPKU1",
+    "DCPKU2",
+    "DPACKM",
+]
 
 
 def get_jpull_template_name(
@@ -119,35 +124,128 @@ def _insert_after_work_centre_prefix(
     )
 
 
+def _insert_before_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    insert_before: str | list[str],
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """
+    Insert an operation immediately after a specific work centre.
+
+    A shallow copy of the operations list is created so that the original
+    sequence remains unchanged. The first operation whose work centre
+    exactly matches ``insert_before`` is used as the insertion point.
+
+    An error is raised if the target work centre is not present, helping to
+    detect configuration drift between insertion rules and routing
+    fragments.
+    """
+
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == insert_before or operation["work_centre"] in insert_before:
+            operations.insert(index, operation_to_insert)
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{insert_before!r} is not present in resolved operations."
+    )
+
+
+def _replace_work_centre(
+    *,
+    operations: list[dict[str, Any]],
+    replace: str | list[str],
+    operation_to_insert: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """
+    Replace a specific work centre.
+
+    A shallow copy of the operations list is created so that the original
+    sequence remains unchanged. The first operation whose work centre
+    exactly matches ``replace`` is used as the insertion point.
+
+    An error is raised if the target work centre is not present, helping to
+    detect configuration drift between insertion rules and routing
+    fragments.
+    """
+
+    operations = operations.copy()
+
+    for index, operation in enumerate(operations):
+        if operation["work_centre"] == replace or operation["work_centre"] in replace:
+            operations[index] = operation_to_insert
+            return operations
+
+    raise ValueError(
+        f"Cannot insert {operation_to_insert['work_centre']!r}; "
+        f"{replace!r} is not present in resolved operations."
+    )
+
+
 def _apply_drilling(
     *,
     operations: list[dict[str, Any]],
     destination: Destination,
     drilled: bool,
+    packaged: bool,
     production_drill_work_centre: ProductionDrillWorkCentre | None,
     fragments: dict[str, Any],
 ) -> list[dict[str, Any]]:
+    """
+    Apply drilling operations to a resolved routing sequence.
+
+    If drilling is not required, the operations are returned unchanged.
+    Otherwise, the insertion strategy depends on the destination type:
+
+    - MTO doors always use a fixed drilling work centre defined in the
+    configuration and insert it at a specific point in the process.
+
+    - Stocked and OEM doors require a production drilling work centre to be
+    supplied at runtime. The selected work centre is validated against the
+    configured list of supported machines before being inserted after the
+    appropriate production-stage prefix.
+
+    The returned list contains the original operations with any required
+    drilling step inserted as a milestone operation.
+    """
+
     if not drilled:
         return operations
 
     drilling_config = fragments["drilling"]
 
-    if destination == "mto":
-        mto_drilling = drilling_config["mto"]
+    production_drilling = drilling_config["production"]
 
-        return _insert_after_work_centre(
-            operations=operations,
-            insert_after=mto_drilling["insert_after"],
-            operation_to_insert={
-                "work_centre": mto_drilling["work_centre"],
-                "milestone": "Y",
-            },
-        )
+    if destination == "mto":
+        if packaged:
+            return _insert_after_work_centre_prefix(
+                operations=operations,
+                insert_after_prefix=production_drilling["insert_after_prefix"],
+                operation_to_insert={
+                    "work_centre": production_drill_work_centre,
+                    "milestone": "Y",
+                },
+            )
+        else:
+            mto_drilling = drilling_config["mto"]
+
+            return _insert_after_work_centre(
+                operations=operations,
+                insert_after=mto_drilling["insert_after"],
+                operation_to_insert={
+                    "work_centre": mto_drilling["work_centre"],
+                    "milestone": "Y",
+                },
+            )
 
     if production_drill_work_centre is None:
         raise ValueError(
             "production_drill_work_centre is required for drilled "
-            "non-MTO J-Pull doors."
+            "non-MTO edged doors."
         )
 
     if production_drill_work_centre not in drilling_config["production_work_centres"]:
@@ -155,8 +253,6 @@ def _apply_drilling(
             "Unsupported production drill work centre: "
             f"{production_drill_work_centre!r}"
         )
-
-    production_drilling = drilling_config["production"]
 
     return _insert_after_work_centre_prefix(
         operations=operations,
@@ -166,6 +262,68 @@ def _apply_drilling(
             "milestone": "Y",
         },
     )
+
+
+def _apply_packaging(
+    *,
+    operations: list[dict[str, Any]],
+    destination: Destination,
+    packaged: bool,
+    packaging_work_centre: PackagingWorkCentre | None,
+    fragments: dict[str, Any],
+) -> list[dict[str, Any]]:
+    
+    if not packaged:
+        return operations
+    
+    packaging_config = fragments["packaging"]
+
+    if destination == "stocked":
+        mto_packaging = packaging_config["stocked"]
+
+        return _replace_work_centre(
+            operations=operations,
+            replace=mto_packaging["replace"],
+            operation_to_insert={
+                "work_centre": packaging_work_centre,
+                "milestone": "Y",
+            },
+        )
+    
+    elif destination == "mto":
+        mto_packaging = packaging_config["mto"]
+
+        return _insert_before_work_centre(
+            operations=operations,
+            insert_before=mto_packaging["insert_before"],
+            operation_to_insert={
+                "work_centre": packaging_work_centre,
+                "milestone": "Y",
+            },
+        )
+    elif destination == "oem":
+        mto_packaging = packaging_config["oem"]
+
+        return _insert_before_work_centre(
+            operations=operations,
+            insert_before=mto_packaging["insert_before"],
+            operation_to_insert={
+                "work_centre": packaging_work_centre,
+                "milestone": "Y",
+            },
+        )
+    
+    if packaging_work_centre is None:
+        raise ValueError(
+            "packaging_work_centre is required for drilled "
+            "non-MTO edged doors."
+        )
+    
+    if packaging_work_centre not in packaging_config["packaging_work_centres"]:
+        raise ValueError(
+            "Unsupported production packaging work centre: "
+            f"{packaging_work_centre!r}"
+        )
 
 
 def resolve_jpull_operations_template(
@@ -221,6 +379,7 @@ def resolve_jpull_operations_template(
             operations=resolved_ops,
             destination=destination,
             drilled=bool(context.get("drilled", False)),
+            packaged=bool(context.get("packaged", False)),
             production_drill_work_centre=context.get(
                 "production_drill_work_centre"
             ),
@@ -236,6 +395,7 @@ def resolve_jpull_operations_template(
             operations=resolved_ops,
             destination=destination,
             drilled=bool(context.get("drilled", False)),
+            packaged=bool(context.get("packaged", False)),
             production_drill_work_centre=context.get(
                 "production_drill_work_centre"
             ),
@@ -247,6 +407,16 @@ def resolve_jpull_operations_template(
                 fragment=finish_fragment,
             )
         )
+
+    resolved_ops = _apply_packaging(
+        operations=resolved_ops,
+        destination=destination,
+        packaged=bool(context.get("packaged", False)),
+        packaging_work_centre=context.get(
+            "packaging_work_centre"
+        ),
+        fragments=fragments,
+    )
 
     return [
         {
