@@ -15,11 +15,11 @@ def load_all_routing_templates() -> dict[str, list[dict]]:
     for filepath in ROUTINGS_DIR.glob("*.yml"):
         data = load_yaml(config_filepath=str(filepath))
 
-        duplicates = set(data) & set(templates)
-        if duplicates:
-            raise ValueError(
-                f"Duplicate routing template names found: {duplicates}"
-            )
+        # duplicates = set(data) & set(templates)
+        # if duplicates:
+        #     raise ValueError(
+        #         f"Duplicate routing template names found: {duplicates}"
+        #     )
 
         templates.update(data)
 
