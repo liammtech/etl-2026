@@ -24,12 +24,12 @@ def defrag_routing(
             "StockCode": stock_code,
             "Route": route
         },
-        return_columns={
+        return_columns=[
             "Operation"
-        }
+        ]
     )
 
-    op_nums = [int(i) for list in op_nums for i in list]
+    op_nums = [int(i) for list in op_nums for i in list] # type: ignore
     op_nums.sort()
 
     mapping = build_op_num_mapping(op_nums=op_nums)
@@ -78,7 +78,7 @@ def defrag_routing_multiple(
 
 def get_next_op_number(
     stock_code: str,
-    route: str = 0
+    route: str = "0"
 ) -> int:
     op_nums = sql.get_multiple_records(
         table="BomOperations",
@@ -86,47 +86,17 @@ def get_next_op_number(
             "StockCode": stock_code,
             "Route": route
         },
-        return_columns={
+        return_columns=[
             "Operation"
-        }
+        ]
     )
 
-    op_nums = [int(i) for list in op_nums for i in list]
+    op_nums = [int(i) for list in op_nums for i in list] # type: ignore
     op_nums.sort()
 
     next_op = op_nums[-1] + 1
 
     return next_op
-
-
-def check_if_work_centre_in_routing(
-    stock_code: str,
-    route: str,
-    work_centre: str
-) -> bool:
-    """
-    Check if a given work centre is present within the operations list for
-    a stock code in a particular route.
-
-    Args:
-        stock_code: The stock code to check
-        route: The operations routing to check
-        work_centre: The work centre being checked to see if it is present
-
-    Returns:
-        bool: True if work centre is present, otherwise False
-    """
-
-    query_result = sql.get_single_record(
-        table="BomOperations",
-        criteria={
-            "StockCode": stock_code,
-            "Route": route,
-            "WorkCentre": work_centre
-        }
-    )
-
-    return True if query_result else False
 
 
 def check_if_work_centre_in_routing(
@@ -206,7 +176,7 @@ def insert_operation(
             print(f"{stock_code}: no {after_work_centre} work centre found in route {route}, skipping...")
             return
 
-        op_number = prev_op + 1
+        op_number = prev_op + 1 # type: ignore
 
     shift_from = op_number
 
@@ -222,10 +192,12 @@ def insert_operation(
     )
         
     op_row = build_bomoperations_row(
-        stock_code=stock_code,
-        route=route,
-        operation=op_number,
-        work_centre=work_centre
+        values={
+            "StockVode": stock_code,
+            "Route": route,
+            "Operation": op_number,
+            "WorkCentre": work_centre
+        }
     )
 
     sql.append_single_record(
