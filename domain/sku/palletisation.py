@@ -45,6 +45,7 @@ def _determine_sku_type(
         case _:
             return "invalid"
     
+    
 def determine_door_pallet(
     stock_code: str
 ) -> str:
