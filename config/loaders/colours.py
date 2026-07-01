@@ -9,7 +9,7 @@ def get_colour_from_prefix(
 ) -> str:
     """Get a colour name/value from a SKU prefix."""
     return get_value_from_grouped_yaml(
-        config_filepath="config/validation/colour_prefixes.yml",
+        config_filepath="config/data/validation/colour_prefixes.yml",
         lookup_key=sku_prefix,
         group_name=table_name,
         group_suffix="_colours",

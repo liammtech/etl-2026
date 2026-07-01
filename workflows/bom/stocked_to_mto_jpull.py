@@ -260,8 +260,10 @@ def switch_jpull_stocked_to_mto(stock_code: str):
     # 7. Add in PK0170 label to op 1 (non-kit issue)
 
     PK0170_row = build_bomstructure_row(
-        parent_part=stock_code,
-        component="PK0170",
+        values={
+            "ParentPart": stock_code,
+            "Component": "PK0170"
+        },
         overlays={
             "QtyPer": "1",
             "QtyPerEnt": "1",

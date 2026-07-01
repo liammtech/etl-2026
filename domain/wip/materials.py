@@ -6,7 +6,7 @@ from decimal import Decimal
 
 @lru_cache
 def load_wip_material_uom_flags() -> dict[str, dict[str, str]]:
-    with open("config/wip/material_uom_flags.yml", "r", encoding="utf-8") as f:
+    with open("config/data/wip/material_uom_flags.yml", "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
 
     return data["wip_material_uom_flags"]

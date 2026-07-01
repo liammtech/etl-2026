@@ -167,7 +167,7 @@ def populate_waterford_m2ms() -> None:
         # - - -
         # Centre ZLAM
         centre_panel_zlam = get_material_via_range_colour(
-            range="waterford",
+            product_range="waterford",
             material="centre_panel_zlam",
             colour=door_colour
         )
@@ -197,7 +197,7 @@ def populate_waterford_m2ms() -> None:
         # Height stile
 
         height_stile_suffix = get_material_via_dimension(
-            range="waterford",
+            product_range="waterford",
             material="height_stile_suffix",
             dimension=str(int(door_height))
         )
@@ -223,7 +223,7 @@ def populate_waterford_m2ms() -> None:
             )
         else:
             width_rail_suffix = get_config_constant_value(
-                config_filepath="config/materials/waterford_materials.yml",
+                config_filepath="config/data/materials/waterford_materials.yml",
                 lookup_key="m2m_rail_suffix"
             )
 
@@ -239,7 +239,7 @@ def populate_waterford_m2ms() -> None:
         # Hotfoil
 
         hotfoil = get_material_via_range_colour(
-            range="waterford",
+            product_range="waterford",
             material="hotfoil",
             colour=door_colour
         )
@@ -255,7 +255,7 @@ def populate_waterford_m2ms() -> None:
 
         # MS113
         dowel = get_config_constant_value(
-            config_filepath="config/materials/waterford_materials.yml",
+            config_filepath="config/data/materials/waterford_materials.yml",
             lookup_key="dowel"
         )
 
@@ -268,7 +268,7 @@ def populate_waterford_m2ms() -> None:
 
         # GL085
         dowel_glue = get_config_constant_value(
-            config_filepath="config/materials/waterford_materials.yml",
+            config_filepath="config/data/materials/waterford_materials.yml",
             lookup_key="dowel_glue"            
         )
 
@@ -281,7 +281,7 @@ def populate_waterford_m2ms() -> None:
 
         # GL105
         silicon = get_config_constant_value(
-            config_filepath="config/materials/waterford_materials.yml",
+            config_filepath="config/data/materials/waterford_materials.yml",
             lookup_key="silicon"            
         )
 
@@ -294,7 +294,7 @@ def populate_waterford_m2ms() -> None:
 
         # Label
         label = get_config_constant_value(
-            config_filepath="config/materials/packaging_materials.yml",
+            config_filepath="config/data/materials/packaging_materials.yml",
             lookup_key="standard_dn_label"            
         )
 
