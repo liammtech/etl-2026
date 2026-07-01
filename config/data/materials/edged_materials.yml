@@ -1,0 +1,13 @@
+edged_materials:
+  board:
+    zlam: "ZLAM*"
+    mfc: "MFC*"
+    alvic: "ALV*"
+  edging:
+    edging_new: "EDGE*"
+    edging_old: "P*/*/*"
+  edging_glue: "GL069"
+
+zlam_materials:
+  mdf_board: "MDF*"
+  foil: "PV*" 

@@ -1,0 +1,10 @@
+jpull_materials:
+  bar: "MPJ*"
+  edging:
+    edging_new: "EDGE*"
+    edging_old: "P*/*/*"
+  edging_glue: "GL069"
+
+jpull_bar_materials:
+  mel_board: "MEL*"
+  foil: "PV*"

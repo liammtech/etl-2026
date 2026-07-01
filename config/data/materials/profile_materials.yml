@@ -1,0 +1,8 @@
+profile_materials:
+  board: "MDF*"
+  glue_thin_foil: "GL017"
+  glue_thick_foil: "GL002"
+  foil: "GL002"
+
+glue_and_mould_materials:
+  glue_and_mould_glue: "GL[TBC]"

@@ -1,0 +1,4 @@
+cabinet_materials:
+  mfc_board: "MFC"
+  edging: "EDGE*"
+  edging_glue: "GL069"
